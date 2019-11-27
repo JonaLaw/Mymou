@@ -226,7 +226,7 @@ public class TaskTrainingFiveTwoStep extends Task {
             }
 
             // Pick next reward update
-            next_rew_change = trial_counter + prefManager.ts_rew_change_interval;
+            next_rew_change = trial_counter + prefManager. ts_rew_change_interval;
             callback.logEvent_("10," + c2_1_rew_percent + "," + c2_2_rew_percent + "," + (next_rew_change - trial_counter) + ",, rewards changed");
         }
     }
