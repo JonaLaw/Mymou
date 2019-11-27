@@ -158,8 +158,10 @@ public class TaskTrainingFiveTwoStep extends Task {
                     break;
                 case id_c2_1:
                     outcomeStage(id_c2_1);
+                    break;
                 case id_c2_2:
                     outcomeStage(id_c2_2);
+                    break;
             }
         }
     };
@@ -262,6 +264,7 @@ public class TaskTrainingFiveTwoStep extends Task {
         int roll = r.nextInt(100);
         callback.logEvent_("reward roll," + c2_pressed + "," + percent_needed+ "," + roll);
         if (roll < percent_needed) {
+            callback.takePhotoFromTask_();  // Also take photo when they are rewarded
             callback.giveRewardFromTask_(prefManager.ts_trial_reward_amount);
             background.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.blue));
         } else {
