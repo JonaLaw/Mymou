@@ -1,10 +1,12 @@
 package mymou.Utils;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -120,6 +122,18 @@ public class UtilsSystem {
 
     }
 
+    public static void setBrightness(boolean bool, Context mContext) {
+        if (Settings.System.canWrite(mContext)) {
+            int brightness;
+            if (bool) {
+                brightness = 255;
+            } else {
+                brightness = 0;
+            }
+            ContentResolver cResolver = mContext.getContentResolver();
+            Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
+        }
+    }
 
 }
 

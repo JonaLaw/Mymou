@@ -309,6 +309,11 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 @Override
                 public void takePhotoFromTask_() {takePhoto();}
 
+            @Override
+            public void setBrightnessFromTask_(boolean bool) {
+                UtilsSystem.setBrightness(bool, mContext);
+            }
+
                 @Override
                 public void commitTrialDataFromTask_(String overallTrialOutcome) {commitTrialData(overallTrialOutcome);}
 
@@ -511,7 +516,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
     public static boolean enableApp(boolean bool) {
         Log.d(TAG, "Enabling app" + bool);
-        setBrightness(bool);
+UtilsSystem.setBrightness(true, mContext);
 
         View foregroundBlack = activity.findViewById(R.id.foregroundblack);
         if (foregroundBlack != null) {
@@ -528,19 +533,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         } else {
             Log.d(TAG, "foregroundBlack object not instantiated");
             return false;
-        }
-    }
-
-    public static void setBrightness(boolean bool) {
-        if (Settings.System.canWrite(mContext)) {
-            int brightness;
-            if (bool) {
-                brightness = 255;
-            } else {
-                brightness = 0;
-            }
-            ContentResolver cResolver = mContext.getContentResolver();
-            Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
         }
     }
 
@@ -703,7 +695,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         resetTimer();
 
         // Make screen bright
-        setBrightness(true);
+        UtilsSystem.setBrightness(true, mContext);
 
         // Now decide what to do based on what menu_button pressed
         switch (view.getId()) {
@@ -911,7 +903,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
     private static void resetTimer() {
         Log.d(TAG, "resetTimer");
-        setBrightness(true);
+        UtilsSystem.setBrightness(true, mContext);
         time = 0;
     }
 
@@ -952,7 +944,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     }
 
     private static void PrepareForNewTrial(int delay) {
-        setBrightness(true);
+UtilsSystem.setBrightness(true, mContext);
 
         h1.postDelayed(new Runnable() {
             @Override
