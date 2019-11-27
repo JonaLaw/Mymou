@@ -52,6 +52,7 @@ public class TaskTrainingFiveTwoStep extends Task {
     private static Handler h0 = new Handler();  // Task trial_timer
     private static Handler h1 = new Handler();  // Inter-trial interval timer
     private static Handler h2 = new Handler();  // Dim brightness timer
+    private static Handler h3 = new Handler();  // Take photo timer
 
 
     @Override
@@ -148,8 +149,14 @@ public class TaskTrainingFiveTwoStep extends Task {
                 case id_go:
                     trial_counter += 1;
 
-                    // Take photo of subject
-                    callback.takePhotoFromTask_();
+                    // Take photo of subject after delay
+                    h3.removeCallbacksAndMessages(null);
+                    h3.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.takePhotoFromTask_();
+                        }
+                    }, prefManager.ts_photo_delay);
 
                     // Reward subject
                     callback.giveRewardFromTask_(prefManager.ts_go_cue_reward_amount);
@@ -436,6 +443,7 @@ public class TaskTrainingFiveTwoStep extends Task {
         h0.removeCallbacksAndMessages(null);
         h1.removeCallbacksAndMessages(null);
         h2.removeCallbacksAndMessages(null);
+        h3.removeCallbacksAndMessages(null);
         callback.setBrightnessFromTask_(true);
     }
 
