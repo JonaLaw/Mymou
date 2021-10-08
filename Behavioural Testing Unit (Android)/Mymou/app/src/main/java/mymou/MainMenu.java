@@ -80,7 +80,7 @@ public class MainMenu extends Activity {
             return;
         }
         Button startButton = findViewById(R.id.buttonStart);
-        startButton.setText("Loading ...");
+        startButton.setText("Loading...");
 
         Log.d(TAG, "Starting TaskManager as Intent...");
 
@@ -117,7 +117,7 @@ public class MainMenu extends Activity {
         Button connectToBt = findViewById(R.id.buttConnectToBt);
         if (rewardSystem.status.equals("Connection failed")) {
             UtilsTask.toggleCue(connectToBt, true);
-            connectToBt.setText(" Connect ");
+            connectToBt.setText("Connect");
         } else {
             UtilsTask.toggleCue(connectToBt, false);
         }
@@ -209,7 +209,7 @@ public class MainMenu extends Activity {
 
         // Reset text on start button in case they are returning from task
         Button startButton = findViewById(R.id.buttonStart);
-        startButton.setText("START TASK");
+        startButton.setText("Start Task");
 
     }
 

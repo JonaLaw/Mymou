@@ -7,4 +7,57 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <style name="MainLinearLayoutStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:background">@drawable/menu_background_body</item>
+    </style>
+
+    <style name="MainSectionTextStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:background">@drawable/menu_background_title</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">30sp</item>
+    </style>
+
+    <style name="MainSubLinearLayoutStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+    </style>
+
+    <style name="MainSectionButtonStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">45dp</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:background">@drawable/menu_button</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+
+    <style name="SubsectionLinearLayoutStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="SubsectionTextStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+
 </resources>
