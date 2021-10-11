@@ -6,23 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
 import mymou.Utils.PermissionManager;
-import mymou.Utils.SoundManager;
 import mymou.Utils.UtilsSystem;
 import mymou.preferences.PreferencesManager;
-import mymou.preferences.PrefsActCamPicker;
-import mymou.preferences.PrefsActCropPicker;
 import mymou.task.backend.DataViewer;
 import mymou.task.backend.RewardSystem;
 import mymou.task.backend.TaskManager;
@@ -163,7 +156,6 @@ public class MainMenu extends Activity {
 
     }
 
-
     private void checkIfCrashed() {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -174,7 +166,6 @@ public class MainMenu extends Activity {
             }
         }
     }
-
 
     private void initialiseLayoutParameters() {
         // Buttons
@@ -253,7 +244,6 @@ public class MainMenu extends Activity {
         }
     };
 
-
     private View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -275,7 +265,7 @@ public class MainMenu extends Activity {
                     intent.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_menu_prefs));
                     startActivity(intent);
                     break;
-                case R.id.buttonTaskSettings:
+                case R.id.buttonTaskSettings: {
                     Intent intent2 = new Intent(context, PrefsActSystem.class);
 
                     // Load task specific settings
@@ -325,17 +315,19 @@ public class MainMenu extends Activity {
                             break;
                         case 18:
                             intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_wald_settings));
-			    break;
-			case 19:
+                            break;
+                        case 19:
                             intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_colgrat_settings));
                             break;
                         default:
                             validsettings = false;
                             Toast.makeText(getApplicationContext(), "Sorry, this task has no configurable settings", Toast.LENGTH_LONG).show();
                     }
-                    if (validsettings) { startActivity(intent2); }
-
+                    if (validsettings) {
+                        startActivity(intent2);
+                    }
                     break;
+                }
                 case R.id.buttonViewData:
                     Intent intent3 = new Intent(context, DataViewer.class);
                     startActivity(intent3);
@@ -354,6 +346,7 @@ public class MainMenu extends Activity {
                         UtilsTask.toggleCue((Button) findViewById(R.id.buttConnectToBt), false);
                         rewardSystem.connectToBluetooth();
                     }
+                    break;
             }
         }
     };
@@ -394,6 +387,4 @@ public class MainMenu extends Activity {
             }
         }
     }
-
-
 }
