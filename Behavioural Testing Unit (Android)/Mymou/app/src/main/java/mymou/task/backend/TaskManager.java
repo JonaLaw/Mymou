@@ -51,6 +51,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     public static String TAG_FRAGMENT_CAMERA = "camerafrag";
 
     // Settings
+    private static String filename;
     public static RewardSystem rewardSystem;
     private static int latestRewardChannel;  // Track which reward channel was used so that it can be reused.
     public static int faceRecogPrediction = -1;  // Number corresponds to ID of the predicted subject
@@ -115,6 +116,9 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         // Create ui Elements
         assignObjects();
         initialiseScreenSettings();
+
+        // Check if a filename has been set
+        checkFilenameSetting();
 
         // Load settings
         loadAndApplySettings();
@@ -200,6 +204,18 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 }
             }
         });
+    }
+
+    private void checkFilenameSetting() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!settings.getBoolean(getString(R.string.filename_by_date_key), true)) {
+            String settingsFilename = settings.getString(getString(R.string.filename_custom_key), "");
+            if (FilenameValidation.validateStringFilenameUsingContains(settingsFilename)) {
+                filename = settingsFilename;
+                return;
+            }
+        }
+        filename = "default";
     }
 
     private void loadtask() {
@@ -617,7 +633,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 String s = trialData.get(i);
                 // Prefix variables that were constant throughout trial (trial result, which monkey, etc)
                 s = taskId + "," + trialCounter + "," + faceRecogPrediction + "," + overallTrialOutcome + "," + s;
-                logHandler.post(new WriteDataToFile(s, mContext, "default"));
+                logHandler.post(new WriteDataToFile(s, mContext, filename));
             }
 
             // Place photo in correct monkey's folder
