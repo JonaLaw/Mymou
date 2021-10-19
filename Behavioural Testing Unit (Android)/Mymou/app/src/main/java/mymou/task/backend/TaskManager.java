@@ -26,7 +26,6 @@ import mymou.*;
 import mymou.Utils.*;
 import mymou.database.MymouDatabase;
 import mymou.database.Session;
-import mymou.database.User;
 import mymou.preferences.PreferencesManager;
 import mymou.preferences.PrefsActSystem;
 import mymou.task.individual_tasks.*;
@@ -51,6 +50,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     public static String TAG_FRAGMENT_CAMERA = "camerafrag";
 
     // Settings
+    private static String filename;
     public static RewardSystem rewardSystem;
     private static int latestRewardChannel;  // Track which reward channel was used so that it can be reused.
     public static int faceRecogPrediction = -1;  // Number corresponds to ID of the predicted subject
@@ -617,7 +617,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 String s = trialData.get(i);
                 // Prefix variables that were constant throughout trial (trial result, which monkey, etc)
                 s = taskId + "," + trialCounter + "," + faceRecogPrediction + "," + overallTrialOutcome + "," + s;
-                logHandler.post(new WriteDataToFile(s, mContext, "default"));
+                logHandler.post(new WriteDataToFile(s, mContext, filename));
             }
 
             // Place photo in correct monkey's folder
@@ -880,12 +880,31 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     }
 
     private void loadAndApplySettings() {
-        // Face recog
+        // Setting up folder structure for the day
+        // TODO This probably assumes that only one session will happen per day so
+        //  multiple multi-monkey tests won't work
         if (preferencesManager.facerecog) {
             folderManager = new FolderManager(mContext, preferencesManager.num_monkeys);
         } else {
             folderManager = new FolderManager(mContext, 0);
         }
+
+        // Creating the file for this test and adding the header
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        if (settings.getBoolean(getString(R.string.filename_by_date_key), true)) {
+            filename = "default";
+        }
+        else {
+            String settingsFilename = settings.getString(getString(R.string.filename_custom_key),
+                    getString(R.string.filename_default_string));
+            if (FilenameValidation.validateStringFilenameUsingContains(settingsFilename)) {
+                filename = settingsFilename;
+            }
+            else {
+                filename = "default";
+            }
+        }
+        folderManager.tryMakingFileForTaskTrial(filename);
 
         // Colours
         findViewById(R.id.task_container).setBackgroundColor(preferencesManager.taskbackground);
@@ -894,7 +913,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
 
     }
-
     private void assignObjects() {
         // Global variables
         activity = this;
