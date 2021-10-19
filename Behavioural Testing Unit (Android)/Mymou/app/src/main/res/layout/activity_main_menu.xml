@@ -7,210 +7,279 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/linearLayout"
+        <TextView
+            style="@style/MainHeaderTheme"
+            android:text="Mymou: Main Menu"/>
+
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            tools:layout_editor_absoluteY="75dp">
 
-            <LinearLayout
-                style="@style/MainLinearLayoutStyle">
+            <LinearLayout style="@style/ContainerLinearLayoutStyle">
 
-                <TextView
-                    style="@style/MainSectionTextStyle"
-                    android:text="Task" />
+                <LinearLayout style="@style/MainLinearLayoutStyle">
 
-                <LinearLayout
-                    style="@style/MainSubLinearLayoutStyle">
+                    <TextView
+                        style="@style/MainSectionTextStyle"
+                        android:text="Task" />
 
-                    <LinearLayout
-                        style="@style/SubsectionLinearLayoutStyle">
+                    <LinearLayout style="@style/MainSubLinearLayoutStyle">
 
-                        <TextView
-                            style="@style/SubsectionTextStyle"
-                            android:text="Type:"/>
+                        <LinearLayout style="@style/SubsectionLinearLayoutStyle">
 
-                        <ImageButton
-                            android:id="@+id/info_button"
-                            android:layout_width="40dp"
-                            android:layout_height="match_parent"
-                            android:background="@null"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/i_button" />
+                            <TextView
+                                style="@style/SubsectionTextStyle"
+                                android:text="Type:" />
 
-                        <Spinner
-                            android:id="@+id/spinnerTaskMenu"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginVertical="5dp"/>
+                            <ImageButton
+                                android:id="@+id/info_button"
+                                android:layout_width="40dp"
+                                android:layout_height="match_parent"
+                                android:background="@null"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/i_button" />
+
+                            <Spinner
+                                android:id="@+id/spinnerTaskMenu"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginVertical="5dp" />
+
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/buttonTaskSettings"
+                            style="@style/MainSectionButtonStyle"
+                            android:text="Task Settings" />
+
+                        <Button
+                            android:id="@+id/buttonStart"
+                            style="@style/MainSectionButtonStyle"
+                            android:text="Start Task" />
 
                     </LinearLayout>
-
-                    <Button
-                        android:id="@+id/buttonTaskSettings"
-                        style="@style/MainSectionButtonStyle"
-                        android:text="Task Settings"/>
-
-                    <Button
-                        android:id="@+id/buttonStart"
-                        style="@style/MainSectionButtonStyle"
-                        android:text="Start Task"/>
-
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                style="@style/MainLinearLayoutStyle">
-
-                <TextView
-                    style="@style/MainSectionTextStyle"
-                    android:text="System" />
-
-                <LinearLayout
-                    style="@style/MainSubLinearLayoutStyle">
-
-                    <Button
-                        android:id="@+id/buttonSettings"
-                        style="@style/MainSectionButtonStyle"
-                        android:text="System Settings"/>
-
                 </LinearLayout>
 
-            </LinearLayout>
+                <LinearLayout style="@style/MainLinearLayoutStyle">
 
-            <LinearLayout
-                style="@style/MainLinearLayoutStyle">
+                    <TextView
+                        style="@style/MainSectionTextStyle"
+                        android:text="File Naming" />
 
-                <TextView
-                    android:id="@+id/tv_rew_system_title"
-                    style="@style/MainSectionTextStyle"
-                    android:text="Reward System Controller"/>
+                    <LinearLayout style="@style/MainSubLinearLayoutStyle">
 
-                <LinearLayout
-                    style="@style/MainSubLinearLayoutStyle">
+                        <LinearLayout style="@style/SubsectionLinearLayoutStyle">
 
-                    <LinearLayout
-                        style="@style/SubsectionLinearLayoutStyle">
+                            <TextView
+                                style="@style/SubsectionTextStyle"
+                                android:text="Group into current date file:" />
 
-                        <TextView
-                            android:id="@+id/tv_rew_system_chan_lab"
-                            style="@style/SubsectionTextStyle"
-                            android:text="Channel:"/>
-
-                        <RadioGroup
-                            android:id="@+id/rg_rewchanpicker"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <RadioButton
-                                android:id="@+id/rb_chan0"
-                                android:layout_width="60dp"
-                                android:layout_height="match_parent"
-                                android:text=" 0" />
-
-                            <RadioButton
-                                android:id="@+id/rb_chan1"
-                                android:layout_width="60dp"
-                                android:layout_height="match_parent"
-                                android:text=" 1" />
-
-                            <RadioButton
-                                android:id="@+id/rb_chan2"
-                                android:layout_width="60dp"
-                                android:layout_height="match_parent"
-                                android:text=" 2" />
-
-                            <RadioButton
-                                android:id="@+id/rb_chan3"
-                                android:layout_width="60dp"
-                                android:layout_height="match_parent"
-                                android:text=" 3" />
-                        </RadioGroup>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        style="@style/SubsectionLinearLayoutStyle">
-
-                        <TextView
-                            android:id="@+id/tv_rew_system_btstatus_lab"
-                            style="@style/SubsectionTextStyle"
-                            android:text="Bluetooth Status:"/>
-
-                        <TextView
-                            android:id="@+id/tvBluetooth"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="Not Connected"
-                            android:textColor="@color/textColor"
-                            android:textSize="25sp" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        style="@style/SubsectionLinearLayoutStyle">
-
-                        <TextView
-                            android:id="@+id/tv_rew_system_switch_lab"
-                            style="@style/SubsectionTextStyle"
-                            android:text="Activate:"/>
-
-                        <RadioGroup
-                            android:id="@+id/rg_rewonoff"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <RadioButton
-                                android:id="@+id/rb_pumpoff"
-                                android:layout_width="100dp"
-                                android:layout_height="match_parent"
+                            <ToggleButton
+                                android:id="@+id/toggleButtonFilenameByDate"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
                                 android:checked="true"
-                                android:text="OFF" />
+                                android:textOff="NO"
+                                android:textOn="YES" />
 
-                            <RadioButton
-                                android:id="@+id/rb_pumpon"
-                                android:layout_width="100dp"
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/linearLayoutFilenameEdit"
+                            style="@style/SubsectionLinearLayoutStyle">
+
+                            <EditText
+                                android:id="@+id/editTextFileName"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight=".70"
+                                android:hint="Enter File Name"
+                                android:inputType="textNoSuggestions"
+                                android:lines="1"
+                                android:maxLength="120"
+                                android:maxLines="1" />
+
+                            <Button
+                                android:id="@+id/buttonSaveFilename"
+                                android:layout_width="0dp"
                                 android:layout_height="match_parent"
-                                android:text="ON" />
+                                android:layout_margin="5dp"
+                                android:layout_weight=".30"
+                                android:background="@drawable/menu_button"
+                                android:text="Save"
+                                android:textColor="@color/textColor"
+                                android:textSize="25sp"
+                                android:visibility="visible" />
 
-                        </RadioGroup>
+                        </LinearLayout>
+
+                        <LinearLayout style="@style/SubsectionLinearLayoutStyle">
+
+                            <TextView
+                                style="@style/SubsectionTextStyle"
+                                android:text="Saving to:" />
+
+                            <TextView
+                                android:id="@+id/textViewSavingTo"
+                                style="@style/SubsectionTextStyle"
+                                android:layout_width="match_parent"
+                                android:ellipsize="marquee"
+                                android:marqueeRepeatLimit="marquee_forever"
+                                android:scrollHorizontally="true"
+                                android:singleLine="true"
+                                android:text="filename.txt" />
+
+                        </LinearLayout>
+
                     </LinearLayout>
 
-                    <Button
-                        android:id="@+id/buttConnectToBt"
-                        style="@style/MainSectionButtonStyle"
-                        android:text="Connect" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/MainLinearLayoutStyle">
+
+                    <TextView
+                        style="@style/MainSectionTextStyle"
+                        android:text="System" />
+
+                    <LinearLayout style="@style/MainSubLinearLayoutStyle">
+
+                        <Button
+                            android:id="@+id/buttonSettings"
+                            style="@style/MainSectionButtonStyle"
+                            android:text="System Settings" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                style="@style/MainLinearLayoutStyle">
+                <LinearLayout style="@style/MainLinearLayoutStyle">
 
-                <TextView
-                    style="@style/MainSectionTextStyle"
-                    android:text="Behavioural Data" />
+                    <TextView
+                        android:id="@+id/tv_rew_system_title"
+                        style="@style/MainSectionTextStyle"
+                        android:text="Reward System Controller" />
 
-                <LinearLayout
-                    style="@style/MainSubLinearLayoutStyle">
+                    <LinearLayout style="@style/MainSubLinearLayoutStyle">
 
-                    <Button
-                        android:id="@+id/buttonViewData"
-                        style="@style/MainSectionButtonStyle"
-                        android:text="View Performance"/>
+                        <LinearLayout style="@style/SubsectionLinearLayoutStyle">
 
+                            <TextView
+                                android:id="@+id/tv_rew_system_chan_lab"
+                                style="@style/SubsectionTextStyle"
+                                android:text="Channel:" />
+
+                            <RadioGroup
+                                android:id="@+id/rg_rewchanpicker"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <RadioButton
+                                    android:id="@+id/rb_chan0"
+                                    android:layout_width="60dp"
+                                    android:layout_height="match_parent"
+                                    android:text=" 0" />
+
+                                <RadioButton
+                                    android:id="@+id/rb_chan1"
+                                    android:layout_width="60dp"
+                                    android:layout_height="match_parent"
+                                    android:text=" 1" />
+
+                                <RadioButton
+                                    android:id="@+id/rb_chan2"
+                                    android:layout_width="60dp"
+                                    android:layout_height="match_parent"
+                                    android:text=" 2" />
+
+                                <RadioButton
+                                    android:id="@+id/rb_chan3"
+                                    android:layout_width="60dp"
+                                    android:layout_height="match_parent"
+                                    android:text=" 3" />
+                            </RadioGroup>
+                        </LinearLayout>
+
+                        <LinearLayout style="@style/SubsectionLinearLayoutStyle">
+
+                            <TextView
+                                android:id="@+id/tv_rew_system_btstatus_lab"
+                                style="@style/SubsectionTextStyle"
+                                android:text="Bluetooth Status:" />
+
+                            <TextView
+                                android:id="@+id/tvBluetooth"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="Not Connected"
+                                android:textColor="@color/textColor"
+                                android:textSize="25sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout style="@style/SubsectionLinearLayoutStyle">
+
+                            <TextView
+                                android:id="@+id/tv_rew_system_switch_lab"
+                                style="@style/SubsectionTextStyle"
+                                android:text="Activate:" />
+
+                            <RadioGroup
+                                android:id="@+id/rg_rewonoff"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal">
+
+                                <RadioButton
+                                    android:id="@+id/rb_pumpoff"
+                                    android:layout_width="100dp"
+                                    android:layout_height="match_parent"
+                                    android:checked="true"
+                                    android:text="OFF" />
+
+                                <RadioButton
+                                    android:id="@+id/rb_pumpon"
+                                    android:layout_width="100dp"
+                                    android:layout_height="match_parent"
+                                    android:text="ON" />
+
+                            </RadioGroup>
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/buttConnectToBt"
+                            style="@style/MainSectionButtonStyle"
+                            android:text="Connect" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout style="@style/MainLinearLayoutStyle">
+
+                    <TextView
+                        style="@style/MainSectionTextStyle"
+                        android:text="Behavioural Data" />
+
+                    <LinearLayout style="@style/MainSubLinearLayoutStyle">
+
+                        <Button
+                            android:id="@+id/buttonViewData"
+                            style="@style/MainSectionButtonStyle"
+                            android:text="View Performance" />
+
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+        </ScrollView>
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
