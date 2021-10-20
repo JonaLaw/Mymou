@@ -7,6 +7,25 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <style name="MainHeaderTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:background">@drawable/menu_background_title</item>
+    </style>
+
+    <style name="ContainerLinearLayoutStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
     <style name="MainLinearLayoutStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
