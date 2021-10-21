@@ -26,7 +26,6 @@ import mymou.*;
 import mymou.Utils.*;
 import mymou.database.MymouDatabase;
 import mymou.database.Session;
-import mymou.database.User;
 import mymou.preferences.PreferencesManager;
 import mymou.preferences.PrefsActSystem;
 import mymou.task.individual_tasks.*;
@@ -117,9 +116,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         assignObjects();
         initialiseScreenSettings();
 
-        // Check if a filename has been set
-        checkFilenameSetting();
-
         // Load settings
         loadAndApplySettings();
         loadtask();
@@ -204,18 +200,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 }
             }
         });
-    }
-
-    private void checkFilenameSetting() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!settings.getBoolean(getString(R.string.filename_by_date_key), true)) {
-            String settingsFilename = settings.getString(getString(R.string.filename_custom_key), "");
-            if (FilenameValidation.validateStringFilenameUsingContains(settingsFilename)) {
-                filename = settingsFilename;
-                return;
-            }
-        }
-        filename = "default";
     }
 
     private void loadtask() {
@@ -896,12 +880,30 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     }
 
     private void loadAndApplySettings() {
-        // Face recog
+        // Setting up folder structure for the day
+        // TODO This probably assumes that only one session will happen per day so
+        //  multiple multi-monkey tests won't work
         if (preferencesManager.facerecog) {
             folderManager = new FolderManager(mContext, preferencesManager.num_monkeys);
         } else {
             folderManager = new FolderManager(mContext, 0);
         }
+
+        // Creating the file for this test and adding the header
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        if (settings.getBoolean(getString(R.string.filename_by_date_key), true)) {
+            filename = "default";
+        }
+        else {
+            String settingsFilename = settings.getString(getString(R.string.filename_custom_key), "");
+            if (FilenameValidation.validateStringFilenameUsingContains(settingsFilename)) {
+                filename = settingsFilename;
+            }
+            else {
+                filename = "default";
+            }
+        }
+        folderManager.tryMakingFileForTaskTrial(filename);
 
         // Colours
         findViewById(R.id.task_container).setBackgroundColor(preferencesManager.taskbackground);
@@ -910,7 +912,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
 
     }
-
     private void assignObjects() {
         // Global variables
         activity = this;

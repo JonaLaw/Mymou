@@ -79,11 +79,18 @@ class FolderManager(private val context: Context, private val num_monkeys: Int =
          for (i in 1..num_monkeys) {
             makeFolder(path, "monkey"+i)
          }
+    }
 
-        // Add headers to text file
-        val headers = PreferencesManager(context).data_headers
-        Log.d(TAG, "making headers.."+headers)
-        WriteDataToFile(headers, context).run()
+    fun tryMakingFileForTaskTrial(filename: String) {
+        // Check if the file already exists
+        val appFolder = getSessionFolder()
+        val saveFile = File(appFolder, filename)
+        if (!saveFile.exists()) {
+            // Create the file and add headers to it
+            val headers = PreferencesManager(context).data_headers
+            Log.d(TAG, "making file: $filename and adding headers: $headers")
+            WriteDataToFile(headers, context, filename).run()
+        }
     }
 
     private fun generateSessionFolder(): String {
