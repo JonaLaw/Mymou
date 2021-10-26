@@ -76,8 +76,8 @@ public class DataViewer extends Activity {
                 }
 
                 if (num_sessions==0) {
-                    TextView tv = findViewById(R.id.tv_dataviewer_title);
-                    tv.setText("No data found - have you run any sessions yet?");
+                    findViewById(R.id.data_viewer_graphs).setVisibility(View.GONE);
+                    findViewById(R.id.data_viewer_no_data).setVisibility(View.VISIBLE);
                 } else {
                     CreateGraphs();
                 }
@@ -98,7 +98,7 @@ public class DataViewer extends Activity {
     private GraphView createGraph(String ylab, View view, DataPoint[] arr) {
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(arr);
         GraphView graph = (GraphView) view;
-        UtilsSystem.addGraph(graph, series, "Session", ylab, num_sessions);
+        UtilsSystem.addGraph(graph, series, "Session Date", ylab, num_sessions);
         graph.getViewport().setMinY(0);
         graph.getViewport().setYAxisBoundsManual(true);
         graph.getViewport().setMinX(0);

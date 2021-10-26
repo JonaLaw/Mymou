@@ -214,7 +214,7 @@ public class UtilsTask {
         if (status) {
             view.setVisibility(View.VISIBLE);
         } else {
-            view.setVisibility(View.INVISIBLE);
+            view.setVisibility(View.GONE);
         }
         view.setEnabled(status);
     }

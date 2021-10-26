@@ -2,6 +2,9 @@
     <string name="app_name">Mymou</string>
     <string name="request_permission">This sample needs camera permission.</string>
 
+    <string name="filename_by_date_key">filename_by_date_key</string>
+    <string name="filename_custom_key">filename_custom_key</string>
+
     <string name="max_reward_channels">4</string>
     <string name="allChanOff">0</string>
     <string name="chanZeroOn">1</string>

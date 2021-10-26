@@ -6,23 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
+import mymou.Utils.FilenameValidation;
 import mymou.Utils.PermissionManager;
-import mymou.Utils.SoundManager;
 import mymou.Utils.UtilsSystem;
+import mymou.Utils.FolderManager;
 import mymou.preferences.PreferencesManager;
-import mymou.preferences.PrefsActCamPicker;
-import mymou.preferences.PrefsActCropPicker;
 import mymou.task.backend.DataViewer;
 import mymou.task.backend.RewardSystem;
 import mymou.task.backend.TaskManager;
@@ -35,6 +30,7 @@ public class MainMenu extends Activity {
 
     private static PreferencesManager preferencesManager;
     private static RewardSystem rewardSystem;
+    private static FolderManager folderManager;
 
     // Default channel to be activated by the pump
     private static int reward_chan;
@@ -54,6 +50,8 @@ public class MainMenu extends Activity {
 
         // Retrieve settings
         preferencesManager = new PreferencesManager(this);
+        // Get Current Folder Status
+        folderManager = new FolderManager(this, 0);
 
         initialiseLayoutParameters();
 
@@ -62,6 +60,8 @@ public class MainMenu extends Activity {
         checkIfCrashed();
 
         initialiseSpinner();
+
+        initialiseFileNameSettings();
 
         UtilsSystem.setBrightness(true, this, preferencesManager);
 
@@ -80,7 +80,7 @@ public class MainMenu extends Activity {
             return;
         }
         Button startButton = findViewById(R.id.buttonStart);
-        startButton.setText("Loading ...");
+        startButton.setText("Loading...");
 
         Log.d(TAG, "Starting TaskManager as Intent...");
 
@@ -117,7 +117,7 @@ public class MainMenu extends Activity {
         Button connectToBt = findViewById(R.id.buttConnectToBt);
         if (rewardSystem.status.equals("Connection failed")) {
             UtilsTask.toggleCue(connectToBt, true);
-            connectToBt.setText(" Connect ");
+            connectToBt.setText("Connect");
         } else {
             UtilsTask.toggleCue(connectToBt, false);
         }
@@ -163,7 +163,6 @@ public class MainMenu extends Activity {
 
     }
 
-
     private void checkIfCrashed() {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -175,7 +174,6 @@ public class MainMenu extends Activity {
         }
     }
 
-
     private void initialiseLayoutParameters() {
         // Buttons
         findViewById(R.id.buttonStart).setOnClickListener(buttonClickListener);
@@ -184,6 +182,8 @@ public class MainMenu extends Activity {
         findViewById(R.id.buttonViewData).setOnClickListener(buttonClickListener);
         findViewById(R.id.info_button).setOnClickListener(buttonClickListener);
         findViewById(R.id.buttConnectToBt).setOnClickListener(buttonClickListener);
+        findViewById(R.id.toggleButtonFilenameByDate).setOnClickListener(buttonClickListener);
+        findViewById(R.id.buttonSaveFilename).setOnClickListener(buttonClickListener);
 
         // Disabled as in development
 //        findViewById(R.id.buttonViewData).setEnabled(false);
@@ -209,8 +209,102 @@ public class MainMenu extends Activity {
 
         // Reset text on start button in case they are returning from task
         Button startButton = findViewById(R.id.buttonStart);
-        startButton.setText("START TASK");
+        startButton.setText("Start Task");
+    }
 
+    private void initialiseFileNameSettings() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // Set the filename as data TB to what was saved
+        ToggleButton toggleButtonFilenameByDate = findViewById(R.id.toggleButtonFilenameByDate);
+        boolean filenameByDate = settings.getBoolean(getString(R.string.filename_by_date_key), true);
+        toggleButtonFilenameByDate.setChecked(filenameByDate);
+        Log.d(TAG, "initialiseFileNameSettings: filenameByDate=" + filenameByDate);
+
+        // This allows for filenames that go offscreen to marquee scroll
+        TextView textViewSavingTo = findViewById(R.id.textViewSavingTo);
+        textViewSavingTo.setSelected(true);
+
+        // Updated the rest of the filename info and start task button
+        updateFilenameSettings(filenameByDate, false);
+    }
+
+    private void updateFilenameSettings(boolean fileNameByDate, boolean saveToSharedPreferences) {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        LinearLayout linearLayoutFilenameEdit = findViewById(R.id.linearLayoutFilenameEdit);
+        EditText editTextFileName = findViewById(R.id.editTextFileName);
+        TextView textViewSavingTo = findViewById(R.id.textViewSavingTo);
+
+        // If the togglebutton for date as filename is checked
+        if (fileNameByDate) {
+            Log.d(TAG, "updateFilenameSettings: setting filename=default");
+
+            // Hide the edit text view and disable editing it
+            linearLayoutFilenameEdit.setVisibility(View.GONE);
+            editTextFileName.setEnabled(false);
+            // Set the displayed saved filename to the current date
+            textViewSavingTo.setText(String.format("%s.txt", folderManager.getBaseDate()));
+        }
+        else {
+            // Show the edit text view
+            linearLayoutFilenameEdit.setVisibility(View.VISIBLE);
+
+            String filename = settings.getString(getString(R.string.filename_custom_key), "");
+            // Check if the saved filename is not valid for some strange reason
+            if (FilenameValidation.validateStringFilenameUsingContains(filename)) {
+
+                Log.d(TAG, "updateFilenameSettings: setting filename=" + filename);
+                // Set the filename to the saved filename and enabled editing it
+                editTextFileName.setText(filename);
+                editTextFileName.setEnabled(true);
+                // Set the displayed saved filename to the new saved filename
+                textViewSavingTo.setText(filename);
+            }
+            else {
+                // Set the editText field to some default text, save it, and inform the user.
+                Log.d(TAG, "updateFilenameSettings: invalid saved filename=" + filename);
+                Toast.makeText(context, "The previously saved filename was invalid so it has been cleared.", Toast.LENGTH_LONG).show();
+                editTextFileName.setText("default");
+                saveFilename();
+            }
+        }
+
+        // If this is an update directly from the user
+        if (saveToSharedPreferences) {
+            Log.d(TAG, "updateFilenameSettings: saving filename date setting");
+
+            // Save the setting
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(getString(R.string.filename_by_date_key), fileNameByDate);
+            editor.apply();
+        }
+    }
+
+    private void saveFilename() {
+        // Get the filename and append ".txt" to it if necessary
+        EditText editTextFileName = findViewById(R.id.editTextFileName);
+        String filename = editTextFileName.getText().toString();
+        if (!filename.endsWith(".txt")) {
+            filename += ".txt";
+            editTextFileName.setText(filename);
+        }
+
+        // Check if the filename is valid
+        if (FilenameValidation.validateStringFilenameUsingContains(filename)) {
+            // Updating the displayed saved filename that will be used
+            TextView textViewSavingTo = findViewById(R.id.textViewSavingTo);
+            textViewSavingTo.setText(filename);
+
+            // Saving the filename
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString(getString(R.string.filename_custom_key), filename);
+            editor.commit();
+        }
+        else {
+            // Inform the user that the invalid filename was not saved
+            Toast.makeText(context, "Invalid Filename Not Saved", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private RadioGroup.OnCheckedChangeListener checkedChangeListener = new RadioGroup.OnCheckedChangeListener() {
@@ -253,7 +347,6 @@ public class MainMenu extends Activity {
         }
     };
 
-
     private View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -275,7 +368,7 @@ public class MainMenu extends Activity {
                     intent.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_menu_prefs));
                     startActivity(intent);
                     break;
-                case R.id.buttonTaskSettings:
+                case R.id.buttonTaskSettings: {
                     Intent intent2 = new Intent(context, PrefsActSystem.class);
 
                     // Load task specific settings
@@ -325,17 +418,19 @@ public class MainMenu extends Activity {
                             break;
                         case 18:
                             intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_wald_settings));
-			    break;
-			case 19:
+                            break;
+                        case 19:
                             intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_colgrat_settings));
                             break;
                         default:
                             validsettings = false;
                             Toast.makeText(getApplicationContext(), "Sorry, this task has no configurable settings", Toast.LENGTH_LONG).show();
                     }
-                    if (validsettings) { startActivity(intent2); }
-
+                    if (validsettings) {
+                        startActivity(intent2);
+                    }
                     break;
+                }
                 case R.id.buttonViewData:
                     Intent intent3 = new Intent(context, DataViewer.class);
                     startActivity(intent3);
@@ -354,6 +449,14 @@ public class MainMenu extends Activity {
                         UtilsTask.toggleCue((Button) findViewById(R.id.buttConnectToBt), false);
                         rewardSystem.connectToBluetooth();
                     }
+                    break;
+                case R.id.toggleButtonFilenameByDate:
+                    ToggleButton tg = (ToggleButton) view;
+                    updateFilenameSettings(tg.isChecked(), true);
+                    break;
+                case R.id.buttonSaveFilename:
+                    saveFilename();
+                    break;
             }
         }
     };
@@ -394,6 +497,4 @@ public class MainMenu extends Activity {
             }
         }
     }
-
-
 }
