@@ -1,8 +1,10 @@
 package mymou;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -29,6 +31,7 @@ public class MainMenu extends Activity {
     private static String TAG = "MyMouMainMenu";
 
     private static PreferencesManager preferencesManager;
+    private PermissionManager permissionManager;
     private static RewardSystem rewardSystem;
     private static FolderManager folderManager;
 
@@ -37,9 +40,6 @@ public class MainMenu extends Activity {
 
     // The task to be loaded, set by the spinner
     private static int taskSelected = 2;
-
-    // Tasks cannot run unless permissions have been granted
-    private boolean permissions_granted = false;
 
     private Context context = this;
 
@@ -50,12 +50,11 @@ public class MainMenu extends Activity {
 
         // Retrieve settings
         preferencesManager = new PreferencesManager(this);
+        permissionManager = new PermissionManager(this, this);
         // Get Current Folder Status
         folderManager = new FolderManager(this, 0);
 
         initialiseLayoutParameters();
-
-        checkPermissions();
 
         checkIfCrashed();
 
@@ -67,18 +66,45 @@ public class MainMenu extends Activity {
 
     }
 
-    private void checkPermissions() {
-        if (!permissions_granted && new PermissionManager(this, this).checkPermissions()) {
-            permissions_granted = true;
+    private boolean checkPermissions() {
+        Log.d(TAG, "checkPermissions: checking permissions");
+        if (!permissionManager.checkAllPermissionsGranted()) {
+            Log.d(TAG, "checkPermissions: permissions not granted");
+            displayPermissionAlertDialog();
+            return false;
         }
+        return true;
+    }
+
+    private void displayPermissionAlertDialog() {
+        Log.d(TAG, "displayPermissionAlertDialog: displaying permission AD");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("This app requires various permissions to perform tasks properly." +
+                "\n\nNot all required permissions are currently granted, please grant them to continue.")
+                .setTitle("Requesting Permissions")
+                .setPositiveButton("Grant Permissions", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Request Permissions
+                        Log.d(TAG, "onClick: requesting permissions");
+                        permissionManager.requestAllPermissions();
+                    }
+                })
+                .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Do nothing
+                        Log.d(TAG, "onClick: dismissing permissions");
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void startTask() {
+        Log.d(TAG, "startTask: trying to start task");
+        
         // Task can only start if all permissions granted
-        if (!permissions_granted) {
-            checkPermissions();
-            return;
-        }
+        if (!checkPermissions()) return;
+
         Button startButton = findViewById(R.id.buttonStart);
         startButton.setText("Loading...");
 
@@ -353,13 +379,6 @@ public class MainMenu extends Activity {
         public void onClick(View view) {
             Log.d(TAG, "onClick: " + view.getId());
 
-            checkPermissions();
-            if (!permissions_granted) {
-                Toast.makeText(getApplicationContext(), "All permissions must be enabled before app can run", Toast.LENGTH_SHORT).show();
-                checkPermissions();
-                return;
-            }
-
             switch (view.getId()) {
                 case R.id.buttonStart:
                     startTask();
@@ -474,9 +493,10 @@ public class MainMenu extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-
+        Log.d(TAG, "onPause() called");
         // Quit bluetooth
-        if (permissions_granted) {
+        if ( permissionManager.checkPermissionGranted(Manifest.permission.BLUETOOTH) &&
+                permissionManager.checkPermissionGranted(Manifest.permission.BLUETOOTH_ADMIN)) {
             final Runnable r = new Runnable() {
                 public void run() {
                     rewardSystem.quitBt();
@@ -489,13 +509,7 @@ public class MainMenu extends Activity {
     // TODO: Figure out how to move this to PermissionsManager
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (grantResults.length > 0) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Permissions granted");
-                checkPermissions();
-            } else {
-                Toast.makeText(this, "Permission denied, all permissions must be enabled before app can run", Toast.LENGTH_LONG).show();
-            }
-        }
+        Log.d(TAG, "onRequestPermissionsResult: " + grantResults.length);
+        permissionManager.permissionsResult(requestCode, permissions, grantResults);
     }
 }

@@ -1,5 +1,6 @@
 package mymou.task.backend;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -151,29 +152,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         enableApp(false);
 
         // Only lock if we aren't in testing mode
-        if (!preferencesManager.debug) {
-            this.startLockTask();
-        } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
-            builder.setMessage("The back key is currently functioning, and can be used to exit the task. This is not recommended for actual training. \n\nDebug mode can be deactivated in System Settings.")
-                    .setTitle("Warning - App in Debug mode")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            //Do nothing
-                        }
-                    })
-                    .setNegativeButton("System Settings", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            //Load settings
-                            Intent intent = new Intent(getApplicationContext(), PrefsActSystem.class);
-                            intent.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_menu_prefs));
-                            startActivity(intent);
-                            onBackPressed();
-                        }
-                    });
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
+        tryTaskLocking();
 
         // Normally the reward system handles this as it has to wait for bluetooth connection
         if (!preferencesManager.bluetooth) {
@@ -185,6 +164,69 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         // Lastly, we connect to the reward system, which will then activate the task once it successfully connects to bluetooth
         initialiseRewardSystem();
 
+    }
+
+    private void tryTaskLocking() {
+        // Check if debug mode is enabled in the app's System Settings
+        if (!PreferencesManager.debug) {
+            // Check if permission is granted to pin the screen
+            // This should almost never happen as it's checked right before a task is started
+            if (new PermissionManager(mContext, activity).checkPermissionGranted(Manifest.permission.WRITE_SETTINGS)) {
+                this.startLockTask();
+            } else {
+                displayTaskLockingError();
+            }
+        } else {
+            displayDebugMessage();
+        }
+    }
+
+    private void displayTaskLockingError() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
+        builder.setMessage("The App does not have permission to lock tasks." +
+                "\nThis results in the device's UI staying active during a task." +
+                "\n\nPlease give the app permission when prompted to in the Main Menu.")
+                .setTitle("Warning - App not permitted to Lock Task")
+                .setPositiveButton("Return", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Load Main Menu
+                        Intent intent = new Intent(getApplicationContext(), MainMenu.class);
+                        startActivity(intent);
+                        onBackPressed();
+                    }
+                })
+                .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Do nothing
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void displayDebugMessage() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
+        builder.setMessage("The back key is currently functioning, and can be used to exit the task." +
+                "\nThis is not recommended for actual training." +
+                "\n\nDebug mode can be deactivated in this app's System Settings.")
+                .setTitle("Warning - App in Debug mode")
+                .setPositiveButton("System Settings", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Load settings
+                        Intent intent = new Intent(getApplicationContext(), PrefsActSystem.class);
+                        intent.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_menu_prefs));
+                        startActivity(intent);
+                        onBackPressed();
+                    }
+                })
+                .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Do nothing
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void initialiseAutoRestartHandler() {
