@@ -2,6 +2,7 @@ package mymou.task.backend;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -192,7 +193,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                         //Load Main Menu
                         Intent intent = new Intent(getApplicationContext(), MainMenu.class);
                         startActivity(intent);
-                        onBackPressed();
                     }
                 })
                 .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
@@ -216,7 +216,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                         Intent intent = new Intent(getApplicationContext(), PrefsActSystem.class);
                         intent.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_menu_prefs));
                         startActivity(intent);
-                        onBackPressed();
                     }
                 })
                 .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
@@ -720,6 +719,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_IMMERSIVE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
     }
 
@@ -906,10 +906,18 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
     }
 
+    public boolean isAppNotInLockTaskMode() {
+        // Source: https://stackoverflow.com/a/28647053
+        ActivityManager activityManager;
+        activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+        return activityManager.getLockTaskModeState() == ActivityManager.LOCK_TASK_MODE_NONE;
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // Allow user to exit task if testing mode is enabled
-        if (preferencesManager.debug) {
+
+        if (preferencesManager.debug || isAppNotInLockTaskMode()) {
             return super.onKeyDown(keyCode, event);
         } else {
             return false;
