@@ -334,7 +334,8 @@ public class MainMenu extends Activity {
         }
     }
 
-    private RadioGroup.OnCheckedChangeListener checkedChangeListener = new RadioGroup.OnCheckedChangeListener() {
+    private RadioGroup.OnCheckedChangeListener checkedChangeListener =
+            new RadioGroup.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
             int id = group.getCheckedRadioButtonId();
@@ -388,9 +389,8 @@ public class MainMenu extends Activity {
                     intent.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_menu_prefs));
                     startActivity(intent);
                     break;
-                case R.id.buttonTaskSettings: {
+                case R.id.buttonTaskSettings:
                     Intent intent2 = new Intent(context, PrefsActSystem.class);
-
                     // Load task specific settings
                     boolean validsettings = true;
                     switch (taskSelected) {
@@ -446,11 +446,8 @@ public class MainMenu extends Activity {
                             validsettings = false;
                             Toast.makeText(getApplicationContext(), "Sorry, this task has no configurable settings", Toast.LENGTH_LONG).show();
                     }
-                    if (validsettings) {
-                        startActivity(intent2);
-                    }
+                    if (validsettings) startActivity(intent2);
                     break;
-                }
                 case R.id.buttonViewData:
                     Intent intent3 = new Intent(context, DataViewer.class);
                     startActivity(intent3);

@@ -1,70 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/task_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        tools:context="com.example.jbutler.mymou.mymou.MainMenu">
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/task_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
 
     <View
-            android:id="@+id/background_main"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
+        android:id="@+id/background_main"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        tools:ignore="MissingConstraints" />
 
     <Button
-            android:id="@+id/buttonRewardZero"
-            android:layout_width="175dp"
-            android:layout_height="175dp"
-            android:text="Reward\nChoice #0"
-            android:textSize="30sp" />
+        android:id="@+id/buttonRewardZero"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
+        android:text="Reward\nChoice #0"
+        android:textSize="30sp"
+        tools:ignore="MissingConstraints" />
 
     <Button
-            android:id="@+id/buttonRewardOne"
-            android:layout_width="175dp"
-            android:layout_height="175dp"
-            android:text="Reward\nChoice #1"
-            android:textSize="30sp" />
+        android:id="@+id/buttonRewardOne"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
+        android:text="Reward\nChoice #1"
+        android:textSize="30sp"
+        tools:ignore="MissingConstraints" />
 
     <Button
-            android:id="@+id/buttonRewardTwo"
-            android:layout_width="175dp"
-            android:layout_height="175dp"
-            android:text="Reward\nChoice #2"
-            android:textSize="30sp" />
+        android:id="@+id/buttonRewardTwo"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
+        android:text="Reward\nChoice #2"
+        android:textSize="30sp"
+        tools:ignore="MissingConstraints" />
 
     <Button
-            android:id="@+id/buttonRewardThree"
-            android:layout_width="175dp"
-            android:layout_height="175dp"
-            android:text="Reward\nChoice #3"
-            android:textSize="30sp" />
-
+        android:id="@+id/buttonRewardThree"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
+        android:text="Reward\nChoice #3"
+        android:textSize="30sp"
+        tools:ignore="MissingConstraints" />
 
     <View
-            android:id="@+id/foregroundblack"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@color/black" />
+        android:id="@+id/foregroundblack"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/black"
+        tools:ignore="MissingConstraints" />
 
     <TextView
-            android:id="@+id/tvLog"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:textColor="@color/black"
-            android:textSize="40sp" />
+        android:id="@+id/tvLog"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        tools:ignore="MissingConstraints" />
 
     <TextView
-            android:id="@+id/tvError"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginHorizontal="20dp"
-            android:textColor="@color/grey"
-            android:textSize="30sp"
-            app:layout_constraintBottom_toBottomOf="@+id/foregroundblack" />
+        android:id="@+id/tvError"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginHorizontal="20dp"
+        android:textColor="@color/grey"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="@+id/foregroundblack"
+        tools:ignore="MissingConstraints" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
