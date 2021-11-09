@@ -1,19 +1,9 @@
 package mymou.preferences;
 
-
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.text.InputType;
-import android.view.Display;
-import android.widget.EditText;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
@@ -21,9 +11,6 @@ import mymou.R;
 
 public class PrefsFragTaskPassiveReward extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private Resources r;
-
-    public PrefsFragTaskPassiveReward() {
-    }
 
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
@@ -39,7 +26,6 @@ public class PrefsFragTaskPassiveReward extends PreferenceFragmentCompat impleme
 
         // Set onchange listener
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-
     }
 
    @Override
@@ -54,5 +40,4 @@ public class PrefsFragTaskPassiveReward extends PreferenceFragmentCompat impleme
         super.onDestroyView();
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
-
 }

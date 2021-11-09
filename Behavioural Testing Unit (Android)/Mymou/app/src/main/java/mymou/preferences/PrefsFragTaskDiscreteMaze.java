@@ -1,18 +1,14 @@
 package mymou.preferences;
 
-
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.preference.Preference;
+
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
-import androidx.preference.SeekBarPreference;
+
 import mymou.R;
 
 public class PrefsFragTaskDiscreteMaze extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener  {
-
-    public PrefsFragTaskDiscreteMaze() {
-    }
 
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
@@ -25,7 +21,6 @@ public class PrefsFragTaskDiscreteMaze extends PreferenceFragmentCompat implemen
         SeekBarPreferenceCustom seekBar1 = (SeekBarPreferenceCustom) findPreference(getString(R.string.preftag_dm_min_start_distance));
         seekBar1.setMin(1);
         seekBar1.setMax(preferencesManager.dm_max_dist_in_map);
-
 
         SeekBarPreferenceCustom seekBar2 = (SeekBarPreferenceCustom) findPreference(getString(R.string.preftag_dm_max_start_distance));
         seekBar2.setMin(1);
@@ -61,12 +56,10 @@ public class PrefsFragTaskDiscreteMaze extends PreferenceFragmentCompat implemen
         seekBar7.setMax(3);
 
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-
     }
 
-        @Override
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
         // Seekbars can't store values above 100, so store a secondary variable with the actual, scaled amount
         if (key.equals(getString(R.string.preftag_dm_animation_duration))) {
             int val = (int) sharedPreferences.getInt(key, getResources().getInteger(R.integer.default_dm_animation_duration));
@@ -87,6 +80,4 @@ public class PrefsFragTaskDiscreteMaze extends PreferenceFragmentCompat implemen
         super.onDestroyView();
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
-
-
 }

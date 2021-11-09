@@ -1,15 +1,12 @@
 package mymou.preferences;
 
-
 import android.os.Bundle;
+
 import androidx.preference.PreferenceFragmentCompat;
 
 import mymou.R;
 
 public class PrefsFragTaskObjectDiscrim extends PreferenceFragmentCompat  {
-
-    public PrefsFragTaskObjectDiscrim() {
-    }
 
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
@@ -30,7 +27,5 @@ public class PrefsFragTaskObjectDiscrim extends PreferenceFragmentCompat  {
         SeekBarPreferenceCustom seekBar3 = (SeekBarPreferenceCustom) findPreference(getString(R.string.preftag_od_num_steps));
         seekBar3.setMin(1);
         seekBar3.setMax(10);
-
     }
-
 }

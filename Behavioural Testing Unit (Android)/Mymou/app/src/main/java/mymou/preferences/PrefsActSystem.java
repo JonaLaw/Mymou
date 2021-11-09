@@ -62,12 +62,12 @@ public class PrefsActSystem extends AppCompatActivity implements
         }
         ft.add(R.id.container_, preferenceFragment);
         ft.commit();
-
     }
 
     @Override
     public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
-        Log.d(TAG, pref.getKey());
+        Log.d(TAG, "onPreferenceStartFragment:" + pref.getKey());
+
         if (pref.getKey().equals(getString(R.string.preftag_crop_picker))) {
             Intent intent = new Intent(this, PrefsActCropPicker.class);
             startActivity(intent);
@@ -78,11 +78,13 @@ public class PrefsActSystem extends AppCompatActivity implements
             startActivity(intent);
             return true;
         }
+
         // Instantiate the new Fragment
         Bundle args = pref.getExtras();
         args.putString("pref_tag", pref.getKey());
 
-        final Fragment fragment = getSupportFragmentManager().getFragmentFactory().instantiate(getClassLoader(),pref.getFragment());
+        final Fragment fragment = getSupportFragmentManager()
+                .getFragmentFactory().instantiate(getClassLoader(),pref.getFragment());
         fragment.setArguments(args);
         fragment.setTargetFragment(caller, 0);
 
@@ -91,11 +93,7 @@ public class PrefsActSystem extends AppCompatActivity implements
                 .replace(R.id.container_, fragment)
                 .addToBackStack(null)
                 .commit();
+
         return true;
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    }
-
 }

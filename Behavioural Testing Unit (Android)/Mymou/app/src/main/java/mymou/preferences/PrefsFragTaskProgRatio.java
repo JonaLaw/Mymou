@@ -1,20 +1,11 @@
 package mymou.preferences;
 
-
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.text.InputType;
-import android.util.Log;
 import android.view.Display;
-import android.widget.EditText;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
@@ -22,9 +13,6 @@ import mymou.R;
 
 public class PrefsFragTaskProgRatio extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private Resources r;
-
-    public PrefsFragTaskProgRatio() {
-    }
 
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
@@ -62,21 +50,18 @@ public class PrefsFragTaskProgRatio extends PreferenceFragmentCompat implements 
 
         // Set onchange listener
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-
     }
 
    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
         if (key.equals(getContext().getResources().getString(R.string.preftag_pr_skip_go_cue))) {
              findPreference(getContext().getResources().getString(R.string.preftag_pr_timeout_length)).setVisible(sharedPreferences.getBoolean(key, r.getBoolean(R.bool.default_pr_skip_go_cue)));
              findPreference(getContext().getResources().getString(R.string.preftag_pr_sess_length)).setVisible(sharedPreferences.getBoolean(key, r.getBoolean(R.bool.default_pr_skip_go_cue)));
              findPreference(getContext().getResources().getString(R.string.preftag_pr_iti)).setVisible(sharedPreferences.getBoolean(key, r.getBoolean(R.bool.default_pr_skip_go_cue)));
         }
-              if (key.equals(getContext().getResources().getString(R.string.preftag_pr_progress_bar))) {
+        if (key.equals(getContext().getResources().getString(R.string.preftag_pr_progress_bar))) {
              findPreference(getContext().getResources().getString(R.string.preftag_pr_animation_duration)).setVisible(sharedPreferences.getBoolean(key, r.getBoolean(R.bool.default_pr_progress_bar)));
         }
-
     }
 
     @Override
@@ -84,5 +69,4 @@ public class PrefsFragTaskProgRatio extends PreferenceFragmentCompat implements 
         super.onDestroyView();
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
-
 }

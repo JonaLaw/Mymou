@@ -1,19 +1,11 @@
 package mymou.preferences;
 
-
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.Display;
-import android.widget.EditText;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
@@ -21,9 +13,6 @@ import mymou.R;
 
 public class PrefsFragTaskStaticCue extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private Resources r;
-
-    public PrefsFragTaskStaticCue() {
-    }
 
     @Override
     public void onCreatePreferences(Bundle bundle, String rootKey) {
@@ -70,12 +59,10 @@ public class PrefsFragTaskStaticCue extends PreferenceFragmentCompat implements 
 
         // Set onchange listener
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
         if (key.equals(getContext().getResources().getString(R.string.preftag_t_sc_stopsess))) {
             findPreference(getContext().getResources().getString(R.string.preftag_t_sc_sess_length)).setVisible(sharedPreferences.getBoolean(key, r.getBoolean(R.bool.default_t_sc_stopsess)));
         }
@@ -83,7 +70,6 @@ public class PrefsFragTaskStaticCue extends PreferenceFragmentCompat implements 
             findPreference(getContext().getResources().getString(R.string.preftag_t_sc_cuextwo)).setVisible(sharedPreferences.getBoolean(key, r.getBoolean(R.bool.default_t_sc_alternatecue)));
             findPreference(getContext().getResources().getString(R.string.preftag_t_sc_cueytwo)).setVisible(sharedPreferences.getBoolean(key, r.getBoolean(R.bool.default_t_sc_alternatecue)));
         }
-
     }
 
     @Override
@@ -91,5 +77,4 @@ public class PrefsFragTaskStaticCue extends PreferenceFragmentCompat implements 
         super.onDestroyView();
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
-
 }
