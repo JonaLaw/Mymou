@@ -1,108 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <PreferenceCategory
-            android:layout="@layout/preferences_title"
-            app:key="task_settings"
-            app:title="Common task settings">
+        android:layout="@layout/preferences_title"
+        app:key="task_settings"
+        app:title="Common task settings">
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:max="@integer/max_rewardtimeoutduration"
-                app:defaultValue="@integer/default_rewardduration"
-                app:key="@string/preftag_rewardduration"
-                app:title="Reward duration (ms)" />
+            android:max="@integer/max_rewardtimeoutduration"
+            app:defaultValue="@integer/default_rewardduration"
+            app:key="@string/preftag_rewardduration"
+            app:title="Reward duration (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:max="@integer/max_rewardtimeoutduration"
-                app:defaultValue="@integer/default_timeoutduration"
-                app:key="@string/preftag_timeoutduration"
-                app:title="Timeout duration for error trials (ms)" />
+            android:max="@integer/max_rewardtimeoutduration"
+            app:defaultValue="@integer/default_timeoutduration"
+            app:key="@string/preftag_timeoutduration"
+            app:title="Timeout duration for error trials (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:max="@integer/max_responseduration"
-                app:defaultValue="@integer/default_responseduration"
-                app:key="@string/preftag_responseduration"
-                app:title="Maximum response duration (seconds)" />
+            android:max="@integer/max_responseduration"
+            app:defaultValue="@integer/default_responseduration"
+            app:key="@string/preftag_responseduration"
+            app:title="Maximum response duration (seconds)" />
 
         <Preference
-                android:summary="Border thickness, border colour, cue size, cue spacing"
-                app:fragment="mymou.preferences.PrefsFragCommon"
-                app:key="@string/preftag_cue_settings"
-                app:title="Go cue settings" />
+            android:summary="Border thickness, border colour, cue size, cue spacing"
+            app:fragment="mymou.preferences.PrefsFragCommon"
+            app:key="@string/preftag_cue_settings"
+            app:title="Go cue settings" />
 
         <ListPreference
-                android:defaultValue="@integer/default_taskbackgroundcolour"
-                android:entries="@array/colournames"
-                android:entryValues="@array/colourvalues"
-                app:key="@string/preftag_taskbackgroundcolour"
-                app:title="Task background colour" />
+            android:defaultValue="@integer/default_taskbackgroundcolour"
+            android:entries="@array/colournames"
+            android:entryValues="@array/colourvalues"
+            app:key="@string/preftag_taskbackgroundcolour"
+            app:title="Task background colour" />
 
         <ListPreference
-                android:defaultValue="@integer/default_rewardbackgroundcolour"
-                android:entries="@array/colournames"
-                android:entryValues="@array/colourvalues"
-                app:key="@string/preftag_rewardbackgroundcolour"
-                app:title="Reward background colour" />
+            android:defaultValue="@integer/default_rewardbackgroundcolour"
+            android:entries="@array/colournames"
+            android:entryValues="@array/colourvalues"
+            app:key="@string/preftag_rewardbackgroundcolour"
+            app:title="Reward background colour" />
 
         <ListPreference
-                android:defaultValue="@integer/default_timeoutbackgroundcolour"
-                android:entries="@array/colournames"
-                android:entryValues="@array/colourvalues"
-                app:key="@string/preftag_timeoutbackgroundcolour"
-                app:title="Timeout background colour" />
+            android:defaultValue="@integer/default_timeoutbackgroundcolour"
+            android:entries="@array/colournames"
+            android:entryValues="@array/colourvalues"
+            app:key="@string/preftag_timeoutbackgroundcolour"
+            app:title="Timeout background colour" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:defaultValue="@integer/default_num_monkeys"
-                android:max="@integer/max_num_monkeys"
-                app:min="@integer/min_num_monkeys"
-                android:summary="Number of monkeys in total that will use the device"
-                app:key="@string/preftag_num_monkeys"
-                app:title="Number of monkeys" />
+            android:defaultValue="@integer/default_num_monkeys"
+            android:max="@integer/max_num_monkeys"
+            android:summary="Number of monkeys in total that will use the device"
+            app:key="@string/preftag_num_monkeys"
+            app:min="@integer/min_num_monkeys"
+            app:title="Number of monkeys" />
 
         <Preference
-                android:summary="Common event codes that are stored in log data for various task events"
-                app:fragment="mymou.preferences.PrefsFragCommon"
-                app:key="@string/preftag_event_codes"
-                app:title="Event codes" />
+            android:summary="Common event codes that are stored in log data for various task events"
+            app:fragment="mymou.preferences.PrefsFragCommon"
+            app:key="@string/preftag_event_codes"
+            app:title="Event codes" />
 
         <SwitchPreferenceCompat
-                android:summary="Device will beep on successful trials to aid secondary reinforcement"
-                app:defaultValue="@bool/default_sound"
-                app:key="@string/preftag_sound"
-                app:title="Enable sounds" />
+            android:summary="Device will beep on successful trials to aid secondary reinforcement"
+            app:defaultValue="@bool/default_sound"
+            app:key="@string/preftag_sound"
+            app:title="Enable sounds" />
 
         <Preference
-                app:fragment="mymou.preferences.PrefsFragSoundPicker"
-                app:key="soundpicker_prefsfrag"
-                app:title="Choose sound for secondary reinforcer"/>
+            app:fragment="mymou.preferences.PrefsFragSoundPicker"
+            app:key="soundpicker_prefsfrag"
+            app:title="Choose sound for secondary reinforcer" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-            android:layout="@layout/preferences_title"
-            app:key="power_saving_settings"
-            app:title="Power saving settings">
+        android:layout="@layout/preferences_title"
+        app:key="power_saving_settings"
+        app:title="Power saving settings">
 
         <SwitchPreferenceCompat
-                android:summary="Device will reduce screen brightness when not in use to conserve power"
-                app:defaultValue="@bool/default_dimscreen"
-                app:key="@string/preftag_dimscreen"
-                app:title="Dim screen when not in use" />
+            android:summary="Device will reduce screen brightness when not in use to conserve power"
+            app:defaultValue="@bool/default_dimscreen"
+            app:key="@string/preftag_dimscreen"
+            app:title="Dim screen when not in use" />
 
         <ListPreference
-                android:defaultValue="@integer/default_dimscreenamount"
-                android:entries="@array/dimscreennames"
-                android:entryValues="@array/dimscreenvalues"
-                app:key="@string/preftag_dimscreenlevel"
-                app:title="Dim screen amount (percentage)" />
+            android:defaultValue="@integer/default_dimscreenamount"
+            android:entries="@array/dimscreennames"
+            android:entryValues="@array/dimscreenvalues"
+            app:key="@string/preftag_dimscreenlevel"
+            app:title="Dim screen amount (percentage)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:defaultValue="@integer/default_dimscreentime"
-                android:max="60"
-                app:min="1"
-                android:summary="If no trial is started for this duration then the screen will be dimmed until it is next pressed"
-                app:key="@string/preftag_dimscreentime"
-                app:title="Time to wait until dimming screen (minutes)" />
+            android:defaultValue="@integer/default_dimscreentime"
+            android:max="60"
+            android:summary="If no trial is started for this duration then the screen will be dimmed until it is next pressed"
+            app:key="@string/preftag_dimscreentime"
+            app:min="1"
+            app:title="Time to wait until dimming screen (minutes)" />
 
     </PreferenceCategory>
 

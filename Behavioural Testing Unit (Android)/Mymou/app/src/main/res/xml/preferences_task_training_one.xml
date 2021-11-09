@@ -1,54 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-            android:layout="@layout/preferences_title"
-            app:key="task_settings"
-            app:title="Task settings">
+        android:layout="@layout/preferences_title"
+        app:key="task_settings"
+        app:title="Task settings">
 
         <ListPreference
-                android:defaultValue="@integer/default_t_one_screen_colour"
-                android:entries="@array/colournames"
-                android:entryValues="@array/colourvalues"
-                app:key="@string/preftag_t_one_screen_colour"
-                app:title="Colour of screen" />
+            android:defaultValue="@integer/default_t_one_screen_colour"
+            android:entries="@array/colournames"
+            android:entryValues="@array/colourvalues"
+            app:key="@string/preftag_t_one_screen_colour"
+            app:title="Colour of screen" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:defaultValue="@integer/default_t_one_num_presses"
-                app:key="@string/preftag_t_one_num_presses"
-                app:title="Number of presses needed for reward" />
+            android:defaultValue="@integer/default_t_one_num_presses"
+            app:key="@string/preftag_t_one_num_presses"
+            app:title="Number of presses needed for reward" />
 
         <SwitchPreferenceCompat
-                app:defaultValue="@bool/default_t_one_skip_go_cue"
-                app:key="@string/preftag_skip_go_cue"
-                app:title="Skip subjects having to press the Go cue (recommended)" />
+            app:defaultValue="@bool/default_t_one_skip_go_cue"
+            app:key="@string/preftag_skip_go_cue"
+            app:title="Skip subjects having to press the Go cue (recommended)" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-            app:key="small_moving_cue"
-            android:layout="@layout/preferences_title"
-            app:title="Training 4: Small Moving Cue">
+        android:layout="@layout/preferences_title"
+        app:key="small_moving_cue"
+        app:title="Training 4: Small Moving Cue">
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:defaultValue="@integer/default_t_four_num_static_pos"
-                app:key="@string/preftag_t_four_num_static_pos"
-                app:title="Number of presses until the cue moves"
-                android:max="@integer/max_t_num_static_cue_presses"/>
+            android:defaultValue="@integer/default_t_four_num_static_pos"
+            android:max="@integer/max_t_num_static_cue_presses"
+            app:key="@string/preftag_t_four_num_static_pos"
+            app:title="Number of presses until the cue moves" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:defaultValue="@integer/default_random_reward_start"
-                app:key="@string/preftag_t_random_reward_start"
-                app:title="Minimum time (s) for random reward to be given" />
+            android:defaultValue="@integer/default_random_reward_start"
+            app:key="@string/preftag_t_random_reward_start"
+            app:title="Minimum time (s) for random reward to be given" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:defaultValue="@integer/default_random_reward_stop"
-                app:key="@string/preftag_t_random_reward_stop"
-                app:title="Maximum time (s) for random reward to be given" />
-
+            android:defaultValue="@integer/default_random_reward_stop"
+            app:key="@string/preftag_t_random_reward_stop"
+            app:title="Maximum time (s) for random reward to be given" />
 
     </PreferenceCategory>
-
 
 </androidx.preference.PreferenceScreen>

@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-            app:key="task_settings"
-            android:layout="@layout/preferences_title"
-            app:title="Settings for Discrete Value Space task">
-
+        android:layout="@layout/preferences_title"
+        app:key="task_settings"
+        app:title="Settings for Discrete Value Space task">
 
         <mymou.preferences.SeekBarPreferenceCustom
-                android:defaultValue="@integer/default_dvs_feedback_duration"
-                app:key="@string/preftag_dvs_feedback_duration"
-                app:title="Feedback length"
-                android:max="9999"
-                app:min="100"
-                />
+            android:defaultValue="@integer/default_dvs_feedback_duration"
+            android:max="9999"
+            app:key="@string/preftag_dvs_feedback_duration"
+            app:min="100"
+            app:title="Feedback length" />
 
         <SwitchPreferenceCompat
-                android:summary="If selected, each option will appear at a random position on the screen each trial, otherwise options are on the left and right of the screen centre"
-                app:key="@string/preftag_dvs_randomly_place_options"
-                app:title="Randomly place options around screen" />
+            android:summary="If selected, each option will appear at a random position on the screen each trial, otherwise options are on the left and right of the screen centre"
+            app:key="@string/preftag_dvs_randomly_place_options"
+            app:title="Randomly place options around screen" />
 
         <SwitchPreferenceCompat
-                android:summary="If selected, choices will be drawn from the entire 10x10 grid. If not selected, stimuli will only be drawn from every other row and column of the map (50 stimuli), alternating between the odd and even rows/columns each day"
-                app:key="@string/preftag_dvs_give_full_map"
-                app:title="Use the entire map (100 stimuli)" />
+            android:summary="If selected, choices will be drawn from the entire 10x10 grid. If not selected, stimuli will only be drawn from every other row and column of the map (50 stimuli), alternating between the odd and even rows/columns each day"
+            app:key="@string/preftag_dvs_give_full_map"
+            app:title="Use the entire map (100 stimuli)" />
 
     </PreferenceCategory>
 
