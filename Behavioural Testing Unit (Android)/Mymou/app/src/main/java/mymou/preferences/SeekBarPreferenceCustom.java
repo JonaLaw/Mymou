@@ -1,21 +1,29 @@
 package mymou.preferences;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
+
+import java.util.Locale;
+
 import mymou.R;
 
 
@@ -322,6 +330,38 @@ public class SeekBarPreferenceCustom extends Preference {
         mMin = myState.min;
         mMax = myState.max;
         notifyChanged();
+    }
+
+    @Override
+    protected void onClick() {
+        Log.d(TAG, "onClick");
+
+        // Number dialog
+        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+        alert.setTitle(String.format(Locale.getDefault(),
+                "Input Number (%d - %d)", getMin(), getMax()));
+        final EditText input = new EditText(getContext());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setRawInputType(Configuration.KEYBOARD_12KEY);
+        alert.setView(input);
+        alert.setPositiveButton("Ok", (dialog, whichButton) -> {
+            try {
+                int value = Integer.parseInt(input.getText().toString());
+                if (value < getMax()) {
+                    setValue(value);
+                } else {
+                    Toast.makeText(getContext(), "Value Too High", Toast.LENGTH_LONG).show();
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Invalid Number", Toast.LENGTH_LONG).show();
+            }
+        });
+        alert.setNegativeButton("Cancel", (dialog, id) -> {
+            //Do nothing
+        });
+
+        alert.show();
+        super.onClick();
     }
 
     /**
