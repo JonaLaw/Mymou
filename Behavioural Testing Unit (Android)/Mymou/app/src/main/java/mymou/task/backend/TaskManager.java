@@ -117,7 +117,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         h4 = new Handler();  // Screen dim timer
 
         time = 0;
-        cues_Go = new Button[4];
         task_enabled = true;
         trial_running = false;
     }
@@ -139,16 +138,14 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         assignObjects();
 
         // Load settings
-        loadAndApplySettings();
+        setupFolderAndFile();
         loadtask();
 
         // Write all settings to disk for users to be able to check later
         new WriteSettingsToDisk(preferencesManager, taskId).run();
 
         // Now adjust UI elements depending on the settings
-        disableExtraGoCues();
-        disableExtraRewardCues();
-        positionGoCues();
+        setupCues();
         setOnClickListeners();
 
         // Load back end functions
@@ -220,25 +217,15 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         fragmentTransaction = fragmentManager.beginTransaction();
         latestRewardChannel = preferencesManager.default_rew_chan;
 
-        // Layout views
-        for (int i = 0; i < cues_Go.length; i++) {
-            cues_Go[i] = UtilsTask.addColorCue(i, preferencesManager.colours_gocues[i],
-                    this, this, findViewById(R.id.task_container));
-        }
-
-        // Reward cues for the different reward options
-        cues_Reward = new Button[4];
-        cues_Reward[0] = findViewById(R.id.buttonRewardZero);
-        cues_Reward[1] = findViewById(R.id.buttonRewardOne);
-        cues_Reward[2] = findViewById(R.id.buttonRewardTwo);
-        cues_Reward[3] = findViewById(R.id.buttonRewardThree);
-
         tvExplanation = findViewById(R.id.tvLog);
         tvErrors = findViewById(R.id.tvError);
         UtilsTask.toggleView(tvExplanation, preferencesManager.debug);
+
+        // Colours
+        findViewById(R.id.task_container).setBackgroundColor(preferencesManager.taskbackground);
     }
 
-    private void loadAndApplySettings() {
+    private void setupFolderAndFile() {
         // Setting up folder structure for the day
         // TODO This probably assumes that only one session will happen per day so
         //  multiple multi-monkey tests won't work
@@ -252,24 +239,16 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         if (settings.getBoolean(getString(R.string.filename_by_date_key), true)) {
             filename = "default";
-        }
-        else {
+        } else {
             String settingsFilename = settings.getString(getString(R.string.filename_custom_key),
                     getString(R.string.filename_default_string));
             if (FilenameValidation.validateStringFilenameUsingContains(settingsFilename)) {
                 filename = settingsFilename;
-            }
-            else {
+            } else {
                 filename = "default";
             }
         }
         folderManager.tryMakingFileForTaskTrial(filename);
-
-        // Colours
-        findViewById(R.id.task_container).setBackgroundColor(preferencesManager.taskbackground);
-        for (int i = 0; i < preferencesManager.num_monkeys; i++) {
-            cues_Go[i].setBackgroundColor(preferencesManager.colours_gocues[i]);
-        }
     }
 
     private void loadtask() {
@@ -339,57 +318,62 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         handle_feedback = preferencesManager.handle_feedback;
     }
 
-    private void disableExtraGoCues() {
-        // Disable go cues for extra monkeys
-        Button[] cues_excluded = Arrays.copyOfRange(cues_Go,
-                preferencesManager.num_monkeys, cues_Go.length);
-        UtilsTask.toggleCues(cues_excluded, false);
+    private void setupCues() {
+        cues_Go = new Button[preferencesManager.num_monkeys];
 
-        // Shorten list to number needed
-        cues_Go = Arrays.copyOf(cues_Go, preferencesManager.num_monkeys);
-    }
+        Log.d(TAG, "setupCues: " + cues_Go.length);
 
-    private void disableExtraRewardCues() {
-        // Disable go cues for extra monkeys
-        Button[] cues_excluded = Arrays.copyOfRange(cues_Reward,
-                preferencesManager.num_reward_chans, cues_Reward.length);
-        UtilsTask.toggleCues(cues_excluded, false);
+        // Setup the cues
+        for (int i = 0; i < cues_Go.length; i++) {
+            cues_Go[i] = UtilsTask.addColorCue(i, preferencesManager.colours_gocues[i],
+                    this, this, findViewById(R.id.task_container));
+            cues_Go[i].setBackgroundColor(preferencesManager.colours_gocues[i]);
+        }
 
-        // Shorten list to number needed
-        cues_Reward = Arrays.copyOf(cues_Reward, preferencesManager.num_reward_chans);
-    }
-
-    // Go cues are in static location to make it easier for monkeys to press their own cue
-    private void positionGoCues() {
+        // Check the size of the go cues
         if (possible_cue_locs.length < preferencesManager.num_monkeys) {
             new Exception("Go cues too big, not enough room for number of monkeys specified." +
                     "\nPlease reduce the size of the go cues or the number of monkeys");
         }
 
-        // If only one monkey then put start cue in middle of screen
+        // Go cues are in static location to make it easier for monkeys to press their own cue
+        // If there is only one monkey then put the start cue in the middle of screen
         if (preferencesManager.num_monkeys == 1) {
             cues_Go[0].setX(possible_cue_locs[possible_cue_locs.length / 2].x);
             cues_Go[0].setY(possible_cue_locs[possible_cue_locs.length / 2].y);
-            return;
-        }
+        } else {
+            // If multiple monkeys then tile the space evenly
+            int pos;
+            int step = 1;
 
-        // If multiple monkeys then tile the space evenly
-        int pos;
-        int step = 1;
-        // If there's enough room then space the go cues around the screen
-        if (possible_cue_locs.length > preferencesManager.num_monkeys * 2) {
-            step *= 2;
-        }
+            // If there's enough room then space the go cues around the screen
+            if (possible_cue_locs.length > 2 * preferencesManager.num_monkeys) step *= 2;
 
-        for (int i_monk = 0; i_monk < preferencesManager.num_monkeys; i_monk++) {
-            if (i_monk % 2 == 0) {
-                pos = i_monk * step;
-            } else {
-                pos = possible_cue_locs.length - (i_monk * step);
+            // Space them out
+            for (int i = 0; i < cues_Go.length; i++) {
+                if (i % 2 == 0) {
+                    pos = i * step;
+                } else {
+                    pos = possible_cue_locs.length - (i * step);
+                }
+                cues_Go[i].setX(possible_cue_locs[pos].x);
+                cues_Go[i].setY(possible_cue_locs[pos].y);
             }
-            cues_Go[i_monk].setX(possible_cue_locs[pos].x);
-            cues_Go[i_monk].setY(possible_cue_locs[pos].y);
         }
+
+        // Reward cues for the different reward options
+        cues_Reward = new Button[4];
+        cues_Reward[0] = findViewById(R.id.buttonRewardZero);
+        cues_Reward[1] = findViewById(R.id.buttonRewardOne);
+        cues_Reward[2] = findViewById(R.id.buttonRewardTwo);
+        cues_Reward[3] = findViewById(R.id.buttonRewardThree);
+
+        // Disable go cues for extra monkeys
+        UtilsTask.toggleCues(Arrays.copyOfRange(cues_Reward, preferencesManager.num_reward_chans, cues_Reward.length),
+                false);
+
+        // Shorten list to number needed
+        cues_Reward = Arrays.copyOf(cues_Reward, preferencesManager.num_reward_chans);
     }
 
     private void setOnClickListeners() {
