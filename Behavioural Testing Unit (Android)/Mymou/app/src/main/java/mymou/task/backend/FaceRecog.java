@@ -36,7 +36,7 @@ final class FaceRecog {
     double[][] wi, wo;
     double mean, var;
 
-    public FaceRecog() {
+    public FaceRecog(TaskManager taskManager) {
         wi = loadWeights("wi.txt");
         wo = loadWeights("wo.txt");
         double[][] meanAndVar;
@@ -49,7 +49,7 @@ final class FaceRecog {
             error_message = "Weights for neural network not found (\'meanAndVar.txt\'). Disable Facial recognition in settings to fix this error message, or supply weights for the network to use";
         }
         Log.d(TAG,"faceRecog instantiated.."+mean+" "+var);
-        TaskManager.FaceRecogFinishedLoading();
+        taskManager.FaceRecogFinishedLoading();
     }
 
     public final double[][] loadWeights(String fileName) {

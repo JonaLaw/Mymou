@@ -1,7 +1,6 @@
 package mymou.task.backend;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -44,70 +43,88 @@ import java.util.Calendar;
 public class TaskManager extends FragmentActivity implements View.OnClickListener {
 
     // Debug
-    public static String TAG = "MyMouTaskManager";
-    private static TextView tvExplanation, tvErrors;  // Explanatory messages for demo mode, and any errors present
+    private final String TAG = "MyMouTaskManager";
+    private TextView tvExplanation, tvErrors;  // Explanatory messages for demo mode, and any errors present
 
-    private static int taskId;  // Unique string prefixed to all log entries
-    public static String TAG_FRAGMENT_TASK = "taskfrag";
-    public static String TAG_FRAGMENT_CAMERA = "camerafrag";
+    private int taskId;  // Unique string prefixed to all log entries
+    private final String TAG_FRAGMENT_TASK = "taskfrag";
+    private final String TAG_FRAGMENT_CAMERA = "camerafrag";
 
     // Settings
-    private static String filename;
-    public static RewardSystem rewardSystem;
-    private static int latestRewardChannel;  // Track which reward channel was used so that it can be reused.
-    public static int faceRecogPrediction = -1;  // Number corresponds to ID of the predicted subject
-    private static int monkeyButtonPressed = -1;  // Each monkey has their individual go cue, which this tracks
-    private static boolean faceRecogRunning = false;  // If true, TaskManager will not start a trial as it is waiting for the result of faceRecog to be returned
-    private static boolean handle_feedback = true;  // If true, taskmanager will deliver reward for correct trials and display timeouts for incorrect trials
+    private String filename;
+    private RewardSystem rewardSystem;
+    private int latestRewardChannel;  // Track which reward channel was used so that it can be reused.
+    private int faceRecogPrediction;  // Number corresponds to ID of the predicted subject
+    private int monkeyButtonPressed;  // Each monkey has their individual go cue, which this tracks
+    private boolean faceRecogRunning;  // If true, TaskManager will not start a trial as it is waiting for the result of faceRecog to be returned
+    private boolean handle_feedback;  // If true, taskmanager will deliver reward for correct trials and display timeouts for incorrect trials
 
-    private static PreferencesManager preferencesManager;
-    private static FolderManager folderManager;
-    private static FaceRecog faceRecog;
-    private static ArrayList<String> trialData;
-    public static String photoTimestamp;
-    private static Handler logHandler;
-    private static HandlerThread logThread;
-    private static FragmentManager fragmentManager;
-    private static FragmentTransaction fragmentTransaction;
-    private static Context mContext;
-    private static Activity activity;
-    private static Camera camera;
+    private PreferencesManager preferencesManager;
+    private FolderManager folderManager;
+    private FaceRecog faceRecog;
+    private Handler logHandler;
+    private HandlerThread logThread;
+    private FragmentManager fragmentManager;
+    private FragmentTransaction fragmentTransaction;
+    private Camera camera;
 
-    // Aync handlers used to posting delayed task events
-    private static Handler h0 = new Handler();  // Task trial_timer
-    private static Handler h1 = new Handler();  // Prepare for new trial
-    private static Handler h2 = new Handler();  // Timeout go cues
-    private static Handler h3 = new Handler();  // Daily timer
-    private static Handler h4 = new Handler();  // Screen dim timer
+    // Async handlers used to posting delayed task events
+    private final Handler h0;  // Task trial_timer
+    private final Handler h1;  // Prepare for new trial
+    private final Handler h2;  // Timeout go cues
+    private final Handler h3;  // Daily timer
+    private final Handler h4;  // Screen dim timer
 
-    private static int trialCounter = 0;
+    // Trial
+    private ArrayList<String> trialData;
+    public String photoTimestamp;
+    private int trialCounter = 0;
 
     // Predetermined locations where cues can appear on screen,
     // calculated by UtilsTask.calculateCueLocations()
-    private static Point[] possible_cue_locs;
+    private Point[] possible_cue_locs;
 
     // Timeouts for wrong choices by subject
-    private static int timeoutWrongGoCuePressed = 300;  // Timeout for not pressing their own Go cue
+    private final int timeoutWrongGoCuePressed = 300;  // Timeout for not pressing their own Go cue
 
     // Timer to reset task if subject stops halfway through a trial
-    private static int time = 0;  // Time from last press - used for idle timeout if it reaches maxTrialDuration
-    private static boolean timerRunning;  // Signals if trial_timer currently active
+    private int time;  // Time from last press - used for idle timeout if it reaches maxTrialDuration
+    private boolean timerRunning;  // Signals if trial_timer currently active
 
     // Task objects
-    private static Button[] cues_Go = new Button[4]; // Go cues to start a trial
-    private static Button[] cues_Reward;  // Reward cues for the different reward options
+    private Button[] cues_Go; // Go cues to start a trial
+    private Button[] cues_Reward;  // Reward cues for the different reward options
 
     // Boolean to signal if task should be active or not (e.g. overnight it is set to true)
-    public static boolean task_enabled = true;
+    public boolean task_enabled;
 
     // Boolean to signal whether a trial is currently active on screen
-    private static boolean trial_running = false;
+    private boolean trial_running;
 
     // Loggers to track session variables
-    private static int l_rewgiven, l_numcorr;
+    private int l_rewgiven, l_numcorr;
+
+    public TaskManager() {
+        faceRecogPrediction = -1;
+        monkeyButtonPressed = -1;
+        faceRecogRunning = false;
+        handle_feedback = true;
+
+        h0 = new Handler();  // Task trial_timer
+        h1 = new Handler();  // Prepare for new trial
+        h2 = new Handler();  // Timeout go cues
+        h3 = new Handler();  // Daily timer
+        h4 = new Handler();  // Screen dim timer
+
+        time = 0;
+        cues_Go = new Button[4];
+        task_enabled = true;
+        trial_running = false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_all_tasks);
@@ -138,12 +155,10 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         dailyTimer(false);
         if (preferencesManager.facerecog) {
             // Load facerecog off the main thread as takes a while
-            Thread t = new Thread(new Runnable() {
-                public void run() {
-                    faceRecog = new FaceRecog();
-                    if (!faceRecog.instantiated_successfully) {
-                        tvErrors.setText(faceRecog.error_message);
-                    }
+            Thread t = new Thread(() -> {
+                faceRecog = new FaceRecog(this);
+                if (!faceRecog.instantiated_successfully) {
+                    tvErrors.setText(faceRecog.error_message);
                 }
             });
             t.start();
@@ -175,7 +190,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         if (!PreferencesManager.debug) {
             // Check if permission is granted to pin the screen
             // This should almost never happen as it's checked right before a task is started
-            if (new PermissionManager(mContext, activity)
+            if (new PermissionManager(this, this)
                     .checkPermissionGranted(Manifest.permission.WRITE_SETTINGS)) {
                 this.startLockTask();
             } else {
@@ -192,17 +207,13 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 "\nThis results in the device's UI staying active during a task." +
                 "\n\nPlease give the app permission when prompted to in the Main Menu.")
                 .setTitle("Warning - App not permitted to Lock Task")
-                .setPositiveButton("Return", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //Load Main Menu
-                        Intent intent = new Intent(getApplicationContext(), MainMenu.class);
-                        startActivity(intent);
-                    }
+                .setPositiveButton("Return", (dialog, id) -> {
+                    //Load Main Menu
+                    Intent intent = new Intent(getApplicationContext(), MainMenu.class);
+                    startActivity(intent);
                 })
-                .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //Do nothing
-                    }
+                .setNegativeButton("Ignore", (dialog, id) -> {
+                    //Do nothing
                 });
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -215,19 +226,15 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 "\nThis is not recommended for actual training." +
                 "\n\nDebug mode can be deactivated in this app's System Settings.")
                 .setTitle("Warning - App in Debug mode")
-                .setPositiveButton("System Settings", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //Load settings
-                        Intent intent = new Intent(getApplicationContext(), PrefsActSystem.class);
-                        intent.putExtra(getString(R.string.preftag_settings_to_load),
-                                getString(R.string.preftag_menu_prefs));
-                        startActivity(intent);
-                    }
+                .setPositiveButton("System Settings", (dialog, id) -> {
+                    //Load settings
+                    Intent intent = new Intent(getApplicationContext(), PrefsActSystem.class);
+                    intent.putExtra(getString(R.string.preftag_settings_to_load),
+                            getString(R.string.preftag_menu_prefs));
+                    startActivity(intent);
                 })
-                .setNegativeButton("Continue", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //Do nothing
-                    }
+                .setNegativeButton("Continue", (dialog, id) -> {
+                    //Do nothing
                 });
 
         AlertDialog dialog = builder.create();
@@ -236,15 +243,12 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
     private void initialiseAutoRestartHandler() {
         Log.d(TAG, "initialiseAutoRestartHandler");
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable throwable) {
-                Log.d(TAG, "Task crashed");
-                new CrashReport(throwable, mContext);
-                if (!preferencesManager.debug) {
-                    rewardSystem.quitBt();
-                    restartApp();
-                }
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            Log.d(TAG, "Task crashed");
+            new CrashReport(throwable, TaskManager.this);
+            if (!preferencesManager.debug) {
+                rewardSystem.quitBt();
+                restartApp();
             }
         });
     }
@@ -255,20 +259,10 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         // Load settings for task
         switch (taskId) {
             case 0:
-                preferencesManager.TrainingTasks();
-                break;
             case 1:
-                preferencesManager.TrainingTasks();
-                break;
             case 2:
-                preferencesManager.TrainingTasks();
-                break;
             case 3:
-                preferencesManager.TrainingTasks();
-                break;
             case 4:
-                preferencesManager.TrainingTasks();
-                break;
             case 5:
                 preferencesManager.TrainingTasks();
                 break;
@@ -290,7 +284,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 preferencesManager.ProgressiveRatio();
                 // Reset numpresses needed
                 SharedPreferences.Editor editor =
-                        PreferenceManager.getDefaultSharedPreferences(mContext).edit();
+                        PreferenceManager.getDefaultSharedPreferences(this).edit();
                 editor.putBoolean(preferencesManager.r.getString(R.string.pr_successful_trial), false);
                 editor.commit();
                 break;
@@ -329,7 +323,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     private void disableExtraGoCues() {
         // Disable go cues for extra monkeys
         Button[] cues_excluded = Arrays.copyOfRange(cues_Go,
-                preferencesManager.num_monkeys,cues_Go.length);
+                preferencesManager.num_monkeys, cues_Go.length);
         UtilsTask.toggleCues(cues_excluded, false);
 
         // Shorten list to number needed
@@ -359,7 +353,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         rewardSystem.connectToBluetooth();
         if (rewardSystem.bluetoothConnection | !preferencesManager.bluetooth) {
             successfullyEstablished = enableApp(true);
-
         }
 
         // Repeat if either couldn't connect or couldn't enable app
@@ -367,37 +360,26 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
             tvErrors.setVisibility(View.INVISIBLE);
 
             // Register listener to disable tablet if bluetooth gets DC'ed
-            rewardSystem.setCustomObjectListener(new RewardSystem.MyCustomObjectListener() {
-                @Override
-                public void onChangeListener() {
-                    enableApp(rewardSystem.bluetoothConnection);
-                }
-            });
-
+            rewardSystem.setCustomObjectListener(() ->
+                    enableApp(rewardSystem.bluetoothConnection));
         } else {
             Handler handlerOne = new Handler();
-            handlerOne.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    initialiseRewardSystem();
-                }
-            }, 5000);
+            handlerOne.postDelayed(this::initialiseRewardSystem, 5000);
         }
     }
 
-
-    public static void startTrial(int monkId) {
-        if (!task_enabled) {
-            return;
-        }  // Abort if task currently disabled
+    public void startTrial(int monkId) {
+        // Abort if task currently disabled
+        if (!task_enabled) return;
 
         boolean valid_configuration = true;
         logEvent("Starting trial", false);
 
-        Task task = null;
         Bundle bundle = new Bundle();
         bundle.putInt("currMonk", monkId);
         bundle.putInt("numTrials", trialCounter);
+
+        Task task = null;
         switch (taskId) {
             case 0:
                 task = new TaskPassiveReward();
@@ -428,10 +410,8 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 break;
             case 9:
                 task = new TaskObjectDiscrimCol();
-
                 // Check settings correct
                 valid_configuration = preferencesManager.objectdiscrim_valid_config;
-
                 break;
             case 10:
                 task = new TaskObjectDiscrim();
@@ -460,7 +440,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
             case 18:
                 task = new TaskWalds();
                 break;
-	        case 19:
+            case 19:
                 task = new TaskColoredGrating();
                 break;
             default:
@@ -496,7 +476,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
             @Override
             public void setBrightnessFromTask_(boolean bool) {
-                UtilsSystem.setBrightness(bool, mContext, preferencesManager);
+                UtilsSystem.setBrightness(bool, TaskManager.this, preferencesManager);
             }
 
             @Override
@@ -516,9 +496,8 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
         if (!valid_configuration) {
             // TODO: This is specific to a single task
-            tvErrors.setText(preferencesManager.base_error_message +
-                    preferencesManager.objectdiscrim_errormessage);
-
+            tvErrors.setText(preferencesManager.base_error_message
+                    .concat(preferencesManager.objectdiscrim_errormessage));
         } else {
             // Start task timer first (so will still timeout if task is disabled)
             if (!timerRunning && preferencesManager.run_timer) {
@@ -540,43 +519,38 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
     }
 
-
-    // Automatically restart static fragmentTransaction so it is always available to use
-    private static void commitFragment() {
+    // Automatically restart fragmentTransaction so it is always available to use
+    private void commitFragment() {
         try {
             fragmentTransaction.commit();
             fragmentTransaction = fragmentManager.beginTransaction();
         } catch (IllegalStateException e) {
-            new CrashReport(e, mContext);
+            new CrashReport(e, this);
         }
     }
 
-    private static void loadCamera() {
+    private void loadCamera() {
         if (!preferencesManager.camera) {
             return;
         }
 
         Log.d(TAG, "Loading camera fragment");
-        if (preferencesManager.camera_to_use != mContext.getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
+        if (preferencesManager.camera_to_use != getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
             camera = new CameraMain();
         } else {
             camera = new CameraExternal();
         }
 
-        camera.setFragInterfaceListener(new CameraInterface() {
-            @Override
-            public void CameraLoaded() {
-                Log.d(TAG, "Camera loaded");  // do nothing
-            }
+        camera.setFragInterfaceListener(() -> {
+            Log.d(TAG, "Camera loaded");  // do nothing
         });
 
         Bundle bundle = new Bundle();
-        bundle.putBoolean(mContext.getResources().getString(R.string.task_mode), true);
+        bundle.putBoolean(getResources().getString(R.string.task_mode), true);
         camera.setArguments(bundle);
         fragmentTransaction.add(R.id.task_container, camera);
         commitFragment();
     }
-
 
     private void restartApp() {
         if (preferencesManager.restartoncrash) {
@@ -586,15 +560,16 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
             intent.putExtra("tasktoload", taskId);
             final PendingIntent pendingIntent = PendingIntent.getActivity(
                     getApplicationContext(),
-                    0, intent, PendingIntent.FLAG_ONE_SHOT);
+                    0,
+                    intent,
+                    PendingIntent.FLAG_ONE_SHOT);
             AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 50, pendingIntent);
         }
         System.exit(0);
     }
 
-
-    public static void setFaceRecogPrediction(int[] intArray) {
+    public void setFaceRecogPrediction(int[] intArray) {
         if (faceRecog != null && faceRecog.instantiated_successfully) {
             faceRecogPrediction = faceRecog.idImage(intArray);
             if (faceRecogPrediction == monkeyButtonPressed) {
@@ -614,7 +589,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         faceRecogRunning = false;
     }
 
-    private static void writeSessionToDatabase() {
+    private void writeSessionToDatabase() {
         Log.d(TAG, "Writing session to database");
         // Insert new entry into database
         Session session = new Session();
@@ -622,25 +597,21 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         session.num_corr_trials = l_numcorr;
         session.num_trials = trialCounter;
         session.date = folderManager.getBaseDate();
-        MymouDatabase db = Room.databaseBuilder(mContext,
+        MymouDatabase db = Room.databaseBuilder(this,
                 MymouDatabase.class, "MymouDatabase").build();
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                long id = db.userDao().insertSession(session);
-                if (id == -1) {  // If sess already existed, then update the entry instead
-                    Log.d(TAG, "Updated preexisting session");
-                    db.userDao().updateSession(session);
-                } else {
-                    Log.d(TAG, "Created new session");
-                }
+        AsyncTask.execute(() -> {
+            long id = db.userDao().insertSession(session);
+            if (id == -1) {  // If sess already existed, then update the entry instead
+                Log.d(TAG, "Updated preexisting session");
+                db.userDao().updateSession(session);
+            } else {
+                Log.d(TAG, "Created new session");
             }
         });
     }
 
-    public static void commitTrialData(String overallTrialOutcome) {
+    public void commitTrialData(String overallTrialOutcome) {
         if (trialData != null) {
-
             // Reset trial counter if we passed midnight
             if (dateHasChanged()) {
                 writeSessionToDatabase();
@@ -652,12 +623,11 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
             // Append all static variables to each line of trial data and write to file
             int length = trialData.size();
             for (int i = 0; i < length; i++) {
-                String s = trialData.get(i);
                 // Prefix variables that were constant throughout trial
                 // (trial result, which monkey, etc)
-                s = taskId + "," + trialCounter + "," + faceRecogPrediction +
-                        "," + overallTrialOutcome + "," + s;
-                logHandler.post(new WriteDataToFile(s, mContext, filename));
+                String dataToWrite = taskId + "," + trialCounter + "," + faceRecogPrediction +
+                        "," + overallTrialOutcome + "," + trialData.get(i);
+                logHandler.post(new WriteDataToFile(dataToWrite, this, filename));
             }
 
             // Place photo in correct monkey's folder
@@ -668,7 +638,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 File new_photo = new File(folderManager.getMonkeyFolder(faceRecogPrediction),
                         photo_name);
 
-                // Copy from originalphoto to newphoto
+                // Copy from original_photo to new_photo
                 boolean copy_successful = true;
                 FileChannel inputStream = null;
                 FileChannel outputStream = null;
@@ -684,10 +654,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                         try {
                             inputStream.close();
                             outputStream.close();
-                        } catch (IOException e) {
-                            copy_successful = false;
-                            e.printStackTrace();
-                        } catch (NullPointerException e) {
+                        } catch (IOException | NullPointerException e) {
                             copy_successful = false;
                             e.printStackTrace();
                         }
@@ -702,7 +669,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
 
         // And now clear the list ready for the next trial
-        trialData = new ArrayList<String>();
+        trialData = new ArrayList<>();
 
         // Increment trial counter
         trialCounter++;
@@ -721,7 +688,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     }
 
     // Recursive function to track time and switch app off when it hits a certain time
-    public static void dailyTimer(boolean shutdown) {
+    public void dailyTimer(boolean shutdown) {
         Log.d(TAG, "dailyTimer called");
         final Calendar c = Calendar.getInstance();
         int hour = c.get(Calendar.HOUR);
@@ -738,7 +705,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
                 if (preferencesManager.autostart) {
                     // Awaken screen
-                    UtilsSystem.setBrightness(true, mContext, preferencesManager);
+                    UtilsSystem.setBrightness(true, this, preferencesManager);
                     // Reactivate task
                     enableApp(true);
                 }
@@ -753,7 +720,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
                 if (preferencesManager.autostop) {
                     // Dim screen
-                    ContentResolver cResolver = mContext.getContentResolver();
+                    ContentResolver cResolver = this.getContentResolver();
                     Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, 0);
                     // Deactivate task
                     enableApp(false);
@@ -764,22 +731,17 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
 
         final boolean shutdown_f = shutdown;
-        h3.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dailyTimer(shutdown_f);
-            }
-        }, 60000);
+        h3.postDelayed(() -> dailyTimer(shutdown_f), 60000);
     }
 
-    public static boolean enableApp(boolean bool) {
+    public boolean enableApp(boolean bool) {
         Log.d(TAG, "Enabling app" + bool);
 
-        View foregroundBlack = activity.findViewById(R.id.foregroundblack);
+        View foregroundBlack = findViewById(R.id.foregroundblack);
         if (foregroundBlack != null) {
             task_enabled = bool;
             foregroundBlack.bringToFront();
-            activity.findViewById(R.id.tvError).bringToFront();
+            findViewById(R.id.tvError).bringToFront();
             // This is inverted as foreground object disables app
             UtilsTask.toggleView(foregroundBlack, !bool);
 
@@ -796,8 +758,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
     }
 
-
-    public static void logEvent(String data, boolean from_task) {
+    public void logEvent(String data, boolean from_task) {
         Log.d(TAG, "logEvent: " + data);
         tvExplanation.setText(data);
 
@@ -814,7 +775,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     }
 
     // Takes selfie and checks to see if it matches with which monkey it should be
-    public static boolean checkMonkey(int monkId) {
+    public boolean checkMonkey(int monkId) {
         if (preferencesManager.facerecog && faceRecogRunning) {
             // Previous face recog still running
             return false;
@@ -831,7 +792,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         return photoTaken;
     }
 
-    public static boolean takePhoto() {
+    public boolean takePhoto() {
         if (preferencesManager.camera) {
             if (camera.camera_error) {
                 // Kill camera fragment and restart it
@@ -844,8 +805,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
             Log.d(TAG, "takePhoto() called");
             photoTimestamp = folderManager.getTimestamp();
-            boolean photoTaken = camera.captureStillPicture(photoTimestamp);
-            return photoTaken;
+            return camera.captureStillPicture(photoTimestamp);
         } else {
             Log.d(TAG, "Skipping photo taking..");
             return true;
@@ -853,24 +813,20 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     }
 
     //Checks if todays date is the same as the last time function was called
-    public static boolean dateHasChanged() {
+    public boolean dateHasChanged() {
         String todaysDate = folderManager.getBaseDate();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String lastRecordedDate = sharedPref.getString("lastdate", "null");
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("lastdate", todaysDate);
         editor.commit();
-        if (todaysDate.equals(lastRecordedDate)) {
-            return false;
-        } else {
-            return true;
-        }
+        return !todaysDate.equals(lastRecordedDate);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        UtilsSystem.setBrightness(true, mContext, preferencesManager);
+        UtilsSystem.setBrightness(true, this, preferencesManager);
     }
 
     @Override
@@ -890,12 +846,8 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     private void quitThreads() {
         try {
             logThread.quitSafely();
-            logThread.join();
-            logThread = null;
-            logHandler = null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) { }
+        } catch (NullPointerException ignored) {
+        }
     }
 
     public boolean isAppNotInLockTaskMode() {
@@ -926,9 +878,9 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         // TODO This probably assumes that only one session will happen per day so
         //  multiple multi-monkey tests won't work
         if (preferencesManager.facerecog) {
-            folderManager = new FolderManager(mContext, preferencesManager.num_monkeys);
+            folderManager = new FolderManager(this, preferencesManager.num_monkeys);
         } else {
-            folderManager = new FolderManager(mContext, 0);
+            folderManager = new FolderManager(this, 0);
         }
 
         // Creating the file for this test and adding the header
@@ -957,11 +909,9 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
     private void assignObjects() {
         // Global variables
-        activity = this;
-        mContext = this;
         preferencesManager = new PreferencesManager(this);
-        possible_cue_locs = new UtilsTask().getPossibleCueLocs(this);
-        trialData = new ArrayList<String>();
+        possible_cue_locs = UtilsTask.getPossibleCueLocs(this);
+        trialData = new ArrayList<>();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         latestRewardChannel = preferencesManager.default_rew_chan;
@@ -985,7 +935,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     }
 
     private void setOnClickListeners() {
-        activity.findViewById(R.id.foregroundblack).setOnClickListener(this);
+        findViewById(R.id.foregroundblack).setOnClickListener(this);
         UtilsSystem.setOnClickListenerLoop(cues_Reward, this);
         UtilsSystem.setOnClickListenerLoop(cues_Go, this);
     }
@@ -1008,7 +958,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         resetTimer();
 
         // Make screen bright
-        UtilsSystem.setBrightness(true, mContext, preferencesManager);
+        UtilsSystem.setBrightness(true, this, preferencesManager);
 
         // Now decide what to do based on what menu_button pressed
         switch (view.getId()) {
@@ -1036,7 +986,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
     // Each monkey has it's own start cue.
     // At start of each trial make sure the monkey pressed it's own cue using the facial recognition
-    private static void checkMonkeyPressedTheirCue(int monkId) {
+    private void checkMonkeyPressedTheirCue(int monkId) {
         // Take selfie
         boolean photoTaken = checkMonkey(monkId);
 
@@ -1046,7 +996,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
             updateTvExplanation("Error: Camera not ready!");
             UtilsTask.toggleCues(cues_Go, true);
         } else if (preferencesManager.facerecog &&
-                preferencesManager.camera_to_use != mContext.getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
+                preferencesManager.camera_to_use != this.getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
             // If photo successfully taken  (and we're not using the external camera) then do
             // nothing as wait for faceRecog to return prediction
             // setFaceRecogPrediction will ultimately call resultMonkeyPressedTheirCue
@@ -1057,41 +1007,36 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
     }
 
-    public static void resultMonkeyPressedTheirCue(boolean correctCuePressed) {
+    public void resultMonkeyPressedTheirCue(boolean correctCuePressed) {
         // Have to put this on UI thread as it's called from faceRecog which is off main thread
-        activity.runOnUiThread(new Runnable() {
-            public void run() {
-                if (correctCuePressed) {
-                    startTrial(faceRecogPrediction);
-                } else {
-                    MonkeyPressedWrongGoCue();
-                }
+        this.runOnUiThread(() -> {
+            if (correctCuePressed) {
+                startTrial(faceRecogPrediction);
+            } else {
+                MonkeyPressedWrongGoCue();
             }
         });
     }
 
     // Wrong Go cue selected so give short timeout
-    public static void MonkeyPressedWrongGoCue() {
+    public void MonkeyPressedWrongGoCue() {
         // Log the event
         logEvent("Monkey pressed wrong cue", false);
         commitTrialData(preferencesManager.ec_wrong_gocue_pressed);
 
         // Switch on red background
-        activity.findViewById(R.id.background_main)
+        findViewById(R.id.background_main)
                 .setBackgroundColor(preferencesManager.timeoutbackground);
 
         // Switch off red background after certain delay
-        h2.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                UtilsTask.toggleCues(cues_Go, true);
-                activity.findViewById(R.id.background_main)
-                        .setBackgroundColor(preferencesManager.taskbackground);
-            }
+        h2.postDelayed(() -> {
+            UtilsTask.toggleCues(cues_Go, true);
+            findViewById(R.id.background_main)
+                    .setBackgroundColor(preferencesManager.taskbackground);
         }, timeoutWrongGoCuePressed);
     }
 
-    private static void trialEnded(String result, double rew_scalar) {
+    private void trialEnded(String result, double rew_scalar) {
         killTask();
 
         if (result.equals(preferencesManager.ec_correct_trial)) {
@@ -1108,14 +1053,14 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
     }
 
-    private static void killTask() {
+    private void killTask() {
         if (trial_running) {
             try {
                 fragmentTransaction.remove(fragmentManager.findFragmentByTag(TAG_FRAGMENT_TASK));
             } catch (NullPointerException e) {
                 Log.d(TAG, "No Task loaded");
             }
-            ;
+
             commitFragment();
             h0.removeCallbacksAndMessages(null);
             timerRunning = false;
@@ -1123,18 +1068,18 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
     }
 
-    private static void incorrectTrial(String result) {
-        activity.findViewById(R.id.background_main)
+    private void incorrectTrial(String result) {
+        findViewById(R.id.background_main)
                 .setBackgroundColor(preferencesManager.timeoutbackground);
         endOfTrial(result, preferencesManager.timeoutduration);
     }
 
-    private static void correctTrial(double rew_scalar) {
+    private void correctTrial(double rew_scalar) {
         if (rew_scalar == 0) {
             return;
         }
 
-        activity.findViewById(R.id.background_main)
+        findViewById(R.id.background_main)
                 .setBackgroundColor(preferencesManager.rewardbackground);
 
         // If only one reward channel, skip reward selection stage
@@ -1148,7 +1093,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
     }
 
-    private static void giveRewardFromTask(int reward_duration, boolean sound) {
+    private void giveRewardFromTask(int reward_duration, boolean sound) {
         if (sound) {
             new SoundManager(preferencesManager).playTone();
         }
@@ -1157,11 +1102,11 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         l_rewgiven = l_rewgiven + reward_duration;
     }
 
-    public static void FaceRecogFinishedLoading() {
+    public void FaceRecogFinishedLoading() {
         logEvent("FaceRecog instantiated successfully", false);
     }
 
-    private static void deliverReward(int juiceChoice, double rew_scalar) {
+    private void deliverReward(int juiceChoice, double rew_scalar) {
         // Play tone
         new SoundManager(preferencesManager).playTone();
 
@@ -1179,7 +1124,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 preferencesManager.rewardduration + 5);
     }
 
-    private static void endOfTrial(String outcome, int newTrialDelay) {
+    private void endOfTrial(String outcome, int newTrialDelay) {
         logEvent(outcome, false);
 
         commitTrialData(outcome);
@@ -1187,14 +1132,14 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         PrepareForNewTrial(newTrialDelay);
     }
 
-    private static void updateTvExplanation(String message) {
+    private void updateTvExplanation(String message) {
         Log.d(TAG, message);
         if (preferencesManager.debug) {
             tvExplanation.setText(message);
         }
     }
 
-    private static void disableAllCues() {
+    private void disableAllCues() {
         UtilsTask.toggleCues(cues_Reward, false);
         UtilsTask.toggleCues(cues_Go, false);
     }
@@ -1232,14 +1177,14 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
     }
 
-    private static void resetTimer() {
+    private void resetTimer() {
         Log.d(TAG, "resetTimer");
-        UtilsSystem.setBrightness(true, mContext, preferencesManager);
+        UtilsSystem.setBrightness(true, this, preferencesManager);
         time = 0;
     }
 
     // Recursive function to track task time
-    private static void trial_timer() {
+    private void trial_timer() {
         Log.d(TAG, "trial_timer " + time +
                 " (limit =" + preferencesManager.responseduration + ")");
 
@@ -1248,33 +1193,26 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         // Make sure we can't have multiple timer instances
         h0.removeCallbacksAndMessages(null);
 
-        h0.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (time > preferencesManager.responseduration) {
+        h0.postDelayed(() -> {
+            if (time > preferencesManager.responseduration) {
+                Log.d(TAG, "timer Trial timeout " + time);
+                resetTimer();
+                timerRunning = false;
 
-                    Log.d(TAG, "timer Trial timeout " + time);
-                    resetTimer();
-                    timerRunning = false;
-
-                    idleTimeout();
-
-                } else {
-
-                    trial_timer();
-                    timerRunning = true;
-
-                }
+                idleTimeout();
+            } else {
+                trial_timer();
+                timerRunning = true;
             }
         }, 1000);
     }
 
-    private static void idleTimeout() {
+    private void idleTimeout() {
         updateTvExplanation("Idle timeout");
 
         disableAllCues();
         try {
-            activity.findViewById(R.id.background_main)
+            findViewById(R.id.background_main)
                     .setBackgroundColor(preferencesManager.timeoutbackground);
         } catch (NullPointerException e) {
             Log.d(TAG, "Couldn't find background");
@@ -1283,31 +1221,24 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         trialEnded(preferencesManager.ec_trial_timeout, 0);
     }
 
-    private static void PrepareForNewTrial(int delay) {
-        UtilsSystem.setBrightness(true, mContext, preferencesManager);
+    private void PrepareForNewTrial(int delay) {
+        UtilsSystem.setBrightness(true, this, preferencesManager);
 
-        h1.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                activity.findViewById(R.id.background_main)
-                        .setBackgroundColor(preferencesManager.taskbackground);
-                updateTvExplanation("Waiting for trial to be started");
-                // Auto start next trial if skipping go cue
-                if (preferencesManager.skip_go_cue) {
-                    startTrial(-1);
-                } else {
-                    UtilsTask.toggleCues(cues_Go, true);
-                }
+        h1.postDelayed(() -> {
+            findViewById(R.id.background_main)
+                    .setBackgroundColor(preferencesManager.taskbackground);
+            updateTvExplanation("Waiting for trial to be started");
+            // Auto start next trial if skipping go cue
+            if (preferencesManager.skip_go_cue) {
+                startTrial(-1);
+            } else {
+                UtilsTask.toggleCues(cues_Go, true);
             }
         }, delay);
 
         // Set screen to dim if no trial started
-        h4.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                UtilsSystem.setBrightness(false, mContext, preferencesManager);
-            }
-        }, preferencesManager.dimscreentime * 1000 * 60);
+        h4.postDelayed(() -> UtilsSystem.setBrightness(false, TaskManager.this, preferencesManager),
+                (long) preferencesManager.dimscreentime * 1000 * 60);
     }
 
     private void cancelHandlers() {

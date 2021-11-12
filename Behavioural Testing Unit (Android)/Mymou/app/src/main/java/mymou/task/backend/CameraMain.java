@@ -63,6 +63,7 @@ public class CameraMain extends Camera
         implements FragmentCompat.OnRequestPermissionsResultCallback {
 
     public static String TAG = "MyMouCameraMain";
+    private final TaskManager taskManager;
 
     //  Camera variables
     private static String mCameraId;
@@ -87,8 +88,12 @@ public class CameraMain extends Camera
     // For the user to select the resolution
     public List<Size> resolutions;
 
-    public static CameraMain newInstance() {
-        return new CameraMain();
+    public CameraMain() {
+        this.taskManager = null;
+    }
+
+    public CameraMain(TaskManager taskManager) {
+        this.taskManager = taskManager;
     }
 
     @Override
@@ -204,7 +209,7 @@ public class CameraMain extends Camera
             Log.d(TAG, "Saving photo..");
 
             // On camera thread as don't want to be able to take photo while saving previous photo
-            CameraSavePhoto cameraSavePhoto = new CameraSavePhoto(image, timestamp, getContext());
+            CameraSavePhoto cameraSavePhoto = new CameraSavePhoto(taskManager, image, timestamp, getContext());
             cameraSavePhoto.run();
 
             // Unlock camera so next photo can be taken

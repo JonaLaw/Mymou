@@ -47,6 +47,7 @@ import static android.os.Looper.getMainLooper;
 public class CameraExternal extends Camera implements CameraDialog.CameraDialogParent, CameraViewInterface.Callback {
 
     private static final String TAG = "CameraExternal";
+    private final TaskManager taskManager;
     private static UVCCameraHelper mCameraHelper;
     private CameraViewInterface mUVCCameraView;
 
@@ -61,7 +62,13 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
     // Error handling
     public static boolean camera_error = false;
 
-    public CameraExternal() {}
+    public CameraExternal() {
+        this.taskManager = null;
+    }
+
+    public CameraExternal(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
 
         private UVCCameraHelper.OnMyDevConnectListener listener = new UVCCameraHelper.OnMyDevConnectListener() {
 
@@ -210,7 +217,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
     }
 
     // Say cheese
-    public static boolean captureStillPictureStatic(String ts) {
+    public boolean captureStillPictureStatic(String ts) {
         Log.d(TAG, "Capture request started at" + ts);
         // If the camera is still in process of taking previous picture it will not take another one
         // If it took multiple photos the timestamp for saving/indexing the photos would be wrong
@@ -229,7 +236,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         // Update timestamp string, which will be used to save the photo once the photo is ready
         takingPhoto = true;
         timestamp = ts;
-        CameraSavePhoto cameraSavePhoto = new CameraSavePhoto(timestamp, mContext);
+        CameraSavePhoto cameraSavePhoto = new CameraSavePhoto(taskManager, timestamp, mContext);
 
         mCameraHelper.capturePicture(cameraSavePhoto.photoFile.getPath(), new AbstractUVCCameraHandler.OnCaptureListener() {
             @Override

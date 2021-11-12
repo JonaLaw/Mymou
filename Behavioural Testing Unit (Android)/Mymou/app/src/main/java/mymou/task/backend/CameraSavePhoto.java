@@ -30,6 +30,7 @@ import mymou.preferences.PreferencesManager;
 public class CameraSavePhoto implements Runnable {
 
     private String TAG = "CameraSavePhoto";
+    private final TaskManager taskManager;
     private final Image mImage;
     private String timestamp;
     private final String day;
@@ -43,7 +44,8 @@ public class CameraSavePhoto implements Runnable {
      * @param image Image to be saved
      * @param timestampU Filename to be saved
      */
-    public CameraSavePhoto(Image image, String timestampU, Context context) {
+    public CameraSavePhoto(TaskManager taskManager, Image image, String timestampU, Context context) {
+        this.taskManager = taskManager;
         mImage = image;
         timestamp = timestampU;
         mContext = context;
@@ -54,7 +56,8 @@ public class CameraSavePhoto implements Runnable {
         photoFile = new File(folder, photoName);
     }
 
-    public CameraSavePhoto(String timestampU, Context context) {
+    public CameraSavePhoto(TaskManager taskManager, String timestampU, Context context) {
+        this.taskManager = taskManager;
         timestamp = timestampU;
         mContext = context;
         folderManager = new FolderManager(mContext, 0);
@@ -123,9 +126,13 @@ public class CameraSavePhoto implements Runnable {
                 intArray[i] = Color.red(intArray[i]); //Any colour will do as greyscale
             }
 
-            // Run image through faceRecog
-            TaskManager.setFaceRecogPrediction(intArray);
+        // Run image through faceRecog
+        if (taskManager == null) {
+            Log.d(TAG, "taskManager was null");
+        } else {
+            taskManager.setFaceRecogPrediction(intArray);
             Log.d(TAG, "Face recog finished");
+        }
 
         // Check if user wants to save the integer array (expensive)
         if (settings.getBoolean(mContext.getResources().getString(R.string.preftag_savefacerecogarrays),  mContext.getResources().getBoolean(R.bool.default_savefacerecogarrays))) {
