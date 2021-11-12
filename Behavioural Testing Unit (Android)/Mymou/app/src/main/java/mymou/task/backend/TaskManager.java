@@ -132,9 +132,11 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         // In case of crashes
         initialiseAutoRestartHandler();
 
+        // Put the app into Kiosk mode
+        initialiseScreenSettings();
+
         // Create ui Elements
         assignObjects();
-        initialiseScreenSettings();
 
         // Load settings
         loadAndApplySettings();
@@ -185,62 +187,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         initialiseRewardSystem();
     }
 
-    private void tryTaskLocking() {
-        // Check if debug mode is enabled in the app's System Settings
-        if (!PreferencesManager.debug) {
-            // Check if permission is granted to pin the screen
-            // This should almost never happen as it's checked right before a task is started
-            if (new PermissionManager(this, this)
-                    .checkPermissionGranted(Manifest.permission.WRITE_SETTINGS)) {
-                this.startLockTask();
-            } else {
-                displayTaskLockingError();
-            }
-        } else {
-            displayDebugMessage();
-        }
-    }
-
-    private void displayTaskLockingError() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
-        builder.setMessage("The App does not have permission to lock tasks." +
-                "\nThis results in the device's UI staying active during a task." +
-                "\n\nPlease give the app permission when prompted to in the Main Menu.")
-                .setTitle("Warning - App not permitted to Lock Task")
-                .setPositiveButton("Return", (dialog, id) -> {
-                    //Load Main Menu
-                    Intent intent = new Intent(getApplicationContext(), MainMenu.class);
-                    startActivity(intent);
-                })
-                .setNegativeButton("Ignore", (dialog, id) -> {
-                    //Do nothing
-                });
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
-    private void displayDebugMessage() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
-        builder.setMessage("The back key is currently functioning, " +
-                "and can be used to exit the task." +
-                "\nThis is not recommended for actual training." +
-                "\n\nDebug mode can be deactivated in this app's System Settings.")
-                .setTitle("Warning - App in Debug mode")
-                .setPositiveButton("System Settings", (dialog, id) -> {
-                    //Load settings
-                    Intent intent = new Intent(getApplicationContext(), PrefsActSystem.class);
-                    intent.putExtra(getString(R.string.preftag_settings_to_load),
-                            getString(R.string.preftag_menu_prefs));
-                    startActivity(intent);
-                })
-                .setNegativeButton("Continue", (dialog, id) -> {
-                    //Do nothing
-                });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
     private void initialiseAutoRestartHandler() {
         Log.d(TAG, "initialiseAutoRestartHandler");
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
@@ -251,6 +197,79 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 restartApp();
             }
         });
+    }
+
+    private void initialiseScreenSettings() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        final View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    }
+
+    private void assignObjects() {
+        // Global variables
+        preferencesManager = new PreferencesManager(this);
+        possible_cue_locs = UtilsTask.getPossibleCueLocs(this);
+        trialData = new ArrayList<>();
+        fragmentManager = getSupportFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+        latestRewardChannel = preferencesManager.default_rew_chan;
+
+        // Layout views
+        for (int i = 0; i < cues_Go.length; i++) {
+            cues_Go[i] = UtilsTask.addColorCue(i, preferencesManager.colours_gocues[i],
+                    this, this, findViewById(R.id.task_container));
+        }
+
+        // Reward cues for the different reward options
+        cues_Reward = new Button[4];
+        cues_Reward[0] = findViewById(R.id.buttonRewardZero);
+        cues_Reward[1] = findViewById(R.id.buttonRewardOne);
+        cues_Reward[2] = findViewById(R.id.buttonRewardTwo);
+        cues_Reward[3] = findViewById(R.id.buttonRewardThree);
+
+        tvExplanation = findViewById(R.id.tvLog);
+        tvErrors = findViewById(R.id.tvError);
+        UtilsTask.toggleView(tvExplanation, preferencesManager.debug);
+    }
+
+    private void loadAndApplySettings() {
+        // Setting up folder structure for the day
+        // TODO This probably assumes that only one session will happen per day so
+        //  multiple multi-monkey tests won't work
+        if (preferencesManager.facerecog) {
+            folderManager = new FolderManager(this, preferencesManager.num_monkeys);
+        } else {
+            folderManager = new FolderManager(this, 0);
+        }
+
+        // Creating the file for this test and adding the header
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        if (settings.getBoolean(getString(R.string.filename_by_date_key), true)) {
+            filename = "default";
+        }
+        else {
+            String settingsFilename = settings.getString(getString(R.string.filename_custom_key),
+                    getString(R.string.filename_default_string));
+            if (FilenameValidation.validateStringFilenameUsingContains(settingsFilename)) {
+                filename = settingsFilename;
+            }
+            else {
+                filename = "default";
+            }
+        }
+        folderManager.tryMakingFileForTaskTrial(filename);
+
+        // Colours
+        findViewById(R.id.task_container).setBackgroundColor(preferencesManager.taskbackground);
+        for (int i = 0; i < preferencesManager.num_monkeys; i++) {
+            cues_Go[i].setBackgroundColor(preferencesManager.colours_gocues[i]);
+        }
     }
 
     private void loadtask() {
@@ -340,10 +359,164 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         cues_Reward = Arrays.copyOf(cues_Reward, preferencesManager.num_reward_chans);
     }
 
+    // Go cues are in static location to make it easier for monkeys to press their own cue
+    private void positionGoCues() {
+        if (possible_cue_locs.length < preferencesManager.num_monkeys) {
+            new Exception("Go cues too big, not enough room for number of monkeys specified." +
+                    "\nPlease reduce the size of the go cues or the number of monkeys");
+        }
+
+        // If only one monkey then put start cue in middle of screen
+        if (preferencesManager.num_monkeys == 1) {
+            cues_Go[0].setX(possible_cue_locs[possible_cue_locs.length / 2].x);
+            cues_Go[0].setY(possible_cue_locs[possible_cue_locs.length / 2].y);
+            return;
+        }
+
+        // If multiple monkeys then tile the space evenly
+        int pos;
+        int step = 1;
+        // If there's enough room then space the go cues around the screen
+        if (possible_cue_locs.length > preferencesManager.num_monkeys * 2) {
+            step *= 2;
+        }
+
+        for (int i_monk = 0; i_monk < preferencesManager.num_monkeys; i_monk++) {
+            if (i_monk % 2 == 0) {
+                pos = i_monk * step;
+            } else {
+                pos = possible_cue_locs.length - (i_monk * step);
+            }
+            cues_Go[i_monk].setX(possible_cue_locs[pos].x);
+            cues_Go[i_monk].setY(possible_cue_locs[pos].y);
+        }
+    }
+
+    private void setOnClickListeners() {
+        findViewById(R.id.foregroundblack).setOnClickListener(this);
+        UtilsSystem.setOnClickListenerLoop(cues_Reward, this);
+        UtilsSystem.setOnClickListenerLoop(cues_Go, this);
+    }
+
+    private void loadCamera() {
+        if (!preferencesManager.camera) {
+            return;
+        }
+
+        Log.d(TAG, "Loading camera fragment");
+        if (preferencesManager.camera_to_use != getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
+            camera = new CameraMain();
+        } else {
+            camera = new CameraExternal();
+        }
+
+        camera.setFragInterfaceListener(() -> {
+            Log.d(TAG, "Camera loaded");  // do nothing
+        });
+
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(getResources().getString(R.string.task_mode), true);
+        camera.setArguments(bundle);
+        fragmentTransaction.add(R.id.task_container, camera);
+        commitFragment();
+    }
+
     private void initialiseLogHandler() {
         logThread = new HandlerThread("LogBackground");
         logThread.start();
         logHandler = new Handler(logThread.getLooper());
+    }
+
+    // Recursive function to track time and switch app off when it hits a certain time
+    public void dailyTimer(boolean shutdown) {
+        Log.d(TAG, "dailyTimer called");
+        final Calendar c = Calendar.getInstance();
+        int hour = c.get(Calendar.HOUR);
+        int min = c.get(Calendar.MINUTE);
+        int AMPM = c.get(Calendar.AM_PM);
+        if (AMPM == Calendar.PM) {
+            hour += 12;
+        }
+
+        if (shutdown) {  // If shutdown and waiting to start up in the morning
+            if (hour >= preferencesManager.autostart_hour &&
+                    min > preferencesManager.autostart_min) {
+                Log.d(TAG, "dailyTimer enabling app");
+
+                if (preferencesManager.autostart) {
+                    // Awaken screen
+                    UtilsSystem.setBrightness(true, this, preferencesManager);
+                    // Reactivate task
+                    enableApp(true);
+                }
+
+                // Flip the switch so that timer is now waiting to shut down task
+                shutdown = false;
+            }
+        } else {  // If active and waiting to shutdown
+            if (hour >= preferencesManager.autostop_hour &&
+                    min > preferencesManager.autostop_min) {
+                Log.d(TAG, "dailyTimer disabling app");
+
+                if (preferencesManager.autostop) {
+                    // Dim screen
+                    ContentResolver cResolver = this.getContentResolver();
+                    Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, 0);
+                    // Deactivate task
+                    enableApp(false);
+                }
+                // Flip the switch so that timer is now waiting to shut down task
+                shutdown = true;
+            }
+        }
+
+        final boolean shutdown_f = shutdown;
+        h3.postDelayed(() -> dailyTimer(shutdown_f), 60000);
+    }
+
+    private void disableAllCues() {
+        UtilsTask.toggleCues(cues_Reward, false);
+        UtilsTask.toggleCues(cues_Go, false);
+    }
+
+    public boolean enableApp(boolean bool) {
+        Log.d(TAG, "Enabling app" + bool);
+
+        View foregroundBlack = findViewById(R.id.foregroundblack);
+        if (foregroundBlack != null) {
+            task_enabled = bool;
+            foregroundBlack.bringToFront();
+            findViewById(R.id.tvError).bringToFront();
+            // This is inverted as foreground object disables app
+            UtilsTask.toggleView(foregroundBlack, !bool);
+
+            if (bool) {
+                PrepareForNewTrial(0);
+            } else {
+                killTask();
+            }
+
+            return true;
+        } else {
+            Log.d(TAG, "foregroundBlack object not instantiated");
+            return false;
+        }
+    }
+
+    private void tryTaskLocking() {
+        // Check if debug mode is enabled in the app's System Settings
+        if (!PreferencesManager.debug) {
+            // Check if permission is granted to pin the screen
+            // This should almost never happen as it's checked right before a task is started
+            if (new PermissionManager(this, this)
+                    .checkPermissionGranted(Manifest.permission.WRITE_SETTINGS)) {
+                this.startLockTask();
+            } else {
+                displayTaskLockingError();
+            }
+        } else {
+            displayDebugMessage();
+        }
     }
 
     private void initialiseRewardSystem() {
@@ -366,6 +539,46 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
             Handler handlerOne = new Handler();
             handlerOne.postDelayed(this::initialiseRewardSystem, 5000);
         }
+    }
+
+    private void displayTaskLockingError() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
+        builder.setMessage("The App does not have permission to lock tasks." +
+                "\nThis results in the device's UI staying active during a task." +
+                "\n\nPlease give the app permission when prompted to in the Main Menu.")
+                .setTitle("Warning - App not permitted to Lock Task")
+                .setPositiveButton("Return", (dialog, id) -> {
+                    //Load Main Menu
+                    Intent intent = new Intent(getApplicationContext(), MainMenu.class);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Ignore", (dialog, id) -> {
+                    //Do nothing
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void displayDebugMessage() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
+        builder.setMessage("The back key is currently functioning, " +
+                "and can be used to exit the task." +
+                "\nThis is not recommended for actual training." +
+                "\n\nDebug mode can be deactivated in this app's System Settings.")
+                .setTitle("Warning - App in Debug mode")
+                .setPositiveButton("System Settings", (dialog, id) -> {
+                    //Load settings
+                    Intent intent = new Intent(getApplicationContext(), PrefsActSystem.class);
+                    intent.putExtra(getString(R.string.preftag_settings_to_load),
+                            getString(R.string.preftag_menu_prefs));
+                    startActivity(intent);
+                })
+                .setNegativeButton("Continue", (dialog, id) -> {
+                    //Do nothing
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     public void startTrial(int monkId) {
@@ -529,29 +742,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         }
     }
 
-    private void loadCamera() {
-        if (!preferencesManager.camera) {
-            return;
-        }
-
-        Log.d(TAG, "Loading camera fragment");
-        if (preferencesManager.camera_to_use != getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
-            camera = new CameraMain();
-        } else {
-            camera = new CameraExternal();
-        }
-
-        camera.setFragInterfaceListener(() -> {
-            Log.d(TAG, "Camera loaded");  // do nothing
-        });
-
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(getResources().getString(R.string.task_mode), true);
-        camera.setArguments(bundle);
-        fragmentTransaction.add(R.id.task_container, camera);
-        commitFragment();
-    }
-
     private void restartApp() {
         if (preferencesManager.restartoncrash) {
             Log.d(TAG, "Restarting task");
@@ -675,89 +865,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         trialCounter++;
     }
 
-    private void initialiseScreenSettings() {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        final View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-    }
-
-    // Recursive function to track time and switch app off when it hits a certain time
-    public void dailyTimer(boolean shutdown) {
-        Log.d(TAG, "dailyTimer called");
-        final Calendar c = Calendar.getInstance();
-        int hour = c.get(Calendar.HOUR);
-        int min = c.get(Calendar.MINUTE);
-        int AMPM = c.get(Calendar.AM_PM);
-        if (AMPM == Calendar.PM) {
-            hour += 12;
-        }
-
-        if (shutdown) {  // If shutdown and waiting to start up in the morning
-            if (hour >= preferencesManager.autostart_hour &&
-                    min > preferencesManager.autostart_min) {
-                Log.d(TAG, "dailyTimer enabling app");
-
-                if (preferencesManager.autostart) {
-                    // Awaken screen
-                    UtilsSystem.setBrightness(true, this, preferencesManager);
-                    // Reactivate task
-                    enableApp(true);
-                }
-
-                // Flip the switch so that timer is now waiting to shut down task
-                shutdown = false;
-            }
-        } else {  // If active and waiting to shutdown
-            if (hour >= preferencesManager.autostop_hour &&
-                    min > preferencesManager.autostop_min) {
-                Log.d(TAG, "dailyTimer disabling app");
-
-                if (preferencesManager.autostop) {
-                    // Dim screen
-                    ContentResolver cResolver = this.getContentResolver();
-                    Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, 0);
-                    // Deactivate task
-                    enableApp(false);
-                }
-                // Flip the switch so that timer is now waiting to shut down task
-                shutdown = true;
-            }
-        }
-
-        final boolean shutdown_f = shutdown;
-        h3.postDelayed(() -> dailyTimer(shutdown_f), 60000);
-    }
-
-    public boolean enableApp(boolean bool) {
-        Log.d(TAG, "Enabling app" + bool);
-
-        View foregroundBlack = findViewById(R.id.foregroundblack);
-        if (foregroundBlack != null) {
-            task_enabled = bool;
-            foregroundBlack.bringToFront();
-            findViewById(R.id.tvError).bringToFront();
-            // This is inverted as foreground object disables app
-            UtilsTask.toggleView(foregroundBlack, !bool);
-
-            if (bool) {
-                PrepareForNewTrial(0);
-            } else {
-                killTask();
-            }
-
-            return true;
-        } else {
-            Log.d(TAG, "foregroundBlack object not instantiated");
-            return false;
-        }
-    }
-
     public void logEvent(String data, boolean from_task) {
         Log.d(TAG, "logEvent: " + data);
         tvExplanation.setText(data);
@@ -871,73 +978,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         return false;
-    }
-
-    private void loadAndApplySettings() {
-        // Setting up folder structure for the day
-        // TODO This probably assumes that only one session will happen per day so
-        //  multiple multi-monkey tests won't work
-        if (preferencesManager.facerecog) {
-            folderManager = new FolderManager(this, preferencesManager.num_monkeys);
-        } else {
-            folderManager = new FolderManager(this, 0);
-        }
-
-        // Creating the file for this test and adding the header
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        if (settings.getBoolean(getString(R.string.filename_by_date_key), true)) {
-            filename = "default";
-        }
-        else {
-            String settingsFilename = settings.getString(getString(R.string.filename_custom_key),
-                    getString(R.string.filename_default_string));
-            if (FilenameValidation.validateStringFilenameUsingContains(settingsFilename)) {
-                filename = settingsFilename;
-            }
-            else {
-                filename = "default";
-            }
-        }
-        folderManager.tryMakingFileForTaskTrial(filename);
-
-        // Colours
-        findViewById(R.id.task_container).setBackgroundColor(preferencesManager.taskbackground);
-        for (int i = 0; i < preferencesManager.num_monkeys; i++) {
-            cues_Go[i].setBackgroundColor(preferencesManager.colours_gocues[i]);
-        }
-    }
-
-    private void assignObjects() {
-        // Global variables
-        preferencesManager = new PreferencesManager(this);
-        possible_cue_locs = UtilsTask.getPossibleCueLocs(this);
-        trialData = new ArrayList<>();
-        fragmentManager = getSupportFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
-        latestRewardChannel = preferencesManager.default_rew_chan;
-
-        // Layout views
-        for (int i = 0; i < cues_Go.length; i++) {
-            cues_Go[i] = UtilsTask.addColorCue(i, preferencesManager.colours_gocues[i],
-                    this, this, findViewById(R.id.task_container));
-        }
-
-        // Reward cues for the different reward options
-        cues_Reward = new Button[4];
-        cues_Reward[0] = findViewById(R.id.buttonRewardZero);
-        cues_Reward[1] = findViewById(R.id.buttonRewardOne);
-        cues_Reward[2] = findViewById(R.id.buttonRewardTwo);
-        cues_Reward[3] = findViewById(R.id.buttonRewardThree);
-
-        tvExplanation = findViewById(R.id.tvLog);
-        tvErrors = findViewById(R.id.tvError);
-        UtilsTask.toggleView(tvExplanation, preferencesManager.debug);
-    }
-
-    private void setOnClickListeners() {
-        findViewById(R.id.foregroundblack).setOnClickListener(this);
-        UtilsSystem.setOnClickListenerLoop(cues_Reward, this);
-        UtilsSystem.setOnClickListenerLoop(cues_Go, this);
     }
 
     @Override
@@ -1136,44 +1176,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
         Log.d(TAG, message);
         if (preferencesManager.debug) {
             tvExplanation.setText(message);
-        }
-    }
-
-    private void disableAllCues() {
-        UtilsTask.toggleCues(cues_Reward, false);
-        UtilsTask.toggleCues(cues_Go, false);
-    }
-
-    // Go cues are in static location to make it easier for monkeys to press their own cue
-    private void positionGoCues() {
-        if (possible_cue_locs.length < preferencesManager.num_monkeys) {
-            new Exception("Go cues too big, not enough room for number of monkeys specified." +
-                    "\nPlease reduce the size of the go cues or the number of monkeys");
-        }
-
-        // If only one monkey then put start cue in middle of screen
-        if (preferencesManager.num_monkeys == 1) {
-            cues_Go[0].setX(possible_cue_locs[possible_cue_locs.length / 2].x);
-            cues_Go[0].setY(possible_cue_locs[possible_cue_locs.length / 2].y);
-            return;
-        }
-
-        // If multiple monkeys then tile the space evenly
-        int pos;
-        int step = 1;
-        // If there's enough room then space the go cues around the screen
-        if (possible_cue_locs.length > preferencesManager.num_monkeys * 2) {
-            step *= 2;
-        }
-
-        for (int i_monk = 0; i_monk < preferencesManager.num_monkeys; i_monk++) {
-            if (i_monk % 2 == 0) {
-                pos = i_monk * step;
-            } else {
-                pos = possible_cue_locs.length - (i_monk * step);
-            }
-            cues_Go[i_monk].setX(possible_cue_locs[pos].x);
-            cues_Go[i_monk].setY(possible_cue_locs[pos].y);
         }
     }
 
