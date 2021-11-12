@@ -405,9 +405,9 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
         Log.d(TAG, "Loading camera fragment");
         if (preferencesManager.camera_to_use != getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
-            camera = new CameraMain();
+            camera = new CameraMain(this);
         } else {
-            camera = new CameraExternal();
+            camera = new CameraExternal(this);
         }
 
         camera.setFragInterfaceListener(() -> {
