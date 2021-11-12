@@ -5,11 +5,9 @@ import android.util.Log;
 
 import com.opencsv.CSVReader;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-
 
 /**
  * Facial Recognition module
@@ -30,7 +28,7 @@ import java.util.List;
 
 final class FaceRecog {
 
-    private String TAG = "FaceRecog";
+    private final String TAG = "FaceRecog";
     public boolean instantiated_successfully = false;
     public String error_message;
     double[][] wi, wo;
@@ -39,39 +37,39 @@ final class FaceRecog {
     public FaceRecog(TaskManager taskManager) {
         wi = loadWeights("wi.txt");
         wo = loadWeights("wo.txt");
-        double[][] meanAndVar;
         try {
-            meanAndVar = loadWeights("meanAndVar.txt");
+            double[][] meanAndVar = loadWeights("meanAndVar.txt");
             mean = meanAndVar[0][0];
             var = meanAndVar[1][0];
             instantiated_successfully = true;
-        } catch (NullPointerException e){
-            error_message = "Weights for neural network not found (\'meanAndVar.txt\'). Disable Facial recognition in settings to fix this error message, or supply weights for the network to use";
+        } catch (NullPointerException e) {
+            error_message = "Weights for neural network not found ('meanAndVar.txt')." +
+                    "Disable Facial recognition in settings to fix this error message," +
+                    "or supply weights for the network to use";
         }
-        Log.d(TAG,"faceRecog instantiated.."+mean+" "+var);
+        Log.d(TAG, "faceRecog instantiated.." + mean + " " + var);
         taskManager.FaceRecogFinishedLoading();
     }
 
     public final double[][] loadWeights(String fileName) {
         // Read all
-        String path= Environment.getExternalStorageDirectory().getAbsolutePath() + "/Mymou/" +
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Mymou/" +
                 fileName;
-        Log.d(TAG,"Opening "+path);
+        Log.d(TAG, "Opening " + path);
         try {
-            CSVReader csvReader = new CSVReader(new FileReader(new File(path)));
+            CSVReader csvReader = new CSVReader(new FileReader(path));
             List<String[]> list = csvReader.readAll();
             // Convert to 2D array
-            double[][] dataArr = convertStringListToFloatArray(list);
-            return dataArr;
+            return convertStringListToFloatArray(list);
         } catch (IOException e) {
             //TODO: No file present
         }
 
-        Log.d(TAG,"Couldn't open CSV files");
+        Log.d(TAG, "Couldn't open CSV files");
         return null;
     }
 
-    private final double[][] convertStringListToFloatArray(List<String[]> stringList) {
+    private double[][] convertStringListToFloatArray(List<String[]> stringList) {
         //Convert List String to String matrix
         String[][] stringArray = new String[stringList.size()][];
         stringArray = stringList.toArray(stringArray);
@@ -79,14 +77,14 @@ final class FaceRecog {
         //Then convert String matrix to Double Matrix
         int rows = stringArray.length;
         int columns = stringArray[0].length;
-        Log.d(TAG,""+rows+" "+columns);
+        Log.d(TAG, "" + rows + " " + columns);
         double[][] doubleArray = new double[rows][columns];
         for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j ++) {
+            for (int j = 0; j < columns; j++) {
                 try {
                     doubleArray[i][j] = Double.parseDouble(stringArray[i][j]);
                 } catch (NumberFormatException e) {
-                  Log.d(TAG,e+" "+stringArray[i][j]);
+                    Log.d(TAG, e + " " + stringArray[i][j]);
                 }
             }
         }
@@ -98,7 +96,7 @@ final class FaceRecog {
     public static double[][] convertIntToDoubleArray(int[] source) {
         int length = source.length;
         double[][] dest = new double[1][length + 1];
-        for(int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             dest[0][i] = source[i];
         }
 
@@ -115,7 +113,7 @@ final class FaceRecog {
         int rows = input.length;
         int columns = input[0].length;
         for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j ++) {
+            for (int j = 0; j < columns; j++) {
                 output[i][j] = (input[i][j] - mean) / var;
             }
         }
@@ -123,7 +121,7 @@ final class FaceRecog {
     }
 
     public int idImage(int[] input) {
-        Log.d(TAG,"FaceRecog started");
+        Log.d(TAG, "FaceRecog started");
 
         //Convert photo int array to double array
         double[][] doubleArray = convertIntToDoubleArray(input);
@@ -139,7 +137,7 @@ final class FaceRecog {
         double[][] sumOutput = MatrixMaths.dot(activationHidden, wo);
         double[][] activationOutput = MatrixMaths.softmax(sumOutput);
 
-        Log.d(TAG,"FaceRecog finished");
+        Log.d(TAG, "FaceRecog finished");
 
         if (activationOutput[0][0] > activationOutput[0][1]) {
             return 1;  // Monkey O
@@ -147,8 +145,4 @@ final class FaceRecog {
             return 0;  // Monkey V
         }
     }
-
 }
-
-
-

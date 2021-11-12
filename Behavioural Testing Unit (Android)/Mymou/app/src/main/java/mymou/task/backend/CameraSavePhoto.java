@@ -5,9 +5,9 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.media.Image;
 import android.util.Log;
+
 import androidx.preference.PreferenceManager;
 
 import mymou.R;
@@ -21,15 +21,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 
-import mymou.preferences.PreferencesManager;
-
 /**
  * Saves image file with filename corresponding to the provided timestamp
- *
  */
 public class CameraSavePhoto implements Runnable {
 
-    private String TAG = "CameraSavePhoto";
+    private final String TAG = "CameraSavePhoto";
     private final TaskManager taskManager;
     private final Image mImage;
     private String timestamp;
@@ -41,7 +38,7 @@ public class CameraSavePhoto implements Runnable {
     /**
      * Instantiation
      *
-     * @param image Image to be saved
+     * @param image      Image to be saved
      * @param timestampU Filename to be saved
      */
     public CameraSavePhoto(TaskManager taskManager, Image image, String timestampU, Context context) {
@@ -61,7 +58,8 @@ public class CameraSavePhoto implements Runnable {
         timestamp = timestampU;
         mContext = context;
         folderManager = new FolderManager(mContext, 0);
-        day = folderManager.getBaseDate();    String photoName = day + "_" + timestamp + ".jpg";
+        day = folderManager.getBaseDate();
+        String photoName = day + "_" + timestamp + ".jpg";
         File folder = folderManager.getImageFolder();
         photoFile = new File(folder, photoName);
         mImage = null;
@@ -72,8 +70,7 @@ public class CameraSavePhoto implements Runnable {
      */
     @Override
     public void run() {
-
-        if (mImage==null) {
+        if (mImage == null) {
             Log.d(TAG, "No image inputted! Are you using the external camera instead?");
             return;
         }
@@ -103,28 +100,25 @@ public class CameraSavePhoto implements Runnable {
             int endX = bitmap.getHeight() - cropLeft - cropRight;
             int endY = bitmap.getWidth() - cropTop - cropBottom;
 
-            Log.d(TAG, "Cropping photo: "+cropLeft+" "+cropRight+" "+cropTop+" "+cropBottom);
-            Log.d(TAG, "Cropping photo: Width="+bitmap.getWidth()+", left="+cropLeft+", right="+cropRight);
-            Log.d(TAG, "Cropping photo: Height="+bitmap.getHeight()+", top="+cropTop+", bottom="+cropBottom);
-            Log.d(TAG, "Cropping photo: "+startX+" "+endX+" "+startY+" "+endY);
+            Log.d(TAG, "Cropping photo: " + cropLeft + " " + cropRight + " " + cropTop + " " + cropBottom);
+            Log.d(TAG, "Cropping photo: Width=" + bitmap.getWidth() + ", left=" + cropLeft + ", right=" + cropRight);
+            Log.d(TAG, "Cropping photo: Height=" + bitmap.getHeight() + ", top=" + cropTop + ", bottom=" + cropBottom);
+            Log.d(TAG, "Cropping photo: " + startX + " " + endX + " " + startY + " " + endY);
 
             bitmapCropped = Bitmap.createBitmap(bitmap, startY, startX, endY, endX);
-
         } else {
-
             // Just take whole image
             bitmapCropped = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight());
-
         }
 
-            // Create integer array for facerecog
-            int x = bitmapCropped.getWidth();
-            int y = bitmapCropped.getHeight();
-            int[] intArray = new int[x * y];
-            bitmapCropped.getPixels(intArray, 0, x, 0, 0, x, y);
-            for (int i = 0; i < intArray.length; i++) {
-                intArray[i] = Color.red(intArray[i]); //Any colour will do as greyscale
-            }
+        // Create integer array for facerecog
+        int x = bitmapCropped.getWidth();
+        int y = bitmapCropped.getHeight();
+        int[] intArray = new int[x * y];
+        bitmapCropped.getPixels(intArray, 0, x, 0, 0, x, y);
+        for (int i = 0; i < intArray.length; i++) {
+            intArray[i] = Color.red(intArray[i]); //Any colour will do as greyscale
+        }
 
         // Run image through faceRecog
         if (taskManager == null) {
@@ -135,8 +129,8 @@ public class CameraSavePhoto implements Runnable {
         }
 
         // Check if user wants to save the integer array (expensive)
-        if (settings.getBoolean(mContext.getResources().getString(R.string.preftag_savefacerecogarrays),  mContext.getResources().getBoolean(R.bool.default_savefacerecogarrays))) {
-
+        if (settings.getBoolean(mContext.getResources().getString(R.string.preftag_savefacerecogarrays),
+                mContext.getResources().getBoolean(R.bool.default_savefacerecogarrays))) {
             //Save pixel values
             long startTime = System.currentTimeMillis();
             saveIntArray(intArray);
@@ -149,11 +143,11 @@ public class CameraSavePhoto implements Runnable {
         long startTimeb = System.currentTimeMillis();
         savePhoto(bitmapCropped);
         long endTimeb = System.currentTimeMillis();
+
         long durationb = (endTimeb - startTimeb);
         Log.d(TAG, "Cropped photo saved in " + durationb + "ms");
 
         Log.d(TAG, "CameraSavePhoto finished successfully");
-
     }
 
     // TODO: Merge savephoto and saveintarray to reduce repeated code
@@ -168,7 +162,7 @@ public class CameraSavePhoto implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            Log.d(TAG, "Bitmap saved "+photoFile.getPath());
+            Log.d(TAG, "Bitmap saved " + photoFile.getPath());
             mImage.close();
             if (output != null) {
                 try {
@@ -182,13 +176,13 @@ public class CameraSavePhoto implements Runnable {
 
     private void saveIntArray(int[] intArray) {
         File folder = folderManager.getIntArrayFolder();
-        String fileName = "f"+ day + "_" + timestamp + ".txt";
+        String fileName = "f" + day + "_" + timestamp + ".txt";
         File savefile = new File(folder, fileName);
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(savefile, true);
             PrintWriter printWriter = new PrintWriter(fileOutputStream);
             int n = intArray.length;
-            for(int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++) {
                 printWriter.println(Double.toString(intArray[i]));
                 printWriter.flush();
             }
@@ -199,8 +193,6 @@ public class CameraSavePhoto implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "Int array saved"+fileName);
+        Log.d(TAG, "Int array saved" + fileName);
     }
-
 }
-

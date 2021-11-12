@@ -7,7 +7,6 @@ import android.widget.Toast;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 
-import mymou.task.backend.CameraInterface;
 import mymou.task.backend.CameraMain;
 import mymou.R;
 
@@ -34,17 +33,14 @@ public class PrefsActCropPicker extends FragmentActivity {
             return;
         }
 
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
         // Load camera fragment
         Bundle bundle = new Bundle();
         bundle.putBoolean("crop_picker", true);
         CameraMain fragment = new CameraMain();
-        fragment.setFragInterfaceListener(new CameraInterface() {
-            @Override
-            public void CameraLoaded() {
-                Log.d(TAG, "Camera loaded");  // do nothing
-            }
+        fragment.setFragInterfaceListener(() -> {
+            Log.d(TAG, "Camera loaded");  // do nothing
         });
         fragment.setArguments(bundle);
 
@@ -56,6 +52,4 @@ public class PrefsActCropPicker extends FragmentActivity {
         fragmentTransaction.add(R.id.layout_croppicker, fragment2, "crop_fragment");
         fragmentTransaction.commit();
     }
-
-
 }

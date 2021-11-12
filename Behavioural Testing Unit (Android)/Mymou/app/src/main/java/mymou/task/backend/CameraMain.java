@@ -16,15 +16,14 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.widget.Button;
 import android.widget.RelativeLayout;
+
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.legacy.app.FragmentCompat;
+
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -34,30 +33,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import android.widget.RelativeLayout.LayoutParams;
+
 import androidx.preference.PreferenceManager;
+
 import mymou.R;
 import mymou.Utils.UtilsSystem;
 import mymou.preferences.PreferencesManager;
 
 /**
  * Camera Main
- *
+ * <p>
  * Main camera function which runs in background behind tasks
  * Instantiated by task manager
  * Will then take photos when requested (typically whenever a trial is started)
  * If configured, will run photos through face recognition and then return result to TaskManager
  *
  * @param onImageAvailable: Listener that is called whenever the camera takes a photo
- *
  */
 public class CameraMain extends Camera
         implements FragmentCompat.OnRequestPermissionsResultCallback {
@@ -111,20 +108,20 @@ public class CameraMain extends Camera
 
         // If not in task mode, we want to make the camera preview visible
         if (getArguments() != null && !getArguments().getBoolean(getContext().getResources().getString(R.string.task_mode), false)) {
-                // Set image to size of photo
-                int camera_width = 240;
-                int camera_height = 320;
-                int scale = UtilsSystem.getCropScale(getActivity(), camera_width, camera_height);
-                camera_width *= scale;
-                camera_height *= scale;
-                Log.d(TAG, "width: " + camera_width + " height:" + camera_height + "Activity: "+getActivity());
-                // Centre texture view
-                Point default_position = UtilsSystem.getCropDefaultXandY(getActivity(), camera_width);
-                mTextureView.setLayoutParams(new RelativeLayout.LayoutParams(camera_width, camera_height));
-                LayoutParams lp = (LayoutParams) mTextureView.getLayoutParams();
-                mTextureView.setLayoutParams(lp);
-                mTextureView.setY(default_position.y);
-                mTextureView.setX(default_position.x);
+            // Set image to size of photo
+            int camera_width = 240;
+            int camera_height = 320;
+            int scale = UtilsSystem.getCropScale(getActivity(), camera_width, camera_height);
+            camera_width *= scale;
+            camera_height *= scale;
+            Log.d(TAG, "width: " + camera_width + " height:" + camera_height + "Activity: " + getActivity());
+            // Centre texture view
+            Point default_position = UtilsSystem.getCropDefaultXandY(getActivity(), camera_width);
+            mTextureView.setLayoutParams(new RelativeLayout.LayoutParams(camera_width, camera_height));
+            LayoutParams lp = (LayoutParams) mTextureView.getLayoutParams();
+            mTextureView.setLayoutParams(lp);
+            mTextureView.setY(default_position.y);
+            mTextureView.setX(default_position.x);
         }
 
         startBackgroundThread();
@@ -191,7 +188,7 @@ public class CameraMain extends Camera
 
         @Override
         public void onError(@NonNull CameraDevice cameraDevice, int error) {
-            Log.d(TAG, " onError() called: "+error);
+            Log.d(TAG, " onError() called: " + error);
             mCameraOpenCloseLock.release();
             cameraDevice.close();
             mCameraDevice = null;
@@ -254,7 +251,7 @@ public class CameraMain extends Camera
             boolean foundCamera = false;
             int camera_facing = -1, i_camera = 0;
             StreamConfigurationMap map = null;
-            for (i_camera=0; i_camera<all_camera_ids.length; i_camera++) {
+            for (i_camera = 0; i_camera < all_camera_ids.length; i_camera++) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(all_camera_ids[i_camera]);
                 map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
                 camera_facing = characteristics.get(CameraCharacteristics.LENS_FACING);
@@ -269,7 +266,7 @@ public class CameraMain extends Camera
 
             // Get string list of available camera resolutions and find smallest
             resolutions = Arrays.asList(map.getOutputSizes(ImageFormat.JPEG));
-            int default_size= UtilsSystem.getArgMinResolution(resolutions);
+            int default_size = UtilsSystem.getArgMinResolution(resolutions);
 
             // Find which resolution user selected
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -494,6 +491,7 @@ public class CameraMain extends Camera
 
     // Add callback to enable parent activity to react when camera is loaded
     CameraInterface callback;
+
     public void setFragInterfaceListener(CameraInterface callback) {
         this.callback = callback;
     }

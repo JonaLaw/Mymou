@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -16,8 +15,8 @@ import androidx.core.app.ActivityCompat;
 public class PermissionManager {
 
     private static final String TAG = "PermissionManager";
-    private Context context;
-    private Activity activity;
+    private final Context context;
+    private final Activity activity;
 
     // This does not include Manifest.permission.WRITE_SETTINGS as it is special
     private static final String[] permissionCodes = {
@@ -50,7 +49,7 @@ public class PermissionManager {
 
     public void requestAllPermissions() {
         Log.d(TAG, "requestAllPermissions");
-        activity.requestPermissions(permissionCodes,123);
+        activity.requestPermissions(permissionCodes, 123);
         if (!checkPermissionGranted(Manifest.permission.WRITE_SETTINGS)) {
             requestPermission(Manifest.permission.WRITE_SETTINGS);
         }
@@ -74,7 +73,7 @@ public class PermissionManager {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             activity.startActivity(intent);
         } else {
-            activity.requestPermissions(new String[] {permission},123);
+            activity.requestPermissions(new String[]{permission}, 123);
         }
     }
 
@@ -104,18 +103,14 @@ public class PermissionManager {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage("The permission: \"" + permission + "\" was not granted. It is needed inorder for this app to function correctly.")
                 .setTitle("Warning - Permission Not Granted")
-                .setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Log.d(TAG, "onClick: requesting permission");
-                        // Request Permission Again
-                        requestPermission(permission);
-                    }
+                .setPositiveButton("Try Again", (dialog, id) -> {
+                    Log.d(TAG, "onClick: requesting permission");
+                    // Request Permission Again
+                    requestPermission(permission);
                 })
-                .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Log.d(TAG, "onClick: dismissing permission");
-                        //Do nothing
-                    }
+                .setNegativeButton("Dismiss", (dialog, id) -> {
+                    Log.d(TAG, "onClick: dismissing permission");
+                    //Do nothing
                 });
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -127,20 +122,16 @@ public class PermissionManager {
         builder.setMessage("The permission: \"" + permission + "\" was not, or cannot, be granted.\n\n" +
                 "Please navigate to your devices system settings and grant this app its required permissions.")
                 .setTitle("Warning - Permission Hidden")
-                .setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Log.d(TAG, "onClick: opening permission settings");
-                        // Open the app's permission page in the devices settings
-                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        intent.setData(Uri.fromParts("package", activity.getPackageName(), null));
-                        activity.startActivity(intent);
-                    }
+                .setPositiveButton("Open Settings", (dialog, id) -> {
+                    Log.d(TAG, "onClick: opening permission settings");
+                    // Open the app's permission page in the devices settings
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.fromParts("package", activity.getPackageName(), null));
+                    activity.startActivity(intent);
                 })
-                .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Log.d(TAG, "onClick: dismissing permission settings");
-                        //Do nothing
-                    }
+                .setNegativeButton("Dismiss", (dialog, id) -> {
+                    Log.d(TAG, "onClick: dismissing permission settings");
+                    //Do nothing
                 });
         AlertDialog dialog = builder.create();
         dialog.show();
