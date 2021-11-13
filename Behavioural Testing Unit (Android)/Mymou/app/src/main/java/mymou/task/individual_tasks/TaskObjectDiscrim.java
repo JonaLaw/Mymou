@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.util.Random;
@@ -30,20 +31,19 @@ import mymou.task.backend.UtilsTask;
  * TODO: Implement logging of task variables
  */
 public class TaskObjectDiscrim extends Task {
-
     // Debug
-    public static String TAG = "TaskObjectDiscrim";
+    public final String TAG = "TaskObjectDiscrim";
 
-    private static ImageButton[] cues, choice_cues;
-    private static int chosen_cue_id;
-    private static ConstraintLayout layout;
-    private static PreferencesManager prefManager;
-    private static Handler h0 = new Handler();  // Show object
-    private static Handler h1 = new Handler();  // Hide object
-    private static Handler h2 = new Handler();  // Show choices
+    private ImageButton[] cues;
+    private int chosen_cue_id;
+    private ConstraintLayout layout;
+    private PreferencesManager prefManager;
+    private final Handler h0 = new Handler();  // Show object
+    private final Handler h1 = new Handler();  // Hide object
+    private final Handler h2 = new Handler();  // Show choices
 
     // The stimuli
-    private static int[] stims = {
+    private final int[] stims = {
             R.drawable.aabaa,
             R.drawable.aabab,
             R.drawable.aabac,
@@ -71,7 +71,7 @@ public class TaskObjectDiscrim extends Task {
             R.drawable.aaaai,
             R.drawable.aaaaj,
     };
-    private static int num_stimuli = stims.length;
+    private final int num_stimuli = stims.length;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,42 +80,27 @@ public class TaskObjectDiscrim extends Task {
     }
 
     @Override
-    public void onViewCreated(final View view, Bundle savedInstanceState) {
-        logEvent(TAG+" started", callback);
+    public void onViewCreated(@NonNull final View view, Bundle savedInstanceState) {
+        logEvent(TAG + " started", callback);
 
         assignObjects();
 
         startMovie(prefManager.od_num_stim);
     }
 
-
     private void startMovie(int num_steps) {
         Log.d(TAG, "Playing movie, frame: " + num_steps + "/" + prefManager.od_num_stim);
         if (num_steps > 0) {
-            h0.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    UtilsTask.toggleCues(cues, true);
-                }
-            }, prefManager.od_start_delay);
+            h0.postDelayed(() -> UtilsTask.toggleCues(cues, true),
+                    prefManager.od_start_delay);
 
-            h1.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    UtilsTask.toggleCues(cues, false);
+            h1.postDelayed(() -> UtilsTask.toggleCues(cues, false),
+                    prefManager.od_start_delay + prefManager.od_duration_on);
 
-                }
-            }, prefManager.od_start_delay + prefManager.od_duration_on);
-
-            h2.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-
-                    startMovie(num_steps - 1);
-
-                }
-            }, prefManager.od_start_delay + prefManager.od_duration_on + prefManager.od_duration_off);
-
+            h2.postDelayed(() -> startMovie(num_steps - 1),
+                    prefManager.od_start_delay +
+                            prefManager.od_duration_on +
+                            prefManager.od_duration_off);
         } else {
 
             // Choice phase
@@ -166,21 +151,20 @@ public class TaskObjectDiscrim extends Task {
                 cue.setX(175);
                 cue.setY(1200);
                 break;
-                case 1:
+            case 1:
                 cue.setX(725);
                 cue.setY(300);
                 break;
-                case 2:
+            case 2:
                 cue.setX(725);
                 cue.setY(1200);
                 break;
-                case 3:
+            case 3:
                 cue.setX(175);
                 cue.setY(300);
                 break;
         }
     }
-
 
     private void assignObjects() {
         prefManager = new PreferencesManager(getContext());
@@ -200,20 +184,17 @@ public class TaskObjectDiscrim extends Task {
         cues[0].setY(750);
 
         UtilsTask.toggleCues(cues, false);
-
     }
-
 
     private View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.d(TAG, "onClick "+view.getId());
+            Log.d(TAG, "onClick " + view.getId());
 
             // Did they select the appropriate cue
-            boolean correct_chosen = Integer.valueOf(view.getId()) == chosen_cue_id;
+            boolean correct_chosen = view.getId() == chosen_cue_id;
 
             endOfTrial(correct_chosen, callback, prefManager);
-
         }
     };
 
@@ -228,8 +209,8 @@ public class TaskObjectDiscrim extends Task {
 
     // Implement interface and listener to enable communication up to TaskManager
     TaskInterface callback;
+
     public void setFragInterfaceListener(TaskInterface callback) {
         this.callback = callback;
     }
-
 }
