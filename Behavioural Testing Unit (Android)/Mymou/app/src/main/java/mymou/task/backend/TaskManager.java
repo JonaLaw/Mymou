@@ -383,9 +383,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
     }
 
     private void loadCamera() {
-        if (!preferencesManager.camera) {
-            return;
-        }
+        if (!preferencesManager.camera) return;
 
         Log.d(TAG, "Loading camera fragment");
         if (preferencesManager.camera_to_use != getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
@@ -489,18 +487,57 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
     private void tryTaskLocking() {
         // Check if debug mode is enabled in the app's System Settings
-        if (!PreferencesManager.debug) {
+        if (PreferencesManager.debug) {
+            displayDebugDialog();
+        } else {
             // Check if permission is granted to pin the screen
             // This should almost never happen as it's checked right before a task is started
             if (new PermissionManager(this, this)
                     .checkPermissionGranted(Manifest.permission.WRITE_SETTINGS)) {
                 this.startLockTask();
             } else {
-                displayTaskLockingError();
+                displayLockingErrorDialog();
             }
-        } else {
-            displayDebugMessage();
         }
+    }
+
+    private void displayDebugDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
+        builder.setTitle("Warning - App in Debug mode")
+                .setMessage("The back key is currently functioning, " +
+                        "and can be used to exit the task." +
+                        "\nThis is not recommended for actual training." +
+                        "\n\nDebug mode can be deactivated in this app's System Settings.")
+                .setPositiveButton("System Settings", (dialog, id) -> {
+                    //Load settings
+                    Intent intent = new Intent(getApplicationContext(), PrefsActSystem.class);
+                    intent.putExtra(getString(R.string.preftag_settings_to_load),
+                            getString(R.string.preftag_menu_prefs));
+                    startActivity(intent);
+                })
+                .setNegativeButton("Continue", (dialog, id) -> {
+                    //Do nothing
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void displayLockingErrorDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
+        builder.setTitle("Warning - App not permitted to Lock Task")
+                .setMessage("The App does not have permission to lock tasks." +
+                        "\nThis results in the device's UI staying active during a task." +
+                        "\n\nPlease give the app permission when prompted to in the Main Menu.")
+                .setPositiveButton("Return", (dialog, id) -> {
+                    //Load Main Menu
+                    Intent intent = new Intent(getApplicationContext(), MainMenu.class);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Ignore", (dialog, id) -> {
+                    //Do nothing
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void initialiseRewardSystem() {
@@ -523,46 +560,6 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
             Handler handlerOne = new Handler();
             handlerOne.postDelayed(this::initialiseRewardSystem, 5000);
         }
-    }
-
-    private void displayTaskLockingError() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
-        builder.setMessage("The App does not have permission to lock tasks." +
-                "\nThis results in the device's UI staying active during a task." +
-                "\n\nPlease give the app permission when prompted to in the Main Menu.")
-                .setTitle("Warning - App not permitted to Lock Task")
-                .setPositiveButton("Return", (dialog, id) -> {
-                    //Load Main Menu
-                    Intent intent = new Intent(getApplicationContext(), MainMenu.class);
-                    startActivity(intent);
-                })
-                .setNegativeButton("Ignore", (dialog, id) -> {
-                    //Do nothing
-                });
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
-    private void displayDebugMessage() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TaskManager.this);
-        builder.setMessage("The back key is currently functioning, " +
-                "and can be used to exit the task." +
-                "\nThis is not recommended for actual training." +
-                "\n\nDebug mode can be deactivated in this app's System Settings.")
-                .setTitle("Warning - App in Debug mode")
-                .setPositiveButton("System Settings", (dialog, id) -> {
-                    //Load settings
-                    Intent intent = new Intent(getApplicationContext(), PrefsActSystem.class);
-                    intent.putExtra(getString(R.string.preftag_settings_to_load),
-                            getString(R.string.preftag_menu_prefs));
-                    startActivity(intent);
-                })
-                .setNegativeButton("Continue", (dialog, id) -> {
-                    //Do nothing
-                });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
     public void startTrial(int monkId) {
