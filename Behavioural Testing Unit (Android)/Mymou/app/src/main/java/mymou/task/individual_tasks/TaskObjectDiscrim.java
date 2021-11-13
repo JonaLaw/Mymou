@@ -11,6 +11,8 @@ import android.widget.ImageButton;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.Random;
 
 import mymou.R;
@@ -102,46 +104,52 @@ public class TaskObjectDiscrim extends Task {
                             prefManager.od_duration_on +
                             prefManager.od_duration_off);
         } else {
-
             // Choice phase
             Random r = new Random();
 
-            // First make array of chosen positions
-            int num_dirs = 4;
-            boolean[] chosen_pos_bool = UtilsSystem.getBooleanFalseArray(num_dirs);
+            // Create a list of indexes to pick from
+            final int num_dirs = 4;
+            int[] indexesToChooseFrom = UtilsSystem.getIndexArray(num_dirs);
 
-            choice_cues = new ImageButton[prefManager.od_num_stim + prefManager.od_num_distractors];
+            ImageButton[] choice_cues = new ImageButton[prefManager.od_num_stim + prefManager.od_num_distractors];
             // Add correct answer
+            int indexChoice;
             for (int i = 0; i < cues.length; i++) {
                 choice_cues[i] = UtilsTask.addImageCue(chosen_cue_id, getContext(), layout, buttonClickListener);
                 choice_cues[i].setImageResource(stims[chosen_cue_id]);
-                int chosen_dir = r.nextInt(num_dirs);
-                positionObject(chosen_dir, choice_cues[i]);
-                chosen_pos_bool[chosen_dir] = true;
+
+                // Pick position
+                indexChoice = r.nextInt(indexesToChooseFrom.length);
+                positionObject(indexesToChooseFrom[indexChoice], choice_cues[i]);
+                // Remove the index that was used from the available indexes
+                indexesToChooseFrom = ArrayUtils.remove(indexesToChooseFrom, indexChoice);
             }
 
             // Now add distractors (without replacement)
 
             // Array to track chosen stimuli
-            boolean[] chosen_cues_bool = UtilsSystem.getBooleanFalseArray(num_stimuli);
-            chosen_cues_bool[chosen_cue_id] = true;
+            indexesToChooseFrom = UtilsSystem.getIndexArray(num_stimuli);
+            indexesToChooseFrom = ArrayUtils.remove(indexesToChooseFrom, chosen_cue_id);
 
             // For each distractor
             for (int i = 0; i < prefManager.od_num_distractors; i++) {
                 // Choose stimuli
-                int chosen_cue = UtilsTask.chooseValueNoReplacement(chosen_cues_bool);
-                chosen_cues_bool[chosen_cue] = true;
+                indexChoice = r.nextInt(indexesToChooseFrom.length);
 
                 // Add cue to the UI
                 choice_cues[i + prefManager.od_num_stim] = UtilsTask.addImageCue(-1, getContext(), layout, buttonClickListener);
-                choice_cues[i + prefManager.od_num_stim].setImageResource(stims[chosen_cue]);
+                choice_cues[i + prefManager.od_num_stim].setImageResource(stims[indexesToChooseFrom[indexChoice]]);
+
+                // Remove the index that was used from the available indexes
+                indexesToChooseFrom = ArrayUtils.remove(indexesToChooseFrom, indexChoice);
 
                 // choose position of cue
-                int chosen_pos = UtilsTask.chooseValueNoReplacement(chosen_pos_bool);
-                chosen_pos_bool[chosen_pos] = true;
-                positionObject(chosen_pos, choice_cues[i + prefManager.od_num_stim]);
-            }
+                indexChoice = r.nextInt(indexesToChooseFrom.length);
+                positionObject(indexesToChooseFrom[indexChoice], choice_cues[i + prefManager.od_num_stim]);
 
+                // Remove the index that was used from the available indexes
+                indexesToChooseFrom = ArrayUtils.remove(indexesToChooseFrom, indexChoice);
+            }
         }
     }
 

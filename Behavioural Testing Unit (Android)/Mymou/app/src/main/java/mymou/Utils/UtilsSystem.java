@@ -149,6 +149,14 @@ public class UtilsSystem {
         return out;
     }
 
+    public static int[] getIndexArray(int n) {
+        int[] indexArray = new int[n];
+        for (int i = 0; i < n; i++) {
+            indexArray[i] = i;
+        }
+        return indexArray;
+    }
+
     // Compares two areas and returns true if rhs is smaller
     private static boolean cameraCompareAreas(Size lhs, Size rhs) {
         // We cast here to ensure the multiplications won't overflow

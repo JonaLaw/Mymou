@@ -24,6 +24,8 @@ import android.widget.TextView;
 
 import androidx.preference.PreferenceManager;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import mymou.Utils.UtilsSystem;
 import mymou.task.backend.MatrixMaths;
 import mymou.preferences.PreferencesManager;
@@ -518,19 +520,27 @@ public class TaskDiscreteMaze extends Task {
     }
 
     private void randomiseImageLocation() {
-        // Array to track which positions have already been used
-        boolean[] chosen = UtilsSystem.getBooleanFalseArray(mapParams.numNeighbours);
+        if (mapParams.numNeighbours > xLocs.length || mapParams.numNeighbours > yLocs.length) {
+            new NullPointerException(TAG + ": these numbers don't match up");
+        }
 
+        // Create a list of indexes to pick from
+        int[] indexesToChooseFrom = UtilsSystem.getIndexArray(mapParams.numNeighbours);
+
+        // Randomly pick an index for each
+        int indexChoice;
         for (int i = 0; i < mapParams.numNeighbours; i++) {
             // Pick position
-            int choice = UtilsTask.chooseValueNoReplacement(chosen);
-            chosen[choice] = true;
+            indexChoice = r.nextInt(indexesToChooseFrom.length);
 
             // Update UI
-            imageButtons[i].setX(xLocs[choice]);
-            imageButtons[i].setY(yLocs[choice]);
-            chosenXlocs[i] = xLocs[choice];
-            chosenYlocs[i] = yLocs[choice];
+            imageButtons[i].setX(xLocs[indexesToChooseFrom[indexChoice]]);
+            imageButtons[i].setY(yLocs[indexesToChooseFrom[indexChoice]]);
+            chosenXlocs[i] = xLocs[indexesToChooseFrom[indexChoice]];
+            chosenYlocs[i] = yLocs[indexesToChooseFrom[indexChoice]];
+
+            // Remove the index that was used from the available indexes
+            indexesToChooseFrom = ArrayUtils.remove(indexesToChooseFrom, indexChoice);
         }
     }
 

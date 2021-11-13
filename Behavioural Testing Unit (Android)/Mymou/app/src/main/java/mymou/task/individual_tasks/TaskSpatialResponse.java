@@ -11,6 +11,8 @@ import android.widget.Button;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.Random;
 
 import mymou.R;
@@ -103,14 +105,21 @@ public class TaskSpatialResponse extends Task {
         task_phase = 0;
         cues = new Button[prefManager.sr_locations];
 
+        final Random r = new Random();
+
         // Choose cues (without replacement)
         chosen_cues = new int[prefManager.sr_num_stim];
-        boolean[] chosen_cues_b = UtilsSystem.getBooleanFalseArray(prefManager.sr_locations);
+        int[] indexesToChooseFrom = UtilsSystem.getIndexArray(prefManager.sr_locations);
 
+        // Randomly pick an index for each
+        int indexChoice;
         for (int i = 0; i < prefManager.sr_num_stim; i++) {
-            chosen_cues[i] = UtilsTask.chooseValueNoReplacement(chosen_cues_b);
-            chosen_cues_b[chosen_cues[i]] = true;
+            indexChoice = r.nextInt(indexesToChooseFrom.length);
+            chosen_cues[i] = indexesToChooseFrom[indexChoice];
             logEvent("Cue " + i + " set to " + chosen_cues[i], callback);
+
+            // Remove the index that was used from the available indexes
+            indexesToChooseFrom = ArrayUtils.remove(indexesToChooseFrom, indexChoice);
         }
 
         // Cue colours
