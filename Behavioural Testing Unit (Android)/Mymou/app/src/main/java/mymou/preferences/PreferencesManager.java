@@ -223,7 +223,7 @@ public class PreferencesManager {
         dm_max_dist_in_map = 4;
     }
 
-    public int t_one_screen_colour, t_one_num_presses, t_random_reward_start_time, t_random_reward_stop_time, t_four_num_static_cue_pos;
+    public int t_one_screen_colour, t_one_num_presses, t_random_reward_start_time, t_random_reward_stop_time, t_four_num_static_cue_pos, t_num_missed_presses;
 
     public void TrainingTasks() {
         int screen_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_t_one_screen_colour), Integer.toString(r.getInteger(R.integer.default_t_one_screen_colour))));
@@ -232,6 +232,7 @@ public class PreferencesManager {
         t_random_reward_stop_time = sharedPrefs.getInt(r.getString(R.string.preftag_t_random_reward_stop), r.getInteger(R.integer.default_random_reward_stop));
         t_one_num_presses = sharedPrefs.getInt(r.getString(R.string.preftag_t_one_num_presses), r.getInteger(R.integer.default_t_one_num_presses));
         t_four_num_static_cue_pos = sharedPrefs.getInt(r.getString(R.string.preftag_t_four_num_static_pos), r.getInteger(R.integer.default_t_four_num_static_pos));
+        t_num_missed_presses = sharedPrefs.getInt(r.getString(R.string.preftag_t_num_missed_presses), r.getInteger(R.integer.default_t_num_missed_presses));
         skip_go_cue = sharedPrefs.getBoolean(r.getString(R.string.preftag_skip_go_cue), r.getBoolean(R.bool.default_t_one_skip_go_cue));
 
         // TODO: Get this working

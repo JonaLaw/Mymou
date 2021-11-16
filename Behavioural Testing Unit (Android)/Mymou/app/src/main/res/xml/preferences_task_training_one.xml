@@ -38,6 +38,15 @@
             app:title="Number of presses until the cue moves" />
 
         <mymou.preferences.SeekBarPreferenceCustom
+            android:defaultValue="@integer/default_t_num_missed_presses"
+            android:max="@integer/max_t_num_missed_presses"
+            android:summary="The amount of times that the cue can be
+            missed with a screen press before a trail failure is triggered.
+            \nA setting of 0 disables this."
+            app:key="@string/preftag_t_num_missed_presses"
+            app:title="Number of missed presses until failure" />
+
+        <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_random_reward_start"
             app:key="@string/preftag_t_random_reward_start"
             app:title="Minimum time (s) for random reward to be given" />

@@ -10,6 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
+import java.util.Objects;
 import java.util.Random;
 
 import mymou.R;
@@ -36,7 +40,13 @@ public class TaskTrainingFourSmallMovingCue extends Task {
     private Button cue;
     private Float x_range, y_range;
     private final Random r;
-    private int random_reward_time, num_cue_presses, num_missed_presses;
+    private int random_reward_time, num_cue_presses;
+
+    // Cue missed
+    private View background_main;
+    private int num_missed_presses;
+    private boolean cue_missed_failure_option, cue_visible;
+
     private final Handler h0;  // Task trial_timer
 
     public TaskTrainingFourSmallMovingCue() {
@@ -89,9 +99,11 @@ public class TaskTrainingFourSmallMovingCue extends Task {
         prefManager = new PreferencesManager(getContext());
         prefManager.TrainingTasks();
 
+        final ConstraintLayout parentTaskContainer = Objects.requireNonNull(getView().findViewById(R.id.parent_task_empty));
+
         // Create cue
         cue = UtilsTask.addColorCue(0, prefManager.t_one_screen_colour,
-                getContext(), buttonClickListener, getView().findViewById(R.id.parent_task_empty));
+                getContext(), buttonClickListener, parentTaskContainer);
 
         // Figure out how big to make the cue
         Display display = getActivity().getWindowManager().getDefaultDisplay();
@@ -101,6 +113,17 @@ public class TaskTrainingFourSmallMovingCue extends Task {
         y_range = (float) (screen_size.y - prefManager.cue_size);
 
         UtilsTask.toggleCue(cue, true);
+
+        // Set click listener for missed cue screen presses
+        if (prefManager.t_num_missed_presses != 0) {
+            cue_missed_failure_option = true;
+            cue_visible = true;
+            num_missed_presses = 0;
+            parentTaskContainer.setOnClickListener(TouchListener);
+            background_main = Objects.requireNonNull(getView().getRootView().findViewById(R.id.background_main));
+        } else {
+            cue_missed_failure_option = false;
+        }
 
         num_cue_presses = 99;  // To position it on trial start
     }
@@ -124,14 +147,7 @@ public class TaskTrainingFourSmallMovingCue extends Task {
         public void onClick(View view) {
             logEvent("Cue clicked", callback);
 
-            // Always disable cues first
-            UtilsTask.toggleCue(cue, false);
-
-            // Cancel random reward timer
-            h0.removeCallbacksAndMessages(null);
-
-            // Reset timer for idle timeout on each press
-            callback.resetTimer_();
+            stopCue();
 
             // Take photo of subject
             callback.takePhotoFromTask_();
@@ -151,18 +167,50 @@ public class TaskTrainingFourSmallMovingCue extends Task {
             // Move cue
             positionCue();
 
-            // Re-enable cue after specified delay
-            h0.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    UtilsTask.toggleCue(cue, true);
-                    logEvent("Cue toggled on", callback);
-                    randomRewardTimer(0);
-                }
-            }, 2000);
-
+            startCueDelayed(2000);
         }
     };
+
+    private final View.OnClickListener TouchListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (!cue_visible) return;
+            logEvent("Cue press miss", callback);
+            num_missed_presses++;
+            if (num_missed_presses >= prefManager.t_num_missed_presses) {
+                logEvent("Cue press miss failure", callback);
+                stopCue();
+                background_main.setBackgroundColor(prefManager.timeoutbackground);
+                startCueDelayed(prefManager.timeoutduration);
+            }
+        }
+    };
+
+    private void stopCue() {
+        // Always disable cues first
+        if (cue_missed_failure_option) cue_visible = false;
+        UtilsTask.toggleCue(cue, false);
+
+        // Cancel random reward timer
+        h0.removeCallbacksAndMessages(null);
+
+        // Reset timer for idle timeout on each press
+        callback.resetTimer_();
+    }
+
+    private void startCueDelayed(int delayMillis) {
+        // Re-enable cue after specified delay
+        h0.postDelayed(() -> {
+            UtilsTask.toggleCue(cue, true);
+            if (cue_missed_failure_option) {
+                background_main.setBackgroundColor(prefManager.taskbackground);
+                cue_visible = true;
+                num_missed_presses = 0;
+            }
+            logEvent("Cue toggled on", callback);
+            randomRewardTimer(0);
+        }, delayMillis);
+    }
 
     // Implement interface and listener to enable communication up to TaskManager
     TaskInterface callback;
