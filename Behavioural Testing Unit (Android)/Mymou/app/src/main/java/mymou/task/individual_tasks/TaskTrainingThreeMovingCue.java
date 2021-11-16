@@ -9,7 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
+
 import mymou.R;
 import mymou.preferences.PreferencesManager;
 import mymou.task.backend.TaskInterface;
@@ -31,17 +34,17 @@ import java.util.Random;
 public class TaskTrainingThreeMovingCue extends Task {
 
     // Debug
-    public static String TAG = "TaskTrainingThreeMovingCue";
+    public final String TAG = "TaskTrainingThreeMovingCue";
 
-    private String preftag_successful_trial = "t_three_successful_trial";
-    private String preftag_num_consecutive_corr = "t_three_num_consecutive_corr";
-    private static int rew_scalar = 1;
-    private static int num_consecutive_corr;
-    private static PreferencesManager prefManager;
+    private final String preftag_successful_trial = "t_three_successful_trial";
+    private final String preftag_num_consecutive_corr = "t_three_num_consecutive_corr";
+    private final int rew_scalar = 1;
+    private int num_consecutive_corr;
+    private PreferencesManager prefManager;
     private SharedPreferences settings;
 
     // Task objects
-    private static Button cue;
+    private Button cue;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,13 +53,12 @@ public class TaskTrainingThreeMovingCue extends Task {
     }
 
     @Override
-    public void onViewCreated(final View view, Bundle savedInstanceState) {
-        logEvent(TAG+" started", callback);
+    public void onViewCreated(@NonNull final View view, Bundle savedInstanceState) {
+        logEvent(TAG + " started", callback);
 
         loadTrialParams();
 
         assignObjects();
-
     }
 
     private void assignObjects() {
@@ -79,18 +81,18 @@ public class TaskTrainingThreeMovingCue extends Task {
         if (num_consecutive_corr > 9) {
             scalar = 0f;
         } else {
-            scalar = (10-num_consecutive_corr) / 10f;
+            scalar = (10 - num_consecutive_corr) / 10f;
         }
         int x_length = (int) (prefManager.cue_size + (max_x * scalar));
         int y_length = (int) (prefManager.cue_size + (max_y * scalar));
 
         cue.setWidth(x_length);
         cue.setHeight(y_length);
-        logEvent("Cue height set to "+x_length+" "+y_length, callback);
+        logEvent("Cue height set to " + x_length + " " + y_length, callback);
 
         // Put cue in random location
-        Float x_range = (float) (screen_size.x - x_length);
-        Float y_range = (float) (screen_size.y - y_length);
+        float x_range = (float) (screen_size.x - x_length);
+        float y_range = (float) (screen_size.y - y_length);
 
         Random r = new Random();
         int x_loc = (int) (r.nextFloat() * x_range);
@@ -100,24 +102,22 @@ public class TaskTrainingThreeMovingCue extends Task {
         cue.setY(y_loc);
 
         UtilsTask.toggleCue(cue, true);
-        logEvent("Cue toggled on at location "+x_loc+" "+y_loc, callback);
-
+        logEvent("Cue toggled on at location " + x_loc + " " + y_loc, callback);
     }
-
 
     // Load previous trial params
     private void loadTrialParams() {
         settings = PreferenceManager.getDefaultSharedPreferences(getContext());
         boolean prev_trial_correct = settings.getBoolean(preftag_successful_trial, false);
         num_consecutive_corr = settings.getInt(preftag_num_consecutive_corr, 0);
-        if(!prev_trial_correct) {
+        if (!prev_trial_correct) {
             num_consecutive_corr = 0;
         }
 
         // Now save values, and they will be overwritten upon correct trial happening
         log_trial_outcome(false);
 
-        Log.d(TAG, ""+num_consecutive_corr+" "+prev_trial_correct);
+        Log.d(TAG, "" + num_consecutive_corr + " " + prev_trial_correct);
     }
 
     private void log_trial_outcome(boolean outcome) {
@@ -127,8 +127,7 @@ public class TaskTrainingThreeMovingCue extends Task {
         editor.commit();
     }
 
-
-    private View.OnClickListener buttonClickListener = new View.OnClickListener() {
+    private final View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             logEvent("Cue pressed", callback);
@@ -148,15 +147,13 @@ public class TaskTrainingThreeMovingCue extends Task {
 
             // End trial
             endOfTrial(true, rew_scalar, callback, prefManager);
-
         }
     };
 
     // Implement interface and listener to enable communication up to TaskManager
     TaskInterface callback;
+
     public void setFragInterfaceListener(TaskInterface callback) {
         this.callback = callback;
     }
-
-
 }
