@@ -28,16 +28,21 @@ import mymou.task.backend.UtilsTask;
 public class TaskTrainingFourSmallMovingCue extends Task {
 
     // Debug
-    public static String TAG = "TaskTrainingFourSmallMovingCue";
+    public final String TAG = "TaskTrainingFourSmallMovingCue";
 
-    private static PreferencesManager prefManager;
+    private PreferencesManager prefManager;
 
     // Task objects
-    private static Button cue;
+    private Button cue;
     private Float x_range, y_range;
-    private Random r;
-    private int random_reward_time, num_cue_presses;
-    private static Handler h0 = new Handler();  // Task trial_timer
+    private final Random r;
+    private int random_reward_time, num_cue_presses, num_missed_presses;
+    private final Handler h0;  // Task trial_timer
+
+    public TaskTrainingFourSmallMovingCue() {
+        r = new Random();
+        h0 = new Handler();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,42 +51,35 @@ public class TaskTrainingFourSmallMovingCue extends Task {
     }
 
     @Override
-    public void onViewCreated(final View view, Bundle savedInstanceState) {
-        logEvent(TAG+" started", callback);
+    public void onViewCreated(@NonNull final View view, Bundle savedInstanceState) {
+        logEvent(TAG + " started", callback);
 
         assignObjects();
 
         positionCue();
 
         randomRewardTimer(0);
-
     }
 
     private void randomRewardTimer(int time) {
-        Log.d(TAG, "trial_timer "+time);
+        Log.d(TAG, "trial_timer " + time);
 
         // If reset then pick next reward time
         if (time == 0) {
-            random_reward_time = r.nextInt(prefManager.t_random_reward_stop_time - prefManager.t_random_reward_start_time);
+            random_reward_time = r.nextInt(prefManager.t_random_reward_stop_time -
+                    prefManager.t_random_reward_start_time);
             random_reward_time += prefManager.t_random_reward_start_time;
         }
 
         time += 1;
         final int time_final = time;
 
-        h0.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (time_final > random_reward_time) {
-
-                    Log.d(TAG, "Giving random reward");
-                    buttonClickListener.onClick(getView());
-
-                } else {
-
-                    randomRewardTimer(time_final);
-
-                }
+        h0.postDelayed(() -> {
+            if (time_final > random_reward_time) {
+                Log.d(TAG, "Giving random reward");
+                buttonClickListener.onClick(getView());
+            } else {
+                randomRewardTimer(time_final);
             }
         }, 1000);
     }
@@ -102,12 +100,9 @@ public class TaskTrainingFourSmallMovingCue extends Task {
         x_range = (float) (screen_size.x - prefManager.cue_size);
         y_range = (float) (screen_size.y - prefManager.cue_size);
 
-        r = new Random();
-
         UtilsTask.toggleCue(cue, true);
 
         num_cue_presses = 99;  // To position it on trial start
-
     }
 
     private void positionCue() {
@@ -121,11 +116,10 @@ public class TaskTrainingFourSmallMovingCue extends Task {
             cue.setY(y_loc);
 
             num_cue_presses = 0;
-
         }
     }
 
-    private View.OnClickListener buttonClickListener = new View.OnClickListener() {
+    private final View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             logEvent("Cue clicked", callback);
@@ -172,6 +166,7 @@ public class TaskTrainingFourSmallMovingCue extends Task {
 
     // Implement interface and listener to enable communication up to TaskManager
     TaskInterface callback;
+
     public void setFragInterfaceListener(TaskInterface callback) {
         this.callback = callback;
     }
@@ -182,6 +177,4 @@ public class TaskTrainingFourSmallMovingCue extends Task {
         super.onDestroy();
         h0.removeCallbacksAndMessages(null);
     }
-
-
 }
