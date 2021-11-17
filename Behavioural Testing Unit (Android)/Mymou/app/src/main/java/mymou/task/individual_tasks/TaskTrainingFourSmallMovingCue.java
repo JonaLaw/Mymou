@@ -68,10 +68,13 @@ public class TaskTrainingFourSmallMovingCue extends Task {
 
         positionCue();
 
+        Log.d(TAG, "random rewards enabled = " + !prefManager.t_random_reward_disabled);
         randomRewardTimer(0);
     }
 
     private void randomRewardTimer(int time) {
+        if (prefManager.t_random_reward_disabled) return;
+
         Log.d(TAG, "trial_timer " + time);
 
         // If reset then pick next reward time
@@ -79,6 +82,8 @@ public class TaskTrainingFourSmallMovingCue extends Task {
             random_reward_time = r.nextInt(prefManager.t_random_reward_stop_time -
                     prefManager.t_random_reward_start_time);
             random_reward_time += prefManager.t_random_reward_start_time;
+
+            Log.d(TAG, "random_reward_time: " + random_reward_time);
         }
 
         time += 1;

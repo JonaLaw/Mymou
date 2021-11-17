@@ -224,6 +224,7 @@ public class PreferencesManager {
     }
 
     public int t_one_screen_colour, t_one_num_presses, t_random_reward_start_time, t_random_reward_stop_time, t_four_num_static_cue_pos, t_num_missed_presses;
+    public boolean t_random_reward_disabled;
 
     public void TrainingTasks() {
         int screen_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_t_one_screen_colour), Integer.toString(r.getInteger(R.integer.default_t_one_screen_colour))));
@@ -239,6 +240,8 @@ public class PreferencesManager {
         int t_random_reward_stop_time_ms = t_random_reward_stop_time * 1000;
         responseduration += t_random_reward_stop_time_ms;
 
+        t_random_reward_disabled = t_random_reward_start_time == 0 || t_random_reward_stop_time == 0 ||
+                t_random_reward_start_time >= t_random_reward_stop_time;
     }
 
     public int sl_seq_length, sl_map_selected, sl_max_seq_length;
