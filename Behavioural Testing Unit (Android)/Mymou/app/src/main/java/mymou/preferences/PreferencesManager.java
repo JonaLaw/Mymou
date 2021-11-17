@@ -20,7 +20,7 @@ public class PreferencesManager {
     public String data_headers = "taskId, trialCounter, faceRecogPrediction, overallTrialOutcome, photoTimestamp, eventTimestamp, task manager code, task specific event codes";
 
     public static boolean debug, bluetooth, camera, facerecog, savefacerecogarrays, restartoncrash,
-            sound, autostart, autostop, skip_go_cue = false, dimscreen, handle_feedback, run_timer = true;
+            sound, autostart, autostop, skip_go_cue = false, dimscreen, handle_feedback, run_timer;
     public static int sound_to_play, tone_dur, tone_freq, tone_strength;
     public static int dimscreenlevel, dimscreentime;
     public static int num_reward_chans, default_rew_chan, max_reward_channels;
@@ -73,8 +73,8 @@ public class PreferencesManager {
             default_rew_chan = 0;
         }
         rewardduration = sharedPrefs.getInt(r.getString(R.string.preftag_rewardduration), r.getInteger(R.integer.default_rewardduration));
-        responseduration = sharedPrefs.getInt(r.getString(R.string.preftag_responseduration), r.getInteger(R.integer.default_responseduration));
-        responseduration *= 1000;
+        // Convert seconds to milliseconds
+        responseduration = 1000 * sharedPrefs.getInt(r.getString(R.string.preftag_responseduration), r.getInteger(R.integer.default_responseduration));
         timeoutduration = sharedPrefs.getInt(r.getString(R.string.preftag_timeoutduration), r.getInteger(R.integer.default_timeoutduration));
 
         autostart_hour = sharedPrefs.getInt(r.getString(R.string.preftag_autostart_hour), r.getInteger(R.integer.default_autostart_hour));
@@ -120,7 +120,7 @@ public class PreferencesManager {
         tone_filename = sharedPrefs.getString(r.getString(R.string.tone_filename), "");
 
         handle_feedback = true; // Default behaviour, individual tasks can adjust this parameter
-
+        run_timer = responseduration > 0;
     }
 
     public String[] strobes_on, strobes_off;
@@ -237,8 +237,8 @@ public class PreferencesManager {
         skip_go_cue = sharedPrefs.getBoolean(r.getString(R.string.preftag_skip_go_cue), r.getBoolean(R.bool.default_t_one_skip_go_cue));
 
         // TODO: Get this working
-        int t_random_reward_stop_time_ms = t_random_reward_stop_time * 1000;
-        responseduration += t_random_reward_stop_time_ms;
+        // int t_random_reward_stop_time_ms = t_random_reward_stop_time * 1000;
+        // responseduration += t_random_reward_stop_time_ms;
 
         t_random_reward_disabled = t_random_reward_start_time == 0 || t_random_reward_stop_time == 0 ||
                 t_random_reward_start_time >= t_random_reward_stop_time;

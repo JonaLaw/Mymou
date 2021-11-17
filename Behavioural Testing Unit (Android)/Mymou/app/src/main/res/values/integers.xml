@@ -31,8 +31,8 @@
 
     <integer name="default_rewardduration">1500</integer>
     <integer name="default_timeoutduration">1500</integer>
-    <integer name="default_responseduration">20</integer>
-    <integer name="max_responseduration">60</integer>
+    <integer name="default_responseduration">0</integer>
+    <integer name="max_responseduration">120</integer>
     <integer name="max_rewardtimeoutduration">10000</integer>
 
     <integer name="max_t_num_static_cue_presses">10</integer>
