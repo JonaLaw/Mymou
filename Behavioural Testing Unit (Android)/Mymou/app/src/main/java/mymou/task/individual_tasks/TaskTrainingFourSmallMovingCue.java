@@ -161,7 +161,7 @@ public class TaskTrainingFourSmallMovingCue extends Task {
             num_cue_presses += 1;
 
             // Reward subject
-            callback.giveRewardFromTask_(prefManager.rewardduration, true);
+            callback.giveRewardFromTask_(prefManager.reward_juice_duration, true);
 
             // Log press
             callback.logEvent_(prefManager.ec_correct_trial);

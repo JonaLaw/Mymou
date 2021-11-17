@@ -421,7 +421,7 @@ public class TaskColoredGrating extends Task {
             log_trial_outcome(cumulative_reward); // save if it was correct
 
             // they get the rewarded
-            logEvent(TAG + " subject is rewarded now " + prefManager.rewardduration+" x "+cumulative_reward, callback);
+            logEvent(TAG + " subject is rewarded now " + prefManager.reward_juice_duration +" x "+cumulative_reward, callback);
             endOfTrial(true, cumulative_reward, callback, prefManager);
 
         } else if (correctTrial == 0) {

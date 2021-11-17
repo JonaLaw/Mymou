@@ -1133,16 +1133,14 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
         latestRewardChannel = juiceChoice;
 
-        double reward_duration_double = preferencesManager.rewardduration * rew_scalar;
-        int reward_duration_int = (int) reward_duration_double;
+        final int reward_juice_duration = (int) (preferencesManager.reward_juice_duration * rew_scalar);
 
-        updateTvExplanation("Delivering reward of " + reward_duration_int +
+        updateTvExplanation("Delivering reward of " + reward_juice_duration +
                 "ms on channel " + juiceChoice);
 
-        rewardSystem.activateChannel(juiceChoice, reward_duration_int);
+        rewardSystem.activateChannel(juiceChoice, reward_juice_duration);
 
-        endOfTrial(preferencesManager.ec_correct_trial,
-                preferencesManager.rewardduration + 5);
+        endOfTrial(preferencesManager.ec_correct_trial, preferencesManager.reward_screen_duration);
     }
 
     private void endOfTrial(String outcome, int newTrialDelay) {

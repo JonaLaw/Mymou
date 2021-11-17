@@ -24,7 +24,7 @@ public class PreferencesManager {
     public static int sound_to_play, tone_dur, tone_freq, tone_strength;
     public static int dimscreenlevel, dimscreentime;
     public static int num_reward_chans, default_rew_chan, max_reward_channels;
-    public static int rewardduration, responseduration, timeoutduration;
+    public static int reward_screen_duration, reward_juice_duration, responseduration, timeoutduration;
     public static int autostart_hour, autostop_hour, autostart_min, autostop_min;
     public static int taskbackground, rewardbackground, timeoutbackground;
     public static int border_colour, border_size, cue_size, cue_spacing;
@@ -72,7 +72,12 @@ public class PreferencesManager {
         if (default_rew_chan > num_reward_chans) {
             default_rew_chan = 0;
         }
-        rewardduration = sharedPrefs.getInt(r.getString(R.string.preftag_rewardduration), r.getInteger(R.integer.default_rewardduration));
+
+        reward_screen_duration = sharedPrefs.getInt(r.getString(R.string.preftag_reward_screen_duration),
+                r.getInteger(R.integer.default_reward_screen_duration));
+        reward_juice_duration = sharedPrefs.getInt(r.getString(R.string.preftag_reward_juice_duration),
+                r.getInteger(R.integer.default_reward_juice_duration));
+
         // Convert seconds to milliseconds
         responseduration = 1000 * sharedPrefs.getInt(r.getString(R.string.preftag_responseduration), r.getInteger(R.integer.default_responseduration));
         timeoutduration = sharedPrefs.getInt(r.getString(R.string.preftag_timeoutduration), r.getInteger(R.integer.default_timeoutduration));

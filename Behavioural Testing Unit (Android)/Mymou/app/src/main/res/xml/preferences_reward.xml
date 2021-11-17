@@ -40,10 +40,18 @@
             app:title="Default reward channel" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-            android:max="@integer/max_rewardtimeoutduration"
-            app:defaultValue="@integer/default_rewardduration"
-            app:key="@string/preftag_rewardduration"
-            app:title="Reward duration (ms)" />
+            android:max="@integer/max_reward_screen_duration"
+            app:defaultValue="@integer/default_reward_screen_duration"
+            app:key="@string/preftag_reward_screen_duration"
+            app:summary="How long a task's trial success screen will show for."
+            app:title="Reward Screen duration (ms)" />
+
+        <mymou.preferences.SeekBarPreferenceCustom
+            android:max="@integer/max_reward_juice_duration"
+            app:defaultValue="@integer/default_reward_juice_duration"
+            app:key="@string/preftag_reward_juice_duration"
+            app:summary="How long the juice reward will be dispensed for."
+            app:title="Reward Juice duration (ms)" />
 
         <ListPreference
             android:defaultValue="@integer/default_rewardbackgroundcolour"

@@ -29,7 +29,12 @@
     <integer name="default_rew_chan">1</integer>
     <integer name="max_num_rew_chans">4</integer>
 
-    <integer name="default_rewardduration">1500</integer>
+    <integer name="default_reward_screen_duration">2000</integer>
+    <integer name="max_reward_screen_duration">10000</integer>
+
+    <integer name="default_reward_juice_duration">1000</integer>
+    <integer name="max_reward_juice_duration">5000</integer>
+
     <integer name="default_timeoutduration">1500</integer>
     <integer name="default_responseduration">0</integer>
     <integer name="max_responseduration">120</integer>

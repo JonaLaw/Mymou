@@ -120,7 +120,8 @@
     <string name="preftag_event_codes">preftag_event_codes</string>
     <string name="preftag_system_settings">preftag_system_settings</string>
     <string name="preftag_menu_prefs">preftag_menu_prefs</string>
-    <string name="preftag_rewardduration">preftag_rewardduration</string>
+    <string name="preftag_reward_screen_duration">preftag_reward_screen_duration</string>
+    <string name="preftag_reward_juice_duration">preftag_reward_juice_duration</string>
     <string name="preftag_timeoutduration">preftag_timeoutduration</string>
     <string name="preftag_responseduration">preftag_responseduration</string>
     <string name="preftag_num_monkeys">preftag_num_monkeys</string>
