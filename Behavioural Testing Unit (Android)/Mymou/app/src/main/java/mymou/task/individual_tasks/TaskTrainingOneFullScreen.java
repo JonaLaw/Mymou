@@ -87,9 +87,9 @@ public class TaskTrainingOneFullScreen extends Task {
             callback.takePhotoFromTask_();
 
             // Check how many correct presses they've got and how many they need per trial
-            logEvent("Cue pressed (num steps: " + num_steps + "/" + prefManager.t_one_num_presses + ")", callback);
+            logEvent("Cue pressed (num steps: " + num_steps + "/" + prefManager.t_num_cue_press_reward + ")", callback);
 
-            if (num_steps >= prefManager.t_one_num_presses) {
+            if (num_steps >= prefManager.t_num_cue_press_reward) {
                 endOfTrial(true, rew_scalar, callback, prefManager);
             } else {
                 UtilsTask.toggleCue(cue, true);

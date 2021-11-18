@@ -40,7 +40,6 @@
     <integer name="max_responseduration">120</integer>
     <integer name="max_rewardtimeoutduration">10000</integer>
 
-    <integer name="max_t_num_static_cue_presses">10</integer>
     <integer name="max_t_num_missed_presses">10</integer>
 
     <integer name="default_taskbackgroundcolour">0</integer>
@@ -68,10 +67,15 @@
     <integer name="default_dm_target_switch_freq">100</integer>
     <integer name="default_dm_booster_amount">500</integer>
 
-    <integer name="default_t_one_num_presses">1</integer>
-    <integer name="default_t_one_screen_colour">6</integer>
-    <integer name="default_t_four_num_static_pos">2</integer>
-    <integer name="default_t_num_missed_presses">0</integer>
+    <integer name="default_t_cue_colour">3</integer>
+
+    <integer name="default_t_num_cue_press_reward">1</integer>
+    <integer name="max_t_num_cue_press_reward">50</integer>
+
+    <integer name="default_t_num_cue_press_move">1</integer>
+    <integer name="max_t_num_cue_press_move">10</integer>
+
+    <integer name="default_t_num_cue_missed_presses">0</integer>
 
 
     <integer name="max_random_reward_start">600</integer>
