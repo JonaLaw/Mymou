@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:layout="@layout/preferences_title"
         app:key="task_settings"
+        app:layout="@layout/preferences_title"
         app:title="Common task settings">
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -25,59 +25,62 @@
             android:max="@integer/max_rewardtimeoutduration"
             app:defaultValue="@integer/default_timeoutduration"
             app:key="@string/preftag_timeoutduration"
-            app:title="Timeout duration for error trials (ms)" />
+            app:summary="How long a task's trial failure screen will show for."
+            app:title="Failure Timeout Duration (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:max="@integer/max_responseduration"
             app:defaultValue="@integer/default_responseduration"
             app:key="@string/preftag_responseduration"
-            app:title="Maximum response duration (seconds)" />
+            app:summary="How long until the task's trial will fail without a cue press being made.
+            \nSetting this to 0 will disable it."
+            app:title="Maximum Trial Duration (s)" />
 
         <Preference
-            android:summary="Border thickness, border colour, cue size, cue spacing"
             app:fragment="mymou.preferences.PrefsFragCommon"
             app:key="@string/preftag_cue_settings"
+            app:summary="Border thickness, border colour, cue size, cue spacing"
             app:title="Go cue settings" />
 
         <ListPreference
-            android:defaultValue="@integer/default_taskbackgroundcolour"
-            android:entries="@array/colournames"
-            android:entryValues="@array/colourvalues"
+            app:defaultValue="@integer/default_taskbackgroundcolour"
+            app:entries="@array/colournames"
+            app:entryValues="@array/colourvalues"
             app:key="@string/preftag_taskbackgroundcolour"
             app:title="Task background colour" />
 
         <ListPreference
-            android:defaultValue="@integer/default_rewardbackgroundcolour"
-            android:entries="@array/colournames"
-            android:entryValues="@array/colourvalues"
+            app:defaultValue="@integer/default_rewardbackgroundcolour"
+            app:entries="@array/colournames"
+            app:entryValues="@array/colourvalues"
             app:key="@string/preftag_rewardbackgroundcolour"
             app:title="Reward background colour" />
 
         <ListPreference
-            android:defaultValue="@integer/default_timeoutbackgroundcolour"
-            android:entries="@array/colournames"
-            android:entryValues="@array/colourvalues"
+            app:defaultValue="@integer/default_timeoutbackgroundcolour"
+            app:entries="@array/colournames"
+            app:entryValues="@array/colourvalues"
             app:key="@string/preftag_timeoutbackgroundcolour"
             app:title="Timeout background colour" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-            android:defaultValue="@integer/default_num_monkeys"
             android:max="@integer/max_num_monkeys"
-            android:summary="Number of monkeys in total that will use the device"
+            app:defaultValue="@integer/default_num_monkeys"
             app:key="@string/preftag_num_monkeys"
             app:min="@integer/min_num_monkeys"
+            app:summary="Number of monkeys in total that will use the device"
             app:title="Number of monkeys" />
 
         <Preference
-            android:summary="Common event codes that are stored in log data for various task events"
             app:fragment="mymou.preferences.PrefsFragCommon"
             app:key="@string/preftag_event_codes"
+            app:summary="Common event codes that are stored in log data for various task events"
             app:title="Event codes" />
 
         <SwitchPreferenceCompat
-            android:summary="Device will beep on successful trials to aid secondary reinforcement"
             app:defaultValue="@bool/default_sound"
             app:key="@string/preftag_sound"
+            app:summary="Device will beep on successful trials to aid secondary reinforcement"
             app:title="Enable sounds" />
 
         <Preference
@@ -88,29 +91,29 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:layout="@layout/preferences_title"
         app:key="power_saving_settings"
+        app:layout="@layout/preferences_title"
         app:title="Power saving settings">
 
         <SwitchPreferenceCompat
-            android:summary="Device will reduce screen brightness when not in use to conserve power"
             app:defaultValue="@bool/default_dimscreen"
             app:key="@string/preftag_dimscreen"
+            app:summary="Device will reduce screen brightness when not in use to conserve power"
             app:title="Dim screen when not in use" />
 
         <ListPreference
-            android:defaultValue="@integer/default_dimscreenamount"
-            android:entries="@array/dimscreennames"
-            android:entryValues="@array/dimscreenvalues"
+            app:defaultValue="@integer/default_dimscreenamount"
+            app:entries="@array/dimscreennames"
+            app:entryValues="@array/dimscreenvalues"
             app:key="@string/preftag_dimscreenlevel"
             app:title="Dim screen amount (percentage)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-            android:defaultValue="@integer/default_dimscreentime"
             android:max="60"
-            android:summary="If no trial is started for this duration then the screen will be dimmed until it is next pressed"
+            app:defaultValue="@integer/default_dimscreentime"
             app:key="@string/preftag_dimscreentime"
             app:min="1"
+            app:summary="If no trial is started for this duration then the screen will be dimmed until it is next pressed"
             app:title="Time to wait until dimming screen (minutes)" />
 
     </PreferenceCategory>
