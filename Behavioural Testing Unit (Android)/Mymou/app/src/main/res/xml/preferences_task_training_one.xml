@@ -11,7 +11,7 @@
             android:defaultValue="@integer/default_t_cue_colour"
             android:entries="@array/colournames"
             android:entryValues="@array/colourvalues"
-            app:key="@string/preftag_t_one_screen_colour"
+            app:key="@string/preftag_t_cue_colour"
             app:title="Colour of Cue" />
 
         <mymou.preferences.SeekBarPreferenceCustom

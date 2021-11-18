@@ -229,11 +229,11 @@ public class PreferencesManager {
     }
 
     public int t_one_screen_colour, t_num_cue_press_reward, t_random_reward_start_time, t_random_reward_stop_time, t_num_cue_press_move, t_num_missed_presses;
+    public int t_cue_colour, t_num_cue_press_reward, t_random_reward_start_time, t_random_reward_stop_time, t_num_cue_press_move, t_num_missed_presses;
     public boolean t_random_reward_disabled, t_miss_failure_disabled;
 
     public void TrainingTasks() {
-        int screen_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_t_one_screen_colour), Integer.toString(r.getInteger(R.integer.default_t_cue_colour))));
-        t_one_screen_colour = colors[screen_colour];
+        int screen_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_t_cue_colour), Integer.toString(r.getInteger(R.integer.default_t_cue_colour))));
         t_random_reward_start_time = sharedPrefs.getInt(r.getString(R.string.preftag_t_random_reward_start), r.getInteger(R.integer.default_random_reward_start));
         t_random_reward_stop_time = sharedPrefs.getInt(r.getString(R.string.preftag_t_random_reward_stop), r.getInteger(R.integer.default_random_reward_stop));
         t_num_cue_press_reward = sharedPrefs.getInt(r.getString(R.string.preftag_t_num_cue_press_reward), r.getInteger(R.integer.default_t_num_cue_press_reward));

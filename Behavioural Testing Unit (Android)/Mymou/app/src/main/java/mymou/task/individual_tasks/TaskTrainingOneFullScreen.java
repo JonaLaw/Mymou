@@ -55,7 +55,7 @@ public class TaskTrainingOneFullScreen extends Task {
         prefManager.TrainingTasks();
 
         // Create one giant cue
-        cue = UtilsTask.addColorCue(0, prefManager.t_one_screen_colour,
+        cue = UtilsTask.addColorCue(0, prefManager.t_cue_colour,
                 getContext(), buttonClickListener, getView().findViewById(R.id.parent_task_empty));
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         Point size = new Point();
