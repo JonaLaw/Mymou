@@ -579,25 +579,25 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
                 task = new TaskPassiveReward();
                 break;
             case 1:
-                task = new TaskTrainingOneFullScreen();
+                task = new TaskTrainingFullScreen();
                 break;
             case 2:
-                task = new TaskTrainingTwoShrinkingCue();
+                task = new TaskTrainingShrinkingCue();
                 break;
             case 3:
-                task = new TaskTrainingThreeMovingCue();
+                task = new TaskTrainingShrinkingMovingCue();
                 break;
             case 4:
                 task = new TaskTrainingStaticCue();
                 break;
             case 5:
-                task = new TaskTrainingFourSmallMovingCue();
+                task = new TaskTrainingSmallMovingCue();
                 break;
             case 6:
                 task = new TaskExample();
                 break;
             case 7:
-                task = new TaskTrainingFiveTwoStep();
+                task = new TaskTrainingTwoStep();
                 break;
             case 8:
                 task = new TaskDiscreteMaze();

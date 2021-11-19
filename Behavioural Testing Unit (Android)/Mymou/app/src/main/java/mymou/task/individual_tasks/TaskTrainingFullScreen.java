@@ -16,7 +16,7 @@ import mymou.task.backend.TaskInterface;
 import mymou.task.backend.UtilsTask;
 
 /**
- * Training task one
+ * Training task: FullScreen
  *
  * Pressing anywhere on screen will trigger device
  * Must get specified amount of presses in a row to receive reward
@@ -24,10 +24,10 @@ import mymou.task.backend.UtilsTask;
  * @param  num_steps the current number of presses made in this trial
  *
  */
-public class TaskTrainingOneFullScreen extends Task {
+public class TaskTrainingFullScreen extends Task {
 
     // Debug
-    public final String TAG = "TaskTrainingOneFullScreen";
+    public final String TAG = "TaskTrainingFullScreen";
 
     private int num_steps;
     private final int rew_scalar = 1;

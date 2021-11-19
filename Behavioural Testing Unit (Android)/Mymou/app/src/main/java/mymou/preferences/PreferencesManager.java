@@ -254,8 +254,8 @@ public class PreferencesManager {
     public boolean t_three_loop_cue_shrink;
 
     public void TrainingTaskThree( ) {
-        t_three_num_cue_press_shrink = sharedPrefs.getInt(r.getString(R.string.preftag_t_three_num_press_cue_shrink), r.getInteger(R.integer.default_t_three_num_cue_press_shrink));
-        t_three_loop_cue_shrink = sharedPrefs.getBoolean(r.getString(R.string.preftag_t_three_loop_cue_shrink), r.getBoolean(R.bool.default_t_three_loop_cue_shrink));
+        t_three_num_cue_press_shrink = sharedPrefs.getInt(r.getString(R.string.preftag_t_num_cue_press_shrink), r.getInteger(R.integer.default_t_three_num_cue_press_shrink));
+        t_three_loop_cue_shrink = sharedPrefs.getBoolean(r.getString(R.string.preftag_t_shrink_move_cue_loop), r.getBoolean(R.bool.default_t_three_loop_cue_shrink));
     }
 
     public int sl_seq_length, sl_map_selected, sl_max_seq_length;

@@ -19,15 +19,15 @@
 
     <string name="task_mode">task_mode</string>
 
-    <string name="training_3">Training 3: Shrinking Moving Cue</string>
+    <string name="training_shrinking_moving_cue">Training: Shrinking Moving Cue</string>
 
     <string-array name="available_tasks">
         <item>Passive Reward</item>
-        <item>Training 1: Full Screen Cue</item>
-        <item>Training 2: Shrinking Central Cue</item>
-        <item>@string/training_3</item>
-        <item>Training 4: Static Cue</item>
-        <item>Training 5: Small Moving Cue</item>
+        <item>Training: Full Screen Cue</item>
+        <item>Training: Shrinking Central Cue</item>
+        <item>@string/training_shrinking_moving_cue</item>
+        <item>Training: Static Cue</item>
+        <item>Training: Small Moving Cue</item>
         <item>Example Task</item>
         <item>Two Step Task</item>
         <item>Discrete Maze</item>
@@ -223,15 +223,15 @@
     <string name="preftag_dm_errors_allowed">preftag_dm_errors_allowed</string>
     <string name="preftag_dm_animation_dur_actual">dm_anim_dur_actual</string>
 
-    <string name="preftag_t_cue_colour">t_one_screen_colour</string>
+    <string name="preftag_t_cue_colour">t_cue_colour</string>
     <string name="preftag_t_random_reward_start">t_random_reward_start</string>
     <string name="preftag_t_random_reward_stop">t_random_reward_stop</string>
-    <string name="preftag_t_num_cue_press_reward">t_one_num_presses</string>
-    <string name="preftag_t_num_cue_press_move">t_four_num_static_pos</string>
-    <string name="preftag_t_num_missed_presses">t_num_failure_presses</string>
+    <string name="preftag_t_num_cue_press_reward">t_num_cue_press_reward</string>
+    <string name="preftag_t_num_cue_press_move">t_num_cue_press_move</string>
+    <string name="preftag_t_num_missed_presses">t_num_missed_presses</string>
 
-    <string name="preftag_t_three_loop_cue_shrink">preftag_t_three_loop_cue_shrink</string>
-    <string name="preftag_t_three_num_press_cue_shrink">preftag_t_three_num_press_cue_shrink</string>
+    <string name="preftag_t_shrink_move_cue_loop">t_shrink_move_cue_loop</string>
+    <string name="preftag_t_num_cue_press_shrink">t_num_cue_press_shrink</string>
 
     <string name="preftag_sl_map_selected">preftag_sl_map_selected</string>
     <string name="preftag_sl_seq_length">preftag_sl_seq_length</string>

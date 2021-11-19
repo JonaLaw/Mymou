@@ -5,11 +5,11 @@
     <PreferenceCategory
         android:layout="@layout/preferences_title"
         app:key="task_settings"
-        app:title="@string/training_3">
+        app:title="@string/training_shrinking_moving_cue">
 
         <SwitchPreferenceCompat
             app:defaultValue="false"
-            app:key="@string/preftag_t_three_loop_cue_shrink"
+            app:key="@string/preftag_t_shrink_move_cue_loop"
             app:summary="When the cue reaches its minimum size and after it's pressed the required amount times to shrink, the shrinkage loop will restart."
             app:title="Loop Cue Shrink" />
 
@@ -17,7 +17,7 @@
             android:defaultValue="@integer/default_t_three_num_cue_press_shrink"
             android:max="@integer/max_t_three_num_cue_press_shrink"
             app:min="1"
-            app:key="@string/preftag_t_three_num_press_cue_shrink"
+            app:key="@string/preftag_t_num_cue_press_shrink"
             app:summary="The number of cue presses before the cue shrinks."
             app:title="Presses Until Cue Shrink" />
 

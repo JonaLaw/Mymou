@@ -13,33 +13,37 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import java.util.Objects;
-import java.util.Random;
-
 import mymou.R;
 import mymou.preferences.PreferencesManager;
 import mymou.task.backend.TaskInterface;
 import mymou.task.backend.UtilsTask;
 
+import java.util.Objects;
+import java.util.Random;
+
 /**
- * Training task four: Small moving cue
+ * Training task: Shrinking and Moving Cue
  * <p>
- * Cue moves randomly around the screen
- * Instead of idle timeout, it randomly gives reward and then moves the cue
- * Different to all other tasks in that it never ends a trial, and so must handle data logging itself rather than using TaskManager
+ * Valid touch area starts as the entire screen, and gets progressively smaller
+ * The cue also moves randomly around the screen
+ * An idle timeout resets size of the cue to the entire screen
+ * Must get specified amount of presses in a row to receive reward
  */
-public class TaskTrainingFourSmallMovingCue extends Task {
+public class TaskTrainingShrinkingMovingCue extends Task {
 
     // Debug
-    public final String TAG = "TaskTrainingFourSmallMovingCue";
+    public final String TAG = "TaskTrainingShrinkingMovingCue";
 
     private PreferencesManager prefManager;
 
     // Task objects
     private Button cue;
-    private int x_range, y_range;
+    private final Point screen_size;
+    private int max_x, max_y;
+    private int x_length, y_length;
     private final Random r;
-    private int random_reward_time, num_cue_presses_reward, num_cue_presses_move;
+    private int random_reward_time, num_cue_presses_reward,
+            num_cue_presses_move, num_cue_press_shrink, num_cue_scale;
 
     // Cue missed
     private View background_main;
@@ -48,10 +52,10 @@ public class TaskTrainingFourSmallMovingCue extends Task {
 
     private final Handler h0;  // Task trial_timer
 
-    public TaskTrainingFourSmallMovingCue() {
+    public TaskTrainingShrinkingMovingCue() {
+        screen_size = new Point();
         r = new Random();
         h0 = new Handler();
-        num_cue_presses_reward = 0;
     }
 
     @Override
@@ -71,21 +75,21 @@ public class TaskTrainingFourSmallMovingCue extends Task {
         // Load preferences
         prefManager = new PreferencesManager(getContext());
         prefManager.TrainingTasks();
+        prefManager.TrainingTaskThree();
 
         Log.d(TAG, "random rewards enabled = " + !prefManager.t_random_reward_disabled);
         Log.d(TAG, "cue missed failure enabled = " + !prefManager.t_miss_failure_disabled);
 
-        // Figure out how big to make the cue
         Display display = Objects.requireNonNull(getActivity()).getWindowManager().getDefaultDisplay();
-        Point screen_size = new Point();
         display.getRealSize(screen_size);
-        x_range = screen_size.x - prefManager.cue_size;
-        y_range = screen_size.y - prefManager.cue_size;
+        // Figure out how big to make the cue
+        max_x = screen_size.x - prefManager.cue_size;
+        max_y = screen_size.y - prefManager.cue_size;
 
         final ConstraintLayout parentTaskContainer = Objects.requireNonNull(
                 Objects.requireNonNull(getView()).findViewById(R.id.parent_task_empty));
 
-        // Create cue
+        // Create one giant cue
         cue = UtilsTask.addColorCue(0, prefManager.t_cue_colour,
                 getContext(), buttonClickListener, parentTaskContainer);
 
@@ -101,8 +105,11 @@ public class TaskTrainingFourSmallMovingCue extends Task {
 
         num_cue_presses_move = 0;
         num_cue_presses_reward = 0;
+        num_cue_press_shrink = 0;
+        num_cue_scale = 0;
 
         // Do these now as they wouldn't otherwise
+        shrinkCue();
         positionCue();
         startCue();
     }
@@ -117,6 +124,18 @@ public class TaskTrainingFourSmallMovingCue extends Task {
     }
 
     private void startCue() {
+        if (num_cue_press_shrink >= prefManager.t_three_num_cue_press_shrink) {
+            num_cue_press_shrink = 0;
+            num_cue_scale++;
+
+            if (prefManager.t_three_loop_cue_shrink && num_cue_scale == 11) {
+                Log.d(TAG, "resetting cue shrink loop");
+                num_cue_scale = 0;
+            }
+
+            shrinkCue();
+        }
+
         if (num_cue_presses_move >= prefManager.t_num_cue_press_move) {
             positionCue();
             num_cue_presses_move = 0;
@@ -136,11 +155,30 @@ public class TaskTrainingFourSmallMovingCue extends Task {
             startRandomRewardTimer();
     }
 
+    private void shrinkCue() {
+        // Get cue scale based on the number of consecutive cue presses
+        final float scalar;
+        if (num_cue_scale > 9) {
+            scalar = 0;
+        } else {
+            scalar = (10 - num_cue_scale) / 10f;
+        }
+
+        Log.d(TAG, "num_cue_scale: " + num_cue_scale + ", scalar: " + scalar);
+
+        // Set cue to certain size
+        x_length = (int) (prefManager.cue_size + (max_x * scalar));
+        y_length = (int) (prefManager.cue_size + (max_y * scalar));
+        logEvent("Setting cue size to (" + x_length + ", " + y_length + ")", callback);
+        cue.setWidth(x_length);
+        cue.setHeight(y_length);
+    }
+
     private void positionCue() {
         // Put cue in random location
-        final int x_loc = (int) (r.nextFloat() * x_range);
-        final int y_loc = (int) (r.nextFloat() * y_range);
-        logEvent("Moving cue to " + x_loc + " " + y_loc, callback);
+        final int x_loc = (int) (r.nextFloat() * (screen_size.x - x_length));
+        final int y_loc = (int) (r.nextFloat() * (screen_size.y - y_length));
+        logEvent("Moving cue to (" + x_loc + ", " + y_loc + ")", callback);
         cue.setX(x_loc);
         cue.setY(y_loc);
     }
@@ -184,12 +222,13 @@ public class TaskTrainingFourSmallMovingCue extends Task {
             stopCue();
             background_main.setBackgroundColor(prefManager.rewardbackground);
 
-            // Take photo of subject
+            // Take photo of button press
             callback.takePhotoFromTask_();
 
             // Count cue presses
             num_cue_presses_move++;
             num_cue_presses_reward++;
+            num_cue_press_shrink++;
 
             // Reward subject
             if (num_cue_presses_reward >= prefManager.t_num_cue_press_reward) {

@@ -17,7 +17,7 @@ import mymou.task.backend.TaskInterface;
 import mymou.task.backend.UtilsTask;
 
 /**
- * Training task two: Shrinking Cue
+ * Training task: Shrinking Cue
  *
  * Valid touch area starts as the entire screen, and gets progressively smaller
  * An idle timeout resets size of the cue to the entire screen
@@ -26,10 +26,10 @@ import mymou.task.backend.UtilsTask;
  * @param  num_consecutive_corr the current number of consecutive presses
  *
  */
-public class TaskTrainingTwoShrinkingCue extends Task {
+public class TaskTrainingShrinkingCue extends Task {
 
     // Debug
-    public final String TAG = "TaskTrainingTwoShrinkingCue";
+    public final String TAG = "TaskTrainingShrinkingCue";
 
     private final String preftag_successful_trial = "t_two_successful_trial";
     private final String preftag_num_consecutive_corr = "t_two_num_consecutive_corr";
