@@ -12,7 +12,6 @@
             android:max="4"
             app:key="@string/preftag_w_numcues"
             app:min="1"
-            app:summary="Tap to input number"
             app:title="Number of reward cues shown on the trial" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -20,25 +19,24 @@
             android:max="10"
             app:key="@string/preftag_w_numcuesused"
             app:min="1"
-            app:summary="Cues will be drawn from this number of possible cues, starting with the extreme probabilites (i.e. easiest cues) and working into the harder cues. Tap to input number"
+            app:summary="Cues will be drawn from this number of possible cues, starting with the extreme probabilites (i.e. easiest cues) and working into the harder cues."
             app:title="Number of reward cues used" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_w_startdelay"
             app:key="@string/preftag_w_startdelay"
-            app:summary="Tap to input number"
             app:title="Time before the first reward cue is shown  start appearing (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_w_probcuesdelay_low"
             app:key="@string/preftag_w_probcuesdelay_low"
-            app:summary="A random number between the minimum and maximum values will be drawn for each reward cue. Tap to input number"
+            app:summary="A random number between the minimum and maximum values will be drawn for each reward cue."
             app:title="Minimum time between each reward cue being shown (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_w_probcuesdelay_high"
             app:key="@string/preftag_w_probcuesdelay_high"
-            app:summary="A random number between the minimum and maximum values will be drawn for each reward cue. Tap to input number"
+            app:summary="A random number between the minimum and maximum values will be drawn for each reward cue."
             app:title="Maximum time between each reward cue being shown (ms)" />
 
         <SwitchPreferenceCompat
@@ -87,7 +85,6 @@
             android:max="500"
             app:key="@string/preftag_w_gocuesize"
             app:min="10"
-            app:summary="Tap to input number"
             app:title="Size of go cue (circular cue in centre of screen)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -95,7 +92,6 @@
             android:max="500"
             app:key="@string/preftag_w_choicecuesize"
             app:min="10"
-            app:summary="Tap to input number"
             app:title="Size of choice cues" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -103,7 +99,6 @@
             android:max="500"
             app:key="@string/preftag_w_rewcuesize"
             app:min="10"
-            app:summary="Tap to input number"
             app:title="Size of reward cues" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -111,7 +106,7 @@
             android:max="1500"
             app:key="@string/preftag_w_probcuexloc1"
             app:min="1"
-            app:summary="Cues are randomly placed in one of four locations that align along X1, X2, Y1, Y2. Tap to input number"
+            app:summary="Cues are randomly placed in one of four locations that align along X1, X2, Y1, Y2."
             app:title="X1 location of reward cues" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -119,7 +114,7 @@
             android:max="1500"
             app:key="@string/preftag_w_probcuexloc2"
             app:min="1"
-            app:summary="Cues are randomly placed in one of four locations that align along X1, X2, Y1, Y2. Tap to input number"
+            app:summary="Cues are randomly placed in one of four locations that align along X1, X2, Y1, Y2."
             app:title="X2 location of reward cues" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -127,7 +122,7 @@
             android:max="2000"
             app:key="@string/preftag_w_probcueyloc1"
             app:min="1"
-            app:summary="Cues are randomly placed in one of four locations that align along X1, X2, Y1, Y2. Tap to input number"
+            app:summary="Cues are randomly placed in one of four locations that align along X1, X2, Y1, Y2."
             app:title="Y1 location of reward cues" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -135,7 +130,7 @@
             android:max="2000"
             app:key="@string/preftag_w_probcueyloc2"
             app:min="1"
-            app:summary="Cues are randomly placed in one of four locations that align along X1, X2, Y1, Y2. Tap to input number"
+            app:summary="Cues are randomly placed in one of four locations that align along X1, X2, Y1, Y2."
             app:title="Y2 location of reward cues" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -143,7 +138,6 @@
             android:max="1500"
             app:key="@string/preftag_w_choicecuex1"
             app:min="1"
-            app:summary="Tap to input number"
             app:title="X location of choice cue 1" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -151,7 +145,6 @@
             android:max="2000"
             app:key="@string/preftag_w_choicecuey1"
             app:min="1"
-            app:summary="Tap to input number"
             app:title="Y location of choice cue 1" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -159,7 +152,6 @@
             android:max="1500"
             app:key="@string/preftag_w_choicecuex2"
             app:min="1"
-            app:summary="Tap to input number"
             app:title="X location of choice cue 2" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -167,7 +159,6 @@
             android:max="2000"
             app:key="@string/preftag_w_choicecuey2"
             app:min="1"
-            app:summary="Tap to input number"
             app:title="Y location of choice cue 2" />
 
     </PreferenceCategory>

@@ -16,7 +16,7 @@
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_rt_limit"
             app:key="@string/preftag_colgrat_rt_limit"
-            app:summary="What is the reaction time limit for a correct response. Tap to input number"
+            app:summary="What is the reaction time limit for a correct response."
             app:title="Reaction time limit for correct response (msec)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -24,7 +24,7 @@
             android:max="100"
             app:key="@string/preftag_colgrat_catchtrialfreq"
             app:min="0"
-            app:summary="What percentage of trials will be catch trials, where no target is dimmed. Tap to input number"
+            app:summary="What percentage of trials will be catch trials, where no target is dimmed."
             app:title="Catch trial frequency (%)" />
 
     </PreferenceCategory>
@@ -37,50 +37,50 @@
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_fixation_time_mi"
             app:key="@string/preftag_colgrat_fixation_time_mi"
-            app:summary="What is minimum duration of the fixation interval. Tap to input number"
+            app:summary="What is minimum duration of the fixation interval."
             app:title="Minimum duration of fixation interval (msec)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_fixation_time_ma"
             app:key="@string/preftag_colgrat_fixation_time_ma"
-            app:summary="What is maxium duration of the fixation interval. Tap to input number"
+            app:summary="What is maxium duration of the fixation interval."
             app:title="Maxium duration of fixation interval (msec)" />
 
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_cue_time_mi"
             app:key="@string/preftag_colgrat_cue_time_mi"
-            app:summary="What is minimum duration of the target cue interval. Tap to input number"
+            app:summary="What is minimum duration of the target cue interval."
             app:title="Minimum duration of target cue interval (msec)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_cue_time_ma"
             app:key="@string/preftag_colgrat_cue_time_ma"
-            app:summary="What is maximum  duration of the target cue interval. Tap to input number"
+            app:summary="What is maximum  duration of the target cue interval."
             app:title="Maximum duration of target cue interval (msec)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_stimulus_time_mi"
             app:key="@string/preftag_colgrat_stimulus_time_mi"
-            app:summary="What is minimum duration of the stimulus interval. Tap to input number"
+            app:summary="What is minimum duration of the stimulus interval."
             app:title="Minimum duration of stimulus interval (msec)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_stimulus_time_ma"
             app:key="@string/preftag_colgrat_stimulus_time_ma"
-            app:summary="What is maximum duration of the stimulus interval. Tap to input number"
+            app:summary="What is maximum duration of the stimulus interval."
             app:title="maximum duration of stimulus interval (msec)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_dim_time_mi"
             app:key="@string/preftag_colgrat_dim_time_mi"
-            app:summary="What is minimum duration of the fixation interval. Tap to input number"
+            app:summary="What is minimum duration of the fixation interval."
             app:title="Minimum duration of fixation interval (msec)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_dim_time_ma"
             app:key="@string/preftag_colgrat_dim_time_ma"
-            app:summary="What is maximum duration of the dimming interval. Tap to input number"
+            app:summary="What is maximum duration of the dimming interval."
             app:title="maximum duration of dimming interval (msec)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -88,7 +88,7 @@
             android:max="100"
             app:key="@string/preftag_colgrat_start_dim"
             app:min="0"
-            app:summary="What is the starting dimness level of the stimuli. Expressed as a percentage where 0=transparent, 100=opaque. Tap to input number"
+            app:summary="What is the starting dimness level of the stimuli. Expressed as a percentage where 0=transparent, 100=opaque."
             app:title="Starting dim (alpha)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -96,7 +96,7 @@
             android:max="100"
             app:key="@string/preftag_colgrat_end_dim"
             app:min="0"
-            app:summary="What is the ending dimness level of the stimuli. Expressed as a percentage where 0=transparent, 100=opaque. Tap to input number"
+            app:summary="What is the ending dimness level of the stimuli. Expressed as a percentage where 0=transparent, 100=opaque."
             app:title="Ending dim (alpha)" />
 
     </PreferenceCategory>
@@ -118,7 +118,6 @@
             android:max="500"
             app:key="@string/preftag_colgrat_sizecolcue"
             app:min="10"
-            app:summary="Tap to input number"
             app:title="Size of colour cues" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -126,7 +125,6 @@
             android:max="500"
             app:key="@string/preftag_colgrat_sizefixcue"
             app:min="10"
-            app:summary="Tap to input number"
             app:title="Size of central fixation cue" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -134,7 +132,7 @@
             android:max="500"
             app:key="@string/preftag_colgrat_sizeindicatorcue"
             app:min="10"
-            app:summary="The cue will be this much bigger than either the fixation cue or the color cues. Tap to input number"
+            app:summary="The cue will be this much bigger than either the fixation cue or the color cues."
             app:title="Size of the informative cue telling subjects which colour to attend (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -142,40 +140,40 @@
             android:max="1500"
             app:key="@string/preftag_colgrat_red_x"
             app:min="1"
-            app:title="Red cue x position (pixels from left). Tap to input number" />
+            app:title="Red cue x position (pixels from left)." />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_red_y"
             android:max="2000"
             app:key="@string/preftag_colgrat_red_y"
             app:min="1"
-            app:title="Red cue y position (pixels from top). Tap to input number" />
+            app:title="Red cue y position (pixels from top)." />
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_green_x"
             android:max="1500"
             app:key="@string/preftag_colgrat_green_x"
             app:min="1"
-            app:title="Green cue x position (pixels from left). Tap to input number" />
+            app:title="Green cue x position (pixels from left)." />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_green_y"
             android:max="2000"
             app:key="@string/preftag_colgrat_green_y"
             app:min="1"
-            app:title="Green cue y position (pixels from top). Tap to input number" />
+            app:title="Green cue y position (pixels from top)." />
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_blue_x"
             android:max="1500"
             app:key="@string/preftag_colgrat_blue_x"
             app:min="1"
-            app:title="Blue cue x position (pixels from left). Tap to input number" />
+            app:title="Blue cue x position (pixels from left)." />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_colgrat_blue_y"
             android:max="2000"
             app:key="@string/preftag_colgrat_blue_y"
             app:min="1"
-            app:title="Blue cue y position (pixels from top). Tap to input number" />
+            app:title="Blue cue y position (pixels from top)." />
 
     </PreferenceCategory>
 
@@ -189,7 +187,6 @@
             android:max="500"
             app:key="@string/preftag_colgrat_sizestripes"
             app:min="10"
-            app:summary="Tap to input number"
             app:title="Width of the grating" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -197,7 +194,6 @@
             android:max="10"
             app:key="@string/preftag_colgrat_numstripes"
             app:min="0"
-            app:summary="Tap to input number"
             app:title="Number of gratings" />
 
         <mymou.preferences.SeekBarPreferenceCustom
@@ -205,7 +201,7 @@
             android:max="250"
             app:key="@string/preftag_colgrat_grateoffset"
             app:min="0"
-            app:summary="Grating will start this many pixels from the left of the cue. Tap to input number"
+            app:summary="Grating will start this many pixels from the left of the cue."
             app:title="Grating offset" />
 
     </PreferenceCategory>

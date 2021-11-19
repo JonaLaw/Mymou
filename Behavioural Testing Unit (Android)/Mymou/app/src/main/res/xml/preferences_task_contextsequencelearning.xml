@@ -10,19 +10,19 @@
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_tone_delay"
             app:key="@string/preftag_csl_tone_delay"
-            app:summary="e.g. when playing A-B what is the length of time after A starts that B plays. Tap to input number"
+            app:summary="e.g. when playing A-B what is the length of time after A starts that B plays."
             app:title="Time between each individual sound and its partner (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_pair_tone_delay"
             app:key="@string/preftag_csl_pair_tone_delay"
-            app:summary="e.g. when playing A-B-response-reward-C-D, what is the length of time reward that C starts playing. Tap to input number"
+            app:summary="e.g. when playing A-B-response-reward-C-D, what is the length of time reward that C starts playing."
             app:title="Time between each pair of sounds (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_rtbase"
             app:key="@string/preftag_csl_rtbase"
-            app:summary="Reward amount is scaled by this amount. (e.g. if set to 1500ms and they react in 750ms, they will receive 750ms of reward). Tap to input number"
+            app:summary="Reward amount is scaled by this amount. (e.g. if set to 1500ms and they react in 750ms, they will receive 750ms of reward)."
             app:title="Maximum reaction time allowed (ms)" />
 
     </PreferenceCategory>
