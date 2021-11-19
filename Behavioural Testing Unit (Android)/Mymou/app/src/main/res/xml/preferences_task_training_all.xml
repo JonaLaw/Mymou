@@ -5,7 +5,13 @@
     <PreferenceCategory
         android:layout="@layout/preferences_title"
         app:key="task_settings"
-        app:title="Task settings">
+        app:title="Training Tasks Common">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="@bool/default_t_all_skip_go_cue"
+            app:key="@string/preftag_skip_go_cue"
+            app:summary="Skip subjects having to press the Go cue (recommended)."
+            app:title="Skip Go Cue" />
 
         <ListPreference
             android:defaultValue="@integer/default_t_cue_colour"
@@ -17,28 +23,15 @@
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_num_cue_press_reward"
             android:max="@integer/max_t_num_cue_press_reward"
-            android:min="1"
+            app:min="1"
             app:key="@string/preftag_t_num_cue_press_reward"
             app:summary="The number of cue presses needed before a reward is given."
             app:title="Presses Required For Reward" />
 
-        <SwitchPreferenceCompat
-            app:defaultValue="@bool/default_t_one_skip_go_cue"
-            app:key="@string/preftag_skip_go_cue"
-            app:summary="Skip subjects having to press the Go cue (recommended)."
-            app:title="Skip Go Cue" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:layout="@layout/preferences_title"
-        app:key="small_moving_cue"
-        app:title="Training Tasks 1 to 5">
-
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_num_cue_press_move"
             android:max="@integer/max_t_num_cue_press_move"
-            android:min="1"
+            app:min="1"
             app:key="@string/preftag_t_num_cue_press_move"
             app:summary="The number of cue presses until the cue moves."
             app:title="Presses Until Cue Move" />
@@ -46,26 +39,27 @@
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_num_cue_missed_presses"
             android:max="@integer/max_t_num_missed_presses"
-            android:summary="The amount of times that the cue can be
-            missed with a screen press before a trail failure is triggered.
+            android:summary="The number of times that the cue can be
+            missed before a trail failure is triggered.
             \nA setting of 0 disables this."
             app:key="@string/preftag_t_num_missed_presses"
-            app:title="Number of missed presses until failure" />
+            app:title="Missed Presses Until Failure" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_random_reward_start"
             android:max="@integer/max_random_reward_start"
-            android:summary="Note that the timeout duration general task setting can render this useless.
-            \nA setting of 0 disables this. Also, if this is larger than the Max time then it is disabled."
+            android:summary="The minimum amount of time before a random reward is given.
+            \nA setting of 0 disables this. Also, if this is greater than than the Max time then it is disabled."
             app:key="@string/preftag_t_random_reward_start"
-            app:title="Minimum time (s) for random reward to be given" />
+            app:title="Random Reward Minimum Time (s)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_random_reward_stop"
             android:max="@integer/max_random_reward_stop"
-            android:summary="A setting of 0 disables this. Also, if this is smaller than the Min time then it is disabled."
+            android:summary="The maximum amount of time before a random reward is given.
+            \nA setting of 0 disables this. Also, if this is less than than the Max time then it is disabled."
             app:key="@string/preftag_t_random_reward_stop"
-            app:title="Maximum time (s) for random reward to be given" />
+            app:title="Random Reward Maximum Time (s)" />
 
     </PreferenceCategory>
 

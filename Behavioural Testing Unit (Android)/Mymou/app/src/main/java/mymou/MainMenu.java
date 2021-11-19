@@ -407,9 +407,11 @@ public class MainMenu extends Activity {
             case 1:
             case 2:
             case 3:
+                intent.putExtra(getString(R.string.preftag_trial_settings_to_load),
+                        getString(R.string.preftag_task_t_three_settings));
             case 5:
                 intent.putExtra(getString(R.string.preftag_settings_to_load),
-                        getString(R.string.preftag_task_t_one_settings));
+                        getString(R.string.preftag_task_t_all_settings));
                 break;
             case 4:
                 intent.putExtra(getString(R.string.preftag_settings_to_load),

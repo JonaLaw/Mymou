@@ -77,6 +77,8 @@
 
     <integer name="default_t_num_cue_missed_presses">0</integer>
 
+    <integer name="default_t_three_num_cue_press_shrink">1</integer>
+    <integer name="max_t_three_num_cue_press_shrink">20</integer>
 
     <integer name="max_random_reward_start">600</integer>
     <integer name="max_random_reward_stop">600</integer>

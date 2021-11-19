@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:layout="@layout/preferences_title"
+        app:key="task_settings"
+        app:title="@string/training_3">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="@string/preftag_t_three_loop_cue_shrink"
+            app:summary="When the cue reaches its minimum size and after it's pressed the required amount times to shrink, the shrinkage loop will restart."
+            app:title="Loop Cue Shrink" />
+
+        <mymou.preferences.SeekBarPreferenceCustom
+            android:defaultValue="@integer/default_t_three_num_cue_press_shrink"
+            android:max="@integer/max_t_three_num_cue_press_shrink"
+            app:min="1"
+            app:key="@string/preftag_t_three_num_press_cue_shrink"
+            app:summary="The number of cue presses before the cue shrinks."
+            app:title="Presses Until Cue Shrink" />
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

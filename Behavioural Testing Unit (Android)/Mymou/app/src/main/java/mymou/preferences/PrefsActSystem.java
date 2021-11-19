@@ -33,12 +33,17 @@ public class PrefsActSystem extends AppCompatActivity implements
         Fragment preferenceFragment = null;
         if (settings_to_load.equals(getString(R.string.preftag_menu_prefs))) {
             preferenceFragment = new PrefsFragMenu();
+        } else if (settings_to_load.equals(getString(R.string.preftag_task_t_all_settings))) {
+            String task_settings_to_load = getIntent().getStringExtra(getString(R.string.preftag_trial_settings_to_load));
+            if (task_settings_to_load == null || task_settings_to_load.isEmpty()) {
+                preferenceFragment = new PrefsFragTaskTrainingAll();
+            } else {
+                preferenceFragment = new PrefsFragTaskTrainingAll(task_settings_to_load);
+            }
         } else if (settings_to_load.equals(getString(R.string.preftag_task_odc_settings))) {
             preferenceFragment = new PrefsFragTaskObjectDiscrim();
         } else if (settings_to_load.equals(getString(R.string.preftag_task_disc_maze_settings))) {
             preferenceFragment = new PrefsFragTaskDiscreteMaze();
-        } else if (settings_to_load.equals(getString(R.string.preftag_task_t_one_settings))) {
-            preferenceFragment = new PrefsFragTaskTrainingOne();
         } else if (settings_to_load.equals(getString(R.string.preftag_task_pr_settings))) {
             preferenceFragment = new PrefsFragTaskProgRatio();
         } else if (settings_to_load.equals(getString(R.string.preftag_task_t_sc_settings))) {
