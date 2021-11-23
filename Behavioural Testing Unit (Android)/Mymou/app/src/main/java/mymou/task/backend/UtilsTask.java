@@ -280,7 +280,7 @@ public class UtilsTask {
         int direction;
         int limit;
         int goTo;
-        if ((r.nextInt(2) == 0)) {
+        if (r.nextBoolean()) {
             direction = -1;
             limit = -1;
             goTo = length - 1;

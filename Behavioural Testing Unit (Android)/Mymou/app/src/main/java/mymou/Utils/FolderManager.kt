@@ -83,19 +83,19 @@ class FolderManager(private val context: Context, private val num_monkeys: Int =
 
     fun tryMakingFileForTaskTrial(filename: String) {
         // Reassign the filename to the date if "default" is given
-        var filename = filename
-        if (filename == "default") {
-            filename = "${getBaseDate()}.txt"
+        var newFilename = filename
+        if (newFilename == "default") {
+            newFilename = "${getBaseDate()}.txt"
         }
 
         // Check if the file already exists
         val appFolder = getSessionFolder()
-        val saveFile = File(appFolder, filename)
+        val saveFile = File(appFolder, newFilename)
         if (!saveFile.exists()) {
             // Create the file and add headers to it
             val headers = PreferencesManager(context).data_headers
-            Log.d(TAG, "making file: $filename and adding headers: $headers")
-            WriteDataToFile(headers, context, filename).run()
+            Log.d(TAG, "making file: $newFilename and adding headers: $headers")
+            WriteDataToFile(headers, context, newFilename).run()
         }
     }
 
