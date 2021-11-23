@@ -487,7 +487,7 @@ public class TaskManager extends FragmentActivity implements View.OnClickListene
 
     private void tryTaskLocking() {
         // Check if debug mode is enabled in the app's System Settings
-        if (PreferencesManager.debug) {
+        if (preferencesManager.debug) {
             displayDebugDialog();
         } else {
             // Check if permission is granted to pin the screen

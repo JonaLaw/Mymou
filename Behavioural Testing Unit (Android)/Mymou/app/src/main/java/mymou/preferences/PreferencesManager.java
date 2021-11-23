@@ -19,20 +19,20 @@ public class PreferencesManager {
     public String base_error_message = "Error: Invalid settings configured so task cannot run. Please adjust settings and restart the task:\n\n";
     public String data_headers = "taskId, trialCounter, faceRecogPrediction, overallTrialOutcome, photoTimestamp, eventTimestamp, task manager code, task specific event codes";
 
-    public static boolean debug, bluetooth, camera, facerecog, savefacerecogarrays, restartoncrash,
+    public boolean debug, bluetooth, camera, facerecog, savefacerecogarrays, restartoncrash,
             sound, autostart, autostop, skip_go_cue = false, dimscreen, handle_feedback, run_timer;
-    public static int sound_to_play, tone_dur, tone_freq, tone_strength;
-    public static int dimscreenlevel, dimscreentime;
-    public static int num_reward_chans, default_rew_chan, max_reward_channels;
-    public static int reward_screen_duration, reward_juice_duration, responseduration, timeoutduration;
-    public static int autostart_hour, autostop_hour, autostart_min, autostop_min;
-    public static int taskbackground, rewardbackground, timeoutbackground;
-    public static int border_colour, border_size, cue_size, cue_spacing;
-    public static int num_monkeys;
-    public static int camera_to_use;
-    public static int[] colours_gocues;
-    public static String tone_type, tone_filename;
-    public static String ec_correct_trial, ec_incorrect_trial, ec_trial_timeout, ec_wrong_gocue_pressed, ec_trial_started, ec_trial_prepared;
+    public int sound_to_play, tone_dur, tone_freq, tone_strength;
+    public int dimscreenlevel, dimscreentime;
+    public int num_reward_chans, default_rew_chan, max_reward_channels;
+    public int reward_screen_duration, reward_juice_duration, responseduration, timeoutduration;
+    public int autostart_hour, autostop_hour, autostart_min, autostop_min;
+    public int taskbackground, rewardbackground, timeoutbackground;
+    public int border_colour, border_size, cue_size, cue_spacing;
+    public int num_monkeys;
+    public int camera_to_use;
+    public int[] colours_gocues;
+    public String tone_type, tone_filename;
+    public String ec_correct_trial, ec_incorrect_trial, ec_trial_timeout, ec_wrong_gocue_pressed, ec_trial_started, ec_trial_prepared;
 
     public SharedPreferences sharedPrefs;
     private int[] colors;
@@ -131,7 +131,6 @@ public class PreferencesManager {
     public String[] strobes_on, strobes_off;
 
     public void RewardStrobeChannels() {
-
         strobes_on = new String[max_reward_channels];
         strobes_off = new String[max_reward_channels];
         strobes_on[0] = sharedPrefs.getString(r.getString(R.string.preftag_strobe_one_on), r.getString(R.string.default_strobe_one_on));
@@ -199,7 +198,6 @@ public class PreferencesManager {
         } else {
             objectdiscrim_valid_config = true;
         }
-
     }
 
     public boolean dm_repeat_on_error, dm_static_reward, dm_extra_step_timeout, dm_use_progress_bar;
@@ -207,7 +205,6 @@ public class PreferencesManager {
     public int dm_choice_delay, dm_animation_duration, dm_booster_amount, dm_target_switch_freq;
 
     public void DiscreteMaze() {
-
         dm_repeat_on_error = sharedPrefs.getBoolean(r.getString(R.string.preftag_dm_repeat_error), r.getBoolean(R.bool.default_dm_repeat_error));
         dm_static_reward = sharedPrefs.getBoolean(r.getString(R.string.preftag_dm_static_reward), r.getBoolean(R.bool.default_dm_static_reward));
         dm_extra_step_timeout = sharedPrefs.getBoolean(r.getString(R.string.preftag_dm_extra_step_timout), r.getBoolean(R.bool.default_dm_extra_step_timout));
@@ -253,7 +250,7 @@ public class PreferencesManager {
     public int t_three_num_cue_press_shrink;
     public boolean t_three_loop_cue_shrink;
 
-    public void TrainingTaskThree( ) {
+    public void TrainingTaskThree() {
         t_three_num_cue_press_shrink = sharedPrefs.getInt(r.getString(R.string.preftag_t_num_cue_press_shrink), r.getInteger(R.integer.default_t_three_num_cue_press_shrink));
         t_three_loop_cue_shrink = sharedPrefs.getBoolean(r.getString(R.string.preftag_t_shrink_move_cue_loop), r.getBoolean(R.bool.default_t_three_loop_cue_shrink));
     }
@@ -327,7 +324,6 @@ public class PreferencesManager {
         t_sc_border_colour = colors[border_colour];
         t_sc_cue_shape = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_t_sc_cue_shape), Integer.toString(r.getInteger(R.integer.default_t_sc_shape))));
         t_sc_bordersize = sharedPrefs.getInt(r.getString(R.string.preftag_t_sc_bordersize), r.getInteger(R.integer.default_t_sc_bordersize));
-
     }
 
     public int pass_minrew, pass_maxrew, pass_miniti, pass_maxiti, pass_sesslength;
@@ -371,7 +367,6 @@ public class PreferencesManager {
 
         pr_cue_size = sharedPrefs.getInt(r.getString(R.string.preftag_pr_cue_size), r.getInteger(R.integer.default_pr_cuesize));
         pr_border_size = sharedPrefs.getInt(r.getString(R.string.preftag_pr_cue_border_size), r.getInteger(R.integer.default_pr_bordersize));
-
     }
 
     public int ea_num_steps, ea_step_duration_on, ea_step_duration_off, ea_distance, ea_variance;
@@ -425,11 +420,11 @@ public class PreferencesManager {
         rdm_colour_choice = colors[choice_colour];
     }
 
-    public static int csl_col_context_1, csl_col_context_2;
-    public static int csl_choice_col_i, csl_choice_col_a;
+    public int csl_col_context_1, csl_col_context_2;
+    public int csl_choice_col_i, csl_choice_col_a;
 
-    public static int csl_tone_delay, csl_pair_tone_delay, csl_rtBase;
-    public static int csl_waitcuex, csl_waitcuey, csl_presscuex, csl_presscuey;
+    public int csl_tone_delay, csl_pair_tone_delay, csl_rtBase;
+    public int csl_waitcuex, csl_waitcuey, csl_presscuex, csl_presscuey;
 
     public void ContextSequenceLearning() {
         handle_feedback = false;
@@ -450,7 +445,6 @@ public class PreferencesManager {
         csl_waitcuey = sharedPrefs.getInt(r.getString(R.string.preftag_csl_waitcuey), r.getInteger(R.integer.default_csl_waitcuey));
         csl_presscuex = sharedPrefs.getInt(r.getString(R.string.preftag_csl_presscuex), r.getInteger(R.integer.default_csl_presscuex));
         csl_presscuey = sharedPrefs.getInt(r.getString(R.string.preftag_csl_presscuey), r.getInteger(R.integer.default_csl_presscuey));
-
     }
 
     public int w_gocuesize, w_choicecuesize, w_rewcuesize, w_numcues, w_numcuesused;
@@ -484,26 +478,22 @@ public class PreferencesManager {
         w_chcol2 = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_w_colchtwo), Integer.toString(r.getInteger(R.integer.default_w_colchtwo))));
         w_chcol2 = colors[w_chcol2];
         w_randposchoicecues = sharedPrefs.getBoolean(r.getString(R.string.preftag_w_randposchoicecues), r.getBoolean(R.bool.default_w_randposchoicecues));
-
-
     }
 
+    public int colgrat_green_cue, colgrat_red_cue, colgrat_blue_cue, colgrat_target_cue, colgrat_fix_cue;
+    public int colgrat_sizecolcue, colgrat_sizefixcue, colgrat_sizeindicatorcue;
+    public int colgrat_sizestripes, colgrat_grateoffset, colgrat_numstripes;
+    public int colgrat_red_x, colgrat_red_y, colgrat_green_x, colgrat_green_y, colgrat_blue_x, colgrat_blue_y;
+    public int colgrat_rt_limit, colgrat_catchtrialfreq;
+    public int colgrat_fixation_time_mi, colgrat_stimulus_time_mi, colgrat_cue_time_mi, colgrat_dim_time_mi;
+    public int colgrat_fixation_time_ma, colgrat_stimulus_time_ma, colgrat_cue_time_ma, colgrat_dim_time_ma;
 
-    public static int colgrat_green_cue, colgrat_red_cue, colgrat_blue_cue, colgrat_target_cue, colgrat_fix_cue;
-    public static int colgrat_sizecolcue, colgrat_sizefixcue, colgrat_sizeindicatorcue;
-    public static int colgrat_sizestripes, colgrat_grateoffset, colgrat_numstripes;
-    public static int colgrat_red_x, colgrat_red_y, colgrat_green_x, colgrat_green_y, colgrat_blue_x, colgrat_blue_y;
-    public static int colgrat_rt_limit, colgrat_catchtrialfreq;
-    public static int colgrat_fixation_time_mi, colgrat_stimulus_time_mi, colgrat_cue_time_mi, colgrat_dim_time_mi;
-    public static int colgrat_fixation_time_ma, colgrat_stimulus_time_ma, colgrat_cue_time_ma, colgrat_dim_time_ma;
-
-    public static int colgrat_position_rand;
-    public static int colgrat_background_color, colgrat_target_shape;
-    public static float colgrat_start_dim, colgrat_end_dim;
-    public static boolean colgrat_trainingmode;
+    public int colgrat_position_rand;
+    public int colgrat_background_color, colgrat_target_shape;
+    public float colgrat_start_dim, colgrat_end_dim;
+    public boolean colgrat_trainingmode;
 
     public void ColoredGrating() {
-
         colgrat_trainingmode = sharedPrefs.getBoolean(r.getString(R.string.preftag_colgrat_trainingmode), r.getBoolean(R.bool.default_colgrat_trainingmode));
 
         colors = r.getIntArray(R.array.colorarray); // not best because it directly takes from the color array
@@ -550,7 +540,5 @@ public class PreferencesManager {
         colgrat_dim_time_ma = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_dim_time_ma), r.getInteger(R.integer.default_colgrat_dim_time_ma));
 
         colgrat_target_shape = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_target_shape), r.getInteger(R.integer.default_colgrat_target_shape));
-
     }
 }
-
