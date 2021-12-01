@@ -1,6 +1,7 @@
 package mymou.preferences;
 
 import android.os.Bundle;
+
 import androidx.preference.PreferenceFragmentCompat;
 
 import mymou.R;
@@ -22,11 +23,5 @@ public class PrefsFragTaskEvidenceAccum extends PreferenceFragmentCompat {
         SeekBarPreferenceCustom seekBar3 = (SeekBarPreferenceCustom) findPreference(getString(R.string.preftag_ea_variance));
         seekBar3.setMin(1);
         seekBar3.setMax(3);
-
     }
-
-
-
-
-
 }

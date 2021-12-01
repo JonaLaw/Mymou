@@ -1,11 +1,10 @@
 package mymou;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -26,22 +25,18 @@ import mymou.preferences.PrefsActSystem;
 
 public class MainMenu extends Activity {
 
-    private static String TAG = "MyMouMainMenu";
+    private final String TAG = "MyMouMainMenu";
 
-    private static PreferencesManager preferencesManager;
-    private static RewardSystem rewardSystem;
-    private static FolderManager folderManager;
+    private PreferencesManager preferencesManager;
+    private PermissionManager permissionManager;
+    private RewardSystem rewardSystem;
+    private FolderManager folderManager;
 
     // Default channel to be activated by the pump
-    private static int reward_chan;
+    private int reward_chan;
 
     // The task to be loaded, set by the spinner
-    private static int taskSelected = 2;
-
-    // Tasks cannot run unless permissions have been granted
-    private boolean permissions_granted = false;
-
-    private Context context = this;
+    private int taskSelected = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +45,11 @@ public class MainMenu extends Activity {
 
         // Retrieve settings
         preferencesManager = new PreferencesManager(this);
+        permissionManager = new PermissionManager(this, this);
         // Get Current Folder Status
         folderManager = new FolderManager(this, 0);
 
         initialiseLayoutParameters();
-
-        checkPermissions();
 
         checkIfCrashed();
 
@@ -67,18 +61,41 @@ public class MainMenu extends Activity {
 
     }
 
-    private void checkPermissions() {
-        if (!permissions_granted && new PermissionManager(this, this).checkPermissions()) {
-            permissions_granted = true;
+    private boolean checkPermissions() {
+        Log.d(TAG, "checkPermissions: checking permissions");
+        if (!permissionManager.checkAllPermissionsGranted()) {
+            Log.d(TAG, "checkPermissions: permissions not granted");
+            displayPermissionAlertDialog();
+            return false;
         }
+        return true;
+    }
+
+    private void displayPermissionAlertDialog() {
+        Log.d(TAG, "displayPermissionAlertDialog: displaying permission AD");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("This app requires various permissions to perform tasks properly." +
+                "\n\nNot all required permissions are currently granted, please grant them to continue.")
+                .setTitle("Requesting Permissions")
+                .setPositiveButton("Grant Permissions", (dialog, id) -> {
+                    // Request Permissions
+                    Log.d(TAG, "onClick: requesting permissions");
+                    permissionManager.requestAllPermissions();
+                })
+                .setNegativeButton("Dismiss", (dialog, id) -> {
+                    //Do nothing
+                    Log.d(TAG, "onClick: dismissing permissions");
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void startTask() {
+        Log.d(TAG, "startTask: trying to start task");
+
         // Task can only start if all permissions granted
-        if (!permissions_granted) {
-            checkPermissions();
-            return;
-        }
+        if (!checkPermissions()) return;
+
         Button startButton = findViewById(R.id.buttonStart);
         startButton.setText("Loading...");
 
@@ -98,12 +115,7 @@ public class MainMenu extends Activity {
         updateRewardText();
 
         // Set object listener to react when bluetooth status changes
-        rewardSystem.setCustomObjectListener(new RewardSystem.MyCustomObjectListener() {
-            @Override
-            public void onChangeListener() {
-                updateRewardText();
-            }
-        });
+        rewardSystem.setCustomObjectListener(this::updateRewardText);
 
         // And now we can try to connect
         rewardSystem.connectToBluetooth();
@@ -198,8 +210,7 @@ public class MainMenu extends Activity {
         radioButtons[reward_chan].setChecked(true);
 
         for (int i = 0; i < preferencesManager.max_reward_channels; i++) {
-            boolean active = i >= preferencesManager.num_reward_chans ? false : true;
-            UtilsTask.toggleView(radioButtons[i], active);
+            UtilsTask.toggleView(radioButtons[i], (i < preferencesManager.num_reward_chans));
         }
 
         RadioGroup group = findViewById(R.id.rg_rewchanpicker);
@@ -244,12 +255,12 @@ public class MainMenu extends Activity {
             editTextFileName.setEnabled(false);
             // Set the displayed saved filename to the current date
             textViewSavingTo.setText(String.format("%s.txt", folderManager.getBaseDate()));
-        }
-        else {
+        } else {
             // Show the edit text view
             linearLayoutFilenameEdit.setVisibility(View.VISIBLE);
 
-            String filename = settings.getString(getString(R.string.filename_custom_key), "");
+            String filename = settings.getString(getString(R.string.filename_custom_key),
+                    getString(R.string.filename_default_string));
             // Check if the saved filename is not valid for some strange reason
             if (FilenameValidation.validateStringFilenameUsingContains(filename)) {
 
@@ -259,11 +270,10 @@ public class MainMenu extends Activity {
                 editTextFileName.setEnabled(true);
                 // Set the displayed saved filename to the new saved filename
                 textViewSavingTo.setText(filename);
-            }
-            else {
+            } else {
                 // Set the editText field to some default text, save it, and inform the user.
                 Log.d(TAG, "updateFilenameSettings: invalid saved filename=" + filename);
-                Toast.makeText(context, "The previously saved filename was invalid so it has been cleared.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "The previously saved filename was invalid so it has been cleared.", Toast.LENGTH_LONG).show();
                 editTextFileName.setText("default");
                 saveFilename();
             }
@@ -300,149 +310,74 @@ public class MainMenu extends Activity {
             SharedPreferences.Editor editor = settings.edit();
             editor.putString(getString(R.string.filename_custom_key), filename);
             editor.commit();
-        }
-        else {
+        } else {
             // Inform the user that the invalid filename was not saved
-            Toast.makeText(context, "Invalid Filename Not Saved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid Filename Not Saved", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private RadioGroup.OnCheckedChangeListener checkedChangeListener = new RadioGroup.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(RadioGroup group, int checkedId) {
-            int id = group.getCheckedRadioButtonId();
-            switch (id) {
-                case R.id.rb_chan0:
-                    reward_chan = 0;
-                    break;
-                case R.id.rb_chan1:
-                    reward_chan = 1;
-                    break;
-                case R.id.rb_chan2:
-                    reward_chan = 2;
-                    break;
-                case R.id.rb_chan3:
-                    reward_chan = 3;
-                    break;
-                case R.id.rb_pumpon:
-                    if (!rewardSystem.bluetoothConnection) {
-                        Log.d(TAG, "Error: Bluetooth not connected");
-                        Toast.makeText(MainMenu.this, "Error: Bluetooth not connected/enabled", Toast.LENGTH_LONG).show();
-                        RadioButton radioButton = findViewById(R.id.rb_pumpoff);
-                        radioButton.setChecked(true);
-                        return;
-                    } else {
-                        rewardSystem.startChannel(reward_chan);
+    private final RadioGroup.OnCheckedChangeListener checkedChangeListener =
+            new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    int id = group.getCheckedRadioButtonId();
+                    switch (id) {
+                        case R.id.rb_chan0:
+                            reward_chan = 0;
+                            break;
+                        case R.id.rb_chan1:
+                            reward_chan = 1;
+                            break;
+                        case R.id.rb_chan2:
+                            reward_chan = 2;
+                            break;
+                        case R.id.rb_chan3:
+                            reward_chan = 3;
+                            break;
+                        case R.id.rb_pumpon:
+                            if (!rewardSystem.bluetoothConnection) {
+                                Log.d(TAG, "Error: Bluetooth not connected");
+                                Toast.makeText(MainMenu.this, "Error: Bluetooth not connected/enabled", Toast.LENGTH_LONG).show();
+                                RadioButton radioButton = findViewById(R.id.rb_pumpoff);
+                                radioButton.setChecked(true);
+                                return;
+                            } else {
+                                rewardSystem.startChannel(reward_chan);
+                            }
+                            break;
+                        case R.id.rb_pumpoff:
+                            rewardSystem.stopChannel(reward_chan);
+                            break;
                     }
-                    break;
-                case R.id.rb_pumpoff:
-                    rewardSystem.stopChannel(reward_chan);
-                    break;
-            }
 
-            // And always update default reward channel in case they changed value
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putInt(getString(R.string.preftag_default_rew_chan), reward_chan).commit();
-        }
-    };
+                    // And always update default reward channel in case they changed value
+                    SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(MainMenu.this);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putInt(getString(R.string.preftag_default_rew_chan), reward_chan).commit();
+                }
+            };
 
-    private View.OnClickListener buttonClickListener = new View.OnClickListener() {
+    private final View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             Log.d(TAG, "onClick: " + view.getId());
-
-            checkPermissions();
-            if (!permissions_granted) {
-                Toast.makeText(getApplicationContext(), "All permissions must be enabled before app can run", Toast.LENGTH_SHORT).show();
-                checkPermissions();
-                return;
-            }
-
             switch (view.getId()) {
                 case R.id.buttonStart:
                     startTask();
                     break;
                 case R.id.buttonSettings:
-                    Intent intent = new Intent(context, PrefsActSystem.class);
-                    intent.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_menu_prefs));
-                    startActivity(intent);
+                    startActivity(new Intent(MainMenu.this, PrefsActSystem.class)
+                            .putExtra(getString(R.string.preftag_settings_to_load),
+                                    getString(R.string.preftag_menu_prefs)));
                     break;
-                case R.id.buttonTaskSettings: {
-                    Intent intent2 = new Intent(context, PrefsActSystem.class);
-
-                    // Load task specific settings
-                    boolean validsettings = true;
-                    switch (taskSelected) {
-                        case 0:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_pass_settings));
-                            break;
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 5:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_t_one_settings));
-                            break;
-                        case 4:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_t_sc_settings));
-                            break;
-                        case 8:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_disc_maze_settings));
-                            break;
-                        case 9:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_odc_settings));
-                            break;
-                        case 10:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_od_settings));
-                            break;
-                        case 11:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_pr_settings));
-                            break;
-                        case 12:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_ea_settings));
-                            break;
-                        case 13:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_sr_settings));
-                            break;
-                        case 14:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_sl_settings));
-                            break;
-                        case 15:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_rdm_settings));
-                            break;
-                        case 16:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_dvs_settings));
-                            break;
-                        case 17:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_csl_settings));
-                            break;
-                        case 18:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_wald_settings));
-                            break;
-                        case 19:
-                            intent2.putExtra(getString(R.string.preftag_settings_to_load), getString(R.string.preftag_task_colgrat_settings));
-                            break;
-                        default:
-                            validsettings = false;
-                            Toast.makeText(getApplicationContext(), "Sorry, this task has no configurable settings", Toast.LENGTH_LONG).show();
-                    }
-                    if (validsettings) {
-                        startActivity(intent2);
-                    }
+                case R.id.buttonTaskSettings:
+                    openTaskSettings();
                     break;
-                }
                 case R.id.buttonViewData:
-                    Intent intent3 = new Intent(context, DataViewer.class);
-                    startActivity(intent3);
+                    startActivity(new Intent(MainMenu.this, DataViewer.class));
                     break;
                 case R.id.info_button:
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainMenu.this);
-                    String[] descriptions = getResources().getStringArray(R.array.task_descriptions);
-                    String[] names = getResources().getStringArray(R.array.available_tasks);
-                    builder.setMessage(descriptions[taskSelected])
-                            .setTitle(names[taskSelected]);
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+                    showTaskInfo();
                     break;
                 case R.id.buttConnectToBt:
                     if (rewardSystem.status.equals("Connection failed")) {
@@ -461,6 +396,94 @@ public class MainMenu extends Activity {
         }
     };
 
+    private void openTaskSettings() {
+        Intent intent = new Intent(this, PrefsActSystem.class);
+        // Load task specific settings
+        switch (taskSelected) {
+            case 0:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_pass_settings));
+                break;
+            case 1:
+            case 2:
+            case 3:
+                intent.putExtra(getString(R.string.preftag_trial_settings_to_load),
+                        getString(R.string.preftag_task_t_three_settings));
+            case 5:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_t_all_settings));
+                break;
+            case 4:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_t_sc_settings));
+                break;
+            case 8:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_disc_maze_settings));
+                break;
+            case 9:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_odc_settings));
+                break;
+            case 10:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_od_settings));
+                break;
+            case 11:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_pr_settings));
+                break;
+            case 12:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_ea_settings));
+                break;
+            case 13:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_sr_settings));
+                break;
+            case 14:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_sl_settings));
+                break;
+            case 15:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_rdm_settings));
+                break;
+            case 16:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_dvs_settings));
+                break;
+            case 17:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_csl_settings));
+                break;
+            case 18:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_wald_settings));
+                break;
+            case 19:
+                intent.putExtra(getString(R.string.preftag_settings_to_load),
+                        getString(R.string.preftag_task_colgrat_settings));
+                break;
+            default:
+                Toast.makeText(getApplicationContext(),
+                        "Sorry, this task has no configurable settings",
+                        Toast.LENGTH_LONG).show();
+                return;
+        }
+        startActivity(intent);
+    }
+
+    private void showTaskInfo() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainMenu.this);
+        String[] descriptions = getResources().getStringArray(R.array.task_descriptions);
+        String[] names = getResources().getStringArray(R.array.available_tasks);
+        builder.setMessage(descriptions[taskSelected])
+                .setTitle(names[taskSelected]);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -473,14 +496,11 @@ public class MainMenu extends Activity {
     @Override
     public void onPause() {
         super.onPause();
-
+        Log.d(TAG, "onPause() called");
         // Quit bluetooth
-        if (permissions_granted) {
-            final Runnable r = new Runnable() {
-                public void run() {
-                    rewardSystem.quitBt();
-                }
-            };
+        if (permissionManager.checkPermissionGranted(Manifest.permission.BLUETOOTH) &&
+                permissionManager.checkPermissionGranted(Manifest.permission.BLUETOOTH_ADMIN)) {
+            final Runnable r = () -> rewardSystem.quitBt();
             r.run();
         }
     }
@@ -488,13 +508,7 @@ public class MainMenu extends Activity {
     // TODO: Figure out how to move this to PermissionsManager
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (grantResults.length > 0) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Permissions granted");
-                checkPermissions();
-            } else {
-                Toast.makeText(this, "Permission denied, all permissions must be enabled before app can run", Toast.LENGTH_LONG).show();
-            }
-        }
+        Log.d(TAG, "onRequestPermissionsResult: " + grantResults.length);
+        permissionManager.permissionsResult(requestCode, permissions, grantResults);
     }
 }

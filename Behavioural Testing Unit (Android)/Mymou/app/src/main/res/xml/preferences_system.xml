@@ -1,43 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                                      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-            app:key="system_settings"
-            android:layout="@layout/preferences_title"
-            app:title="System settings">
+        android:layout="@layout/preferences_title"
+        app:key="system_settings"
+        app:title="System settings">
 
         <SwitchPreferenceCompat
-                app:key="@string/preftag_debug"
-                app:title="Testing mode"
-                app:summary="App will be more user friendly. App will not be locked during tasks, and the back button can also be used."
-                app:defaultValue="@bool/default_debug"/>
+            app:defaultValue="@bool/default_debug"
+            app:key="@string/preftag_debug"
+            app:summary="App will be more user friendly. App will not be locked during tasks, and the back button can also be used."
+            app:title="Testing mode" />
+
         <SwitchPreferenceCompat
-                app:key="@string/preftag_bluetooth"
-                app:title="Enable bluetooth/reward system"
-                app:defaultValue="@bool/default_bluetooth"/>
+            app:defaultValue="@bool/default_bluetooth"
+            app:key="@string/preftag_bluetooth"
+            app:title="Enable bluetooth/reward system" />
+
         <SwitchPreferenceCompat
-                app:key="@string/preftag_camera"
-                app:title="Enable camera"
-                app:defaultValue="@bool/default_camera"/>
+            app:defaultValue="@bool/default_camera"
+            app:key="@string/preftag_camera"
+            app:title="Enable camera" />
+
         <SwitchPreferenceCompat
-                app:key="@string/preftag_facerecog"
-                app:title="Enable facial recognition"
-                app:defaultValue="@bool/default_facerecog"/>
+            app:defaultValue="@bool/default_facerecog"
+            app:key="@string/preftag_facerecog"
+            app:title="Enable facial recognition" />
+
         <SwitchPreferenceCompat
-                app:key="@string/preftag_restartoncrash"
-                app:title="Automatically restart task on crash"
-                app:defaultValue="@bool/default_restartoncrash"/>
+            app:defaultValue="@bool/default_restartoncrash"
+            app:key="@string/preftag_restartoncrash"
+            app:title="Automatically restart task on crash" />
+
         <SwitchPreferenceCompat
-                app:key="@string/preftag_sound"
-                app:title="Enable sounds"
-                android:summary="Device will beep on successful trials to aid secondary reinforcement"
-                app:defaultValue="@bool/default_sound"/>
+            android:summary="Device will beep on successful trials to aid secondary reinforcement"
+            app:defaultValue="@bool/default_sound"
+            app:key="@string/preftag_sound"
+            app:title="Enable sounds" />
 
         <Preference
-                app:fragment="mymou.preferences.PrefsFragSoundPicker"
-                app:key="soundpicker_prefsfrag"
-                app:title="Choose sound for secondary reinforcer"/>
+            app:fragment="mymou.preferences.PrefsFragSoundPicker"
+            app:key="soundpicker_prefsfrag"
+            app:title="Choose sound for secondary reinforcer" />
 
     </PreferenceCategory>
 

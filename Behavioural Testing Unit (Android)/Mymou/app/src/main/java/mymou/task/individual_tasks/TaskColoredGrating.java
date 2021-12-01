@@ -244,8 +244,8 @@ public class TaskColoredGrating extends Task {
         for (int j=0; j<ids.length; j++) {
             for (int i = 0; i < prefManager.colgrat_numstripes; i++) {
                 Button stripe = UtilsTask.addColorCue(ids[j], prefManager.colgrat_background_color, getContext(), responseClickListener, getView().findViewById(R.id.parent_task_empty), GradientDrawable.RECTANGLE, false);
-                stripe.setWidth(PreferencesManager.colgrat_sizestripes);
-                if (PreferencesManager.colgrat_trainingmode) {
+                stripe.setWidth(prefManager.colgrat_sizestripes);
+                if (prefManager.colgrat_trainingmode) {
                     stripe.setHeight(targ_size);
                     stripe.setX(x_locs[array_descr_x[j]] + (i * prefManager.colgrat_sizestripes * 2) + prefManager.colgrat_grateoffset - (prefManager.colgrat_sizeindicatorcue / 2));
                     stripe.setY(y_locs[array_descr_x[j]] - (prefManager.colgrat_sizeindicatorcue / 2));
@@ -421,7 +421,7 @@ public class TaskColoredGrating extends Task {
             log_trial_outcome(cumulative_reward); // save if it was correct
 
             // they get the rewarded
-            logEvent(TAG + " subject is rewarded now " + prefManager.rewardduration+" x "+cumulative_reward, callback);
+            logEvent(TAG + " subject is rewarded now " + prefManager.reward_juice_duration +" x "+cumulative_reward, callback);
             endOfTrial(true, cumulative_reward, callback, prefManager);
 
         } else if (correctTrial == 0) {

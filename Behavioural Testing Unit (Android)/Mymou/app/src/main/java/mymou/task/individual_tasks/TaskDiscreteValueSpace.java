@@ -308,7 +308,7 @@ public class TaskDiscreteValueSpace extends Task {
             } else {
                 rew_scalar = (chosen_mag+1) / 10;
             }
-            int reward_amount = Math.round(preferencesManager.rewardduration * rew_scalar);
+            int reward_amount = Math.round(preferencesManager.reward_juice_duration * rew_scalar);
             callback.logEvent_("6," + reward_amount + ",, amount of reward given");
 
             // Feedback

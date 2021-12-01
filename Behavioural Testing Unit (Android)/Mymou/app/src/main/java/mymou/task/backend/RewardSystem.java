@@ -1,5 +1,6 @@
 package mymou.task.backend;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,13 +12,9 @@ import android.content.IntentFilter;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 import mymou.Utils.PermissionManager;
 import mymou.preferences.PreferencesManager;
-import mymou.R;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -66,14 +63,19 @@ public class RewardSystem {
     }
 
     public static void connectToBluetooth() {
-
-        if (new PreferencesManager(context).bluetooth) {  // Has user activated bluetooth in settings?
-            if (new PermissionManager(context, activity).checkPermissions()) {  // Has user allowed permission to access the bt?
-                if (checkBluetoothEnabled()) {  // Is the tablet's bluetooth enabled?
+        // Has user activated bluetooth in settings?
+        if (new PreferencesManager(context).bluetooth) {
+            // Has user allowed permission to access the bt?
+            PermissionManager pm = new PermissionManager(context, activity);
+            if ( pm.checkPermissionGranted(Manifest.permission.BLUETOOTH) &&
+                    pm.checkPermissionGranted(Manifest.permission.BLUETOOTH_ADMIN)) {
+                // Is the tablet's bluetooth enabled?
+                if (checkBluetoothEnabled()) {
                     establishConnection();
                     return;
                 }
             }
+            else Log.d(TAG, "connectToBluetooth: permissions not granted");
         }
 
         // Failed one of the checks

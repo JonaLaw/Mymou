@@ -1,63 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                                      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-            app:key="reward_settings"
-            android:layout="@layout/preferences_title"
-            app:title="Reward settings">
+        android:layout="@layout/preferences_title"
+        app:key="reward_settings"
+        app:title="Reward settings">
 
         <SwitchPreferenceCompat
-                app:key="@string/preftag_bluetooth"
-                app:title="Enable bluetooth/reward system"
-                app:defaultValue="@bool/default_bluetooth"/>
+            app:defaultValue="@bool/default_bluetooth"
+            app:key="@string/preftag_bluetooth"
+            app:title="Enable bluetooth/reward system" />
 
         <SwitchPreferenceCompat
-                android:summary="Device will beep on successful trials to aid secondary reinforcement"
-                app:defaultValue="@bool/default_sound"
-                app:key="@string/preftag_sound"
-                app:title="Enable sounds" />
+            android:summary="Device will beep on successful trials to aid secondary reinforcement"
+            app:defaultValue="@bool/default_sound"
+            app:key="@string/preftag_sound"
+            app:title="Enable sounds" />
 
         <Preference
-                app:fragment="mymou.preferences.PrefsFragSoundPicker"
-                app:key="soundpicker_prefsfrag"
-                app:title="Choose sound for secondary reinforcer"/>
+            app:fragment="mymou.preferences.PrefsFragSoundPicker"
+            app:key="soundpicker_prefsfrag"
+            app:title="Choose sound for secondary reinforcer" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                app:key="@string/preftag_num_rew_chans"
-                app:title="Number reward channels"
-                app:summary="The number of channels that the reward system is connected to (and the number of options offered to the monkey after a successful trial)"
-                android:defaultValue="@integer/default_num_rew_chans"
-                android:max="@integer/max_num_rew_chans"
-                app:min="1"/>
+            android:defaultValue="@integer/default_num_rew_chans"
+            android:max="@integer/max_num_rew_chans"
+            app:key="@string/preftag_num_rew_chans"
+            app:min="1"
+            app:summary="The number of channels that the reward system is connected to (and the number of options offered to the monkey after a successful trial)"
+            app:title="Number reward channels" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                app:key="@string/preftag_default_rew_chan"
-                app:title="Default reward channel"
-                app:summary="The reward channel automatically activated when number of reward channels is set to 1"
-                android:defaultValue="@integer/default_rew_chan"
-                android:max="@integer/max_num_rew_chans"
-                app:min="1"/>
+            android:defaultValue="@integer/default_rew_chan"
+            android:max="@integer/max_num_rew_chans"
+            app:key="@string/preftag_default_rew_chan"
+            app:min="1"
+            app:summary="The reward channel automatically activated when number of reward channels is set to 1"
+            app:title="Default reward channel" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-                app:key="@string/preftag_rewardduration"
-                app:title="Reward duration (ms)"
-                app:defaultValue="@integer/default_rewardduration"
-                android:max="@integer/max_rewardtimeoutduration"/>
+            android:max="@integer/max_reward_screen_duration"
+            app:defaultValue="@integer/default_reward_screen_duration"
+            app:key="@string/preftag_reward_screen_duration"
+            app:summary="How long a task's trial success screen will show for."
+            app:title="Reward Screen duration (ms)" />
+
+        <mymou.preferences.SeekBarPreferenceCustom
+            android:max="@integer/max_reward_juice_duration"
+            app:defaultValue="@integer/default_reward_juice_duration"
+            app:key="@string/preftag_reward_juice_duration"
+            app:summary="How long the juice reward will be dispensed for."
+            app:title="Reward Juice duration (ms)" />
 
         <ListPreference
-                app:key="@string/preftag_rewardbackgroundcolour"
-                app:title="Reward background colour"
-                android:entries="@array/colournames"
-                android:entryValues="@array/colourvalues"
-                android:defaultValue="@integer/default_rewardbackgroundcolour"/>
+            android:defaultValue="@integer/default_rewardbackgroundcolour"
+            android:entries="@array/colournames"
+            android:entryValues="@array/colourvalues"
+            app:key="@string/preftag_rewardbackgroundcolour"
+            app:title="Reward background colour" />
 
         <Preference
-                app:fragment="mymou.preferences.PrefsFragCommon"
-                app:key="@string/preftag_bluetooth_strobes"
-                app:title="Choose strobe codes to send to arduino to switch on/off the reward delivery system"/>
-
-
+            app:fragment="mymou.preferences.PrefsFragCommon"
+            app:key="@string/preftag_bluetooth_strobes"
+            app:title="Choose strobe codes to send to arduino to switch on/off the reward delivery system" />
 
     </PreferenceCategory>
 

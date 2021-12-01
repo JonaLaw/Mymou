@@ -1,6 +1,7 @@
 package mymou.task.individual_tasks;
 
 import androidx.fragment.app.Fragment;
+
 import mymou.preferences.PreferencesManager;
 import mymou.task.backend.TaskInterface;
 
@@ -26,7 +27,7 @@ public abstract class Task extends Fragment {
         callback.trialEnded_(outcome, rew_scalar);
     }
 
-     public void endOfTrial(boolean successfulTrial, TaskInterface callback, PreferencesManager preferencesManager) {
+    public void endOfTrial(boolean successfulTrial, TaskInterface callback, PreferencesManager preferencesManager) {
         String outcome;
         if (successfulTrial) {
             outcome = preferencesManager.ec_correct_trial;
@@ -40,5 +41,4 @@ public abstract class Task extends Fragment {
     public void logEvent(String event, TaskInterface callback) {
         callback.logEvent_(event);
     }
-
 }

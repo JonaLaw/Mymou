@@ -2,9 +2,7 @@ package mymou.task.backend;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.Display;
@@ -15,14 +13,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 
-import mymou.R;
+import org.apache.commons.lang3.ArrayUtils;
+
 import mymou.preferences.PreferencesManager;
 
+import java.util.Arrays;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 public class UtilsTask {
     // Debug
@@ -49,15 +46,14 @@ public class UtilsTask {
         // Populate 1D output array with all possible locations
         Point[] locs = new Point[xlocs.length * ylocs.length];
         int i_loc = 0;
-        for (int i_x = 0; i_x < xlocs.length; i_x++) {
-            for (int i_y = 0; i_y < ylocs.length; i_y++) {
-                locs[i_loc] = new Point(xlocs[i_x], ylocs[i_y]);
+        for (int xloc : xlocs) {
+            for (int yloc : ylocs) {
+                locs[i_loc] = new Point(xloc, yloc);
                 i_loc += 1;
             }
         }
 
         return locs;
-
     }
 
     // Add a colour cue to the task
@@ -69,7 +65,7 @@ public class UtilsTask {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setShape(GradientDrawable.RECTANGLE);
         drawable.setStroke(preferencesManager.border_size, preferencesManager.border_colour);
-        Log.d(TAG, "adding coloR"+color);
+        Log.d(TAG, "adding coloR" + color);
 //        drawable.setColor(ContextCompat.getColor(context, color));
         drawable.setColor(color);
         button.setBackgroundDrawable(drawable);
@@ -96,6 +92,7 @@ public class UtilsTask {
         layout.addView(button);
         return button;
     }
+
     // Add a colour cue of a particular SHAPE to the task with or without a border
     public static Button addColorCue(int id, int color, Context context, View.OnClickListener onClickListener, ConstraintLayout layout, int shape, boolean border) {
         PreferencesManager preferencesManager = new PreferencesManager(context);
@@ -161,15 +158,14 @@ public class UtilsTask {
         layout.addView(button);
         return button;
     }
+
     // Add a _clickable_ image to the task of a certain size
     public static ImageButton addImageCue(int id, Context context, ConstraintLayout layout, View.OnClickListener onClickListener, int size, int bordersize) {
-        PreferencesManager preferencesManager = new PreferencesManager(context);
         ImageButton button = new ImageButton(context);
         button.setLayoutParams(new LinearLayout.LayoutParams(size, size));
         button.setId(id);
         button.setScaleType(ImageView.ScaleType.FIT_XY);
-        int border = bordersize;
-        button.setPadding(border, border, border, border);
+        button.setPadding(bordersize, bordersize, bordersize, bordersize);
         button.setOnClickListener(onClickListener);
         layout.addView(button);
         return button;
@@ -177,23 +173,23 @@ public class UtilsTask {
 
     // Switches on a particular monkeys cues, and switches off other monkey's cues
     public static void toggleMonkeyCues(int monkId, Button[][] all_cues) {
-        for (int i_monk = 0; i_monk < all_cues.length; i_monk++) {
-            toggleCues(all_cues[i_monk], false);
+        for (Button[] all_cue : all_cues) {
+            toggleCues(all_cue, false);
         }
         toggleCues(all_cues[monkId], true);
     }
 
     // Iterates through a list of cues enabling/disabling all in list
     public static void toggleCues(Button[] buttons, boolean status) {
-        for (int i = 0; i < buttons.length; i++) {
-            UtilsTask.toggleCue(buttons[i], status);
+        for (Button cueButton : buttons) {
+            UtilsTask.toggleCue(cueButton, status);
         }
     }
 
     // Iterates through a list of cues enabling/disabling all in list
     public static void toggleCues(ImageButton[] buttons, boolean status) {
-        for (int i = 0; i < buttons.length; i++) {
-            UtilsTask.toggleCue(buttons[i], status);
+        for (ImageButton cueButton : buttons) {
+            UtilsTask.toggleCue(cueButton, status);
         }
     }
 
@@ -209,7 +205,6 @@ public class UtilsTask {
         button.setClickable(status);
     }
 
-
     public static void toggleView(View view, boolean status) {
         if (status) {
             view.setVisibility(View.VISIBLE);
@@ -219,49 +214,28 @@ public class UtilsTask {
         view.setEnabled(status);
     }
 
-
-    public static void randomlyPositionCues(View[] cues, Point[] locs) {
-        // Make zero array tracking which locations have already been used
-        int maxCueLocations = locs.length;
-        int[] chosen = new int[maxCueLocations];
-
-        Random r = new Random();
-
-        // Loop through and place each cue
-        int choice = r.nextInt(maxCueLocations);
-        for (int i = 0; i < cues.length; i++) {
-            while (chosen[choice] == 1) {
-                choice = r.nextInt(maxCueLocations);
-            }
-            cues[i].setX(locs[choice].x);
-            cues[i].setY(locs[choice].y);
-            chosen[choice] = 1;
-        }
+    public static void randomlyPositionCues(View[] cues, Activity activity) {
+        randomlyPositionCues(cues, getPossibleCueLocs(activity));
     }
 
-    public static void randomlyPositionCues(View[] cues, Activity activity) {
-        Point[] locs = getPossibleCueLocs(activity);
-
-        // Make zero array tracking which locations have already been used
-        int maxCueLocations = locs.length;
-        int[] chosen = new int[maxCueLocations];
-
+    public static void randomlyPositionCues(View[] cues, Point[] locs) {
         Random r = new Random();
 
         // Loop through and place each cue
-        int choice = r.nextInt(maxCueLocations);
-        for (int i = 0; i < cues.length; i++) {
-            while (chosen[choice] == 1) {
-                choice = r.nextInt(maxCueLocations);
-            }
-            cues[i].setX(locs[choice].x);
-            cues[i].setY(locs[choice].y);
-            chosen[choice] = 1;
+        int indexChoice;
+        for (View cue : cues) {
+            indexChoice = r.nextInt(locs.length);
+            cue.setX(locs[indexChoice].x);
+            cue.setY(locs[indexChoice].y);
+            locs = ArrayUtils.remove(locs, indexChoice);
         }
     }
 
     public static void randomlyPositionCue(View cue, Activity activity) {
-        Point[] locs = getPossibleCueLocs(activity);
+        randomlyPositionCue(cue, getPossibleCueLocs(activity));
+    }
+
+    public static void randomlyPositionCue(View cue, Point[] locs) {
         Random r = new Random();
         int choice = r.nextInt(locs.length);
         cue.setX(locs[choice].x);
@@ -273,8 +247,7 @@ public class UtilsTask {
 
         int[] locs = new int[num_locs];
 
-        int offset = screenLength - (num_locs * totalImageSize);  // Centre images on screen
-        offset = offset / 2;
+        int offset = (screenLength - (num_locs * totalImageSize)) / 2;  // Centre images on screen
 
         for (int i = 0; i < num_locs; i++) {
             locs[i] = offset + i * totalImageSize;
@@ -285,24 +258,50 @@ public class UtilsTask {
 
     // Place a cue in the centre of the screen
     public static void centreCue(View cue, Activity activity) {
-        Display display = activity.getWindowManager().getDefaultDisplay();
         Point screen_size = new Point();
-        display.getSize(screen_size);
-        float x_loc = ((screen_size.x - cue.getWidth()) / 2);
-        float y_loc = ((screen_size.y / 2) - (cue.getHeight() * 2));
-        cue.setX(x_loc);
-        cue.setY(y_loc);
+        activity.getWindowManager().getDefaultDisplay().getSize(screen_size);
+        cue.setX((float) (screen_size.x - cue.getWidth()) / 2);
+        cue.setY((float) (screen_size.y / 2) - (cue.getHeight() * 2));
     }
 
-    // Rolls until it finds an unchosen position in the provided boolean array
+    // Finds a random position in the provided boolean array
     public static int chooseValueNoReplacement(boolean[] chosen_vals) {
-        Random r = new Random();
-        int chosen_i = r.nextInt(chosen_vals.length);
-        while (chosen_vals[chosen_i]) {
-            chosen_i = r.nextInt(chosen_vals.length);
+        if (chosen_vals == null || chosen_vals.length == 0)
+            new Exception("An array greater than a size of 0 was expected but not found.");
+
+        final Random r = new Random();
+        final int length = chosen_vals.length;
+        final int startIndex = r.nextInt(length);
+        int index = startIndex;
+        boolean wrapped = false;
+
+        // Choosing which direction to loop through the array
+        // 0 = backwards, 1 = forwards
+        int direction;
+        int limit;
+        int goTo;
+        if (r.nextBoolean()) {
+            direction = -1;
+            limit = -1;
+            goTo = length - 1;
+        } else {
+            direction = 1;
+            limit = length;
+            goTo = 0;
         }
-        return chosen_i;
+
+        while (chosen_vals[index]) {
+            index += direction;
+            if (wrapped && index == startIndex) {
+                new Exception("A false boolean was expected but not found.");
+            } else if (index == limit) {
+                wrapped = true;
+                index = goTo;
+                if (index == startIndex)
+                    new Exception("A false boolean was expected but not found.");
+            }
+        }
+
+        return index;
     }
-
-
 }

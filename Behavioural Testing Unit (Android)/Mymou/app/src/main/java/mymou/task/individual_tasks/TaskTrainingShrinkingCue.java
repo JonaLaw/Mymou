@@ -3,18 +3,21 @@ package mymou.task.individual_tasks;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.*;
 import android.widget.Button;
-import android.widget.LinearLayout;
+
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
+
+import java.util.Objects;
+
 import mymou.R;
 import mymou.preferences.PreferencesManager;
 import mymou.task.backend.TaskInterface;
 import mymou.task.backend.UtilsTask;
 
 /**
- * Training task two: Shrinking Cue
+ * Training task: Shrinking Cue
  *
  * Valid touch area starts as the entire screen, and gets progressively smaller
  * An idle timeout resets size of the cue to the entire screen
@@ -23,20 +26,20 @@ import mymou.task.backend.UtilsTask;
  * @param  num_consecutive_corr the current number of consecutive presses
  *
  */
-public class TaskTrainingTwoShrinkingCue extends Task {
+public class TaskTrainingShrinkingCue extends Task {
 
     // Debug
-    public static String TAG = "TaskTrainingTwoShrinkingCue";
+    public final String TAG = "TaskTrainingShrinkingCue";
 
-    private String preftag_successful_trial = "t_two_successful_trial";
-    private String preftag_num_consecutive_corr = "t_two_num_consecutive_corr";
-    private static int rew_scalar = 1;
-    private static int num_consecutive_corr;
-    private static PreferencesManager prefManager;
+    private final String preftag_successful_trial = "t_two_successful_trial";
+    private final String preftag_num_consecutive_corr = "t_two_num_consecutive_corr";
+    private final int rew_scalar = 1;
+    private int num_consecutive_corr;
+    private PreferencesManager prefManager;
     private SharedPreferences settings;
 
     // Task objects
-    private static Button cue;
+    private Button cue;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,13 +48,12 @@ public class TaskTrainingTwoShrinkingCue extends Task {
     }
 
     @Override
-    public void onViewCreated(final View view, Bundle savedInstanceState) {
-        logEvent(TAG+" started", callback);
+    public void onViewCreated(@NonNull final View view, Bundle savedInstanceState) {
+        logEvent(TAG + " started", callback);
 
         loadTrialParams();
         assignObjects();
     }
-
 
     private void assignObjects() {
         // Load preferences
@@ -59,7 +61,7 @@ public class TaskTrainingTwoShrinkingCue extends Task {
         prefManager.TrainingTasks();
 
         // Create one giant cue
-        cue = UtilsTask.addColorCue(0, prefManager.t_one_screen_colour,
+        cue = UtilsTask.addColorCue(0, prefManager.t_cue_colour,
                 getContext(), buttonClickListener, getView().findViewById(R.id.parent_task_empty));
 
         // Figure out how big to make the cue
@@ -73,32 +75,30 @@ public class TaskTrainingTwoShrinkingCue extends Task {
         if (num_consecutive_corr > 9) {
             scalar = 0f;
         } else {
-            scalar = (10-num_consecutive_corr) / 10f;
+            scalar = (10 - num_consecutive_corr) / 10f;
         }
         int new_x = (int) (prefManager.cue_size + (max_x * scalar));
         int new_y = (int) (prefManager.cue_size + (max_y * scalar));
 
         cue.setWidth(new_x);
         cue.setHeight(new_y);
-        logEvent("Cue height set to "+new_x+" "+new_y, callback);
+        logEvent("Cue height set to " + new_x + " " + new_y, callback);
 
         // Centre cue on screen
-        float x_loc = (screen_size.x/2) - (new_x/2);
-        float y_loc = (screen_size.y/2) - (new_y/2);
+        float x_loc = (float) (screen_size.x - new_x) / 2;
+        float y_loc = (float) (screen_size.y - new_y) / 2;
         cue.setX(x_loc);
         cue.setY(y_loc);
 
         UtilsTask.toggleCue(cue, true);
-        logEvent("Cue toggled on at location "+x_loc+" "+y_loc, callback);
+        logEvent("Cue toggled on at location " + x_loc + " " + y_loc, callback);
     }
-
 
     // Load previous trial params
     private void loadTrialParams() {
-        settings = PreferenceManager.getDefaultSharedPreferences(getContext());
-        boolean prev_trial_correct = settings.getBoolean(preftag_successful_trial, false);
+        settings = PreferenceManager.getDefaultSharedPreferences(Objects.requireNonNull(getContext()));
         num_consecutive_corr = settings.getInt(preftag_num_consecutive_corr, 0);
-        if(!prev_trial_correct) {
+        if (!settings.getBoolean(preftag_successful_trial, false)) {
             num_consecutive_corr = 0;
         }
 
@@ -113,8 +113,7 @@ public class TaskTrainingTwoShrinkingCue extends Task {
         editor.commit();
     }
 
-
-    private View.OnClickListener buttonClickListener = new View.OnClickListener() {
+    private final View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             logEvent("Cue pressed", callback);
@@ -125,7 +124,7 @@ public class TaskTrainingTwoShrinkingCue extends Task {
             // Reset timer for idle timeout on each press
             callback.resetTimer_();
 
-           // Take photo of button press
+            // Take photo of button press
             callback.takePhotoFromTask_();
 
             // Log that it was a correct trial
@@ -134,15 +133,13 @@ public class TaskTrainingTwoShrinkingCue extends Task {
 
             // End trial
             endOfTrial(true, rew_scalar, callback, prefManager);
-
         }
     };
 
     // Implement interface and listener to enable communication up to TaskManager
     TaskInterface callback;
+
     public void setFragInterfaceListener(TaskInterface callback) {
         this.callback = callback;
     }
-
-
 }

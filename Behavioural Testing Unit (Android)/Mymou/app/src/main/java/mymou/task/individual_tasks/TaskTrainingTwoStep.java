@@ -25,7 +25,7 @@ import mymou.task.backend.TaskInterface;
 import mymou.task.backend.UtilsTask;
 
 /**
- * Training task five: Two step task
+ * Training task: Two step task
  *
  * Implementation of Thomas Akam's reduced two-step task (Akam et al. 2015)
  *
@@ -33,10 +33,10 @@ import mymou.task.backend.UtilsTask;
  *  long-term memory has a massive storage capacity for object details. Proceedings of the National
  *  Academy of Sciences, USA, 105 (38), 14325-14329.
  */
-public class TaskTrainingFiveTwoStep extends Task {
+public class TaskTrainingTwoStep extends Task {
 
     // Debug
-    public static String TAG = "TaskTrainingFiveTwoStep";
+    public static String TAG = "TaskTrainingTwoStep";
 
     private static PreferencesManager prefManager;
 

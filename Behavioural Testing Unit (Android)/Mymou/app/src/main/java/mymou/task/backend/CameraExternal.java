@@ -37,16 +37,17 @@ import static android.os.Looper.getMainLooper;
 
 /**
  * USB camera module
- *
+ * <p>
  * Adapted from "jiangdongguo on 2017/9/30."
  * Uses libusbcamera library
- *
+ * <p>
  * jb 20200709
  */
 
 public class CameraExternal extends Camera implements CameraDialog.CameraDialogParent, CameraViewInterface.Callback {
 
     private static final String TAG = "CameraExternal";
+    private final TaskManager taskManager;
     private static UVCCameraHelper mCameraHelper;
     private CameraViewInterface mUVCCameraView;
 
@@ -61,9 +62,15 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
     // Error handling
     public static boolean camera_error = false;
 
-    public CameraExternal() {}
+    public CameraExternal() {
+        this.taskManager = null;
+    }
 
-        private UVCCameraHelper.OnMyDevConnectListener listener = new UVCCameraHelper.OnMyDevConnectListener() {
+    public CameraExternal(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
+
+    private UVCCameraHelper.OnMyDevConnectListener listener = new UVCCameraHelper.OnMyDevConnectListener() {
 
         @Override
         public void onAttachDev(UsbDevice device) {
@@ -112,7 +119,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
                             e.printStackTrace();
                         }
                         Looper.prepare();
-                        if(mCameraHelper != null && mCameraHelper.isCameraOpened()) {
+                        if (mCameraHelper != null && mCameraHelper.isCameraOpened()) {
                             showShortMsg("Connected to USB camera");
 
                             // Get resolutions and convert to approriate format
@@ -125,7 +132,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
                                 }
                             }
 
-                            if(width != -1) {
+                            if (width != -1) {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -167,7 +174,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         mUVCCameraView = (CameraViewInterface) getView().findViewById(R.id.camera_view);
 
         // See if they have specified a resolution, and use it if they have
-        SharedPreferences preferences =  PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         width = preferences.getInt(mContext.getResources().getString(R.string.preftag_camera_resolution_ext_width), -1);
         height = preferences.getInt(mContext.getResources().getString(R.string.preftag_camera_resolution_ext_height), -1);
         View cameraView = getView().findViewById(R.id.camera_view);
@@ -198,7 +205,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         mCameraHelper.setOnPreviewFrameListener(new AbstractUVCCameraHandler.OnPreViewResultListener() {
             @Override
             public void onPreviewResult(byte[] nv21Yuv) {
-                Log.d(TAG, "onPreviewResult: "+nv21Yuv.length);
+                Log.d(TAG, "onPreviewResult: " + nv21Yuv.length);
             }
         });
 
@@ -210,7 +217,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
     }
 
     // Say cheese
-    public static boolean captureStillPictureStatic(String ts) {
+    public boolean captureStillPictureStatic(String ts) {
         Log.d(TAG, "Capture request started at" + ts);
         // If the camera is still in process of taking previous picture it will not take another one
         // If it took multiple photos the timestamp for saving/indexing the photos would be wrong
@@ -229,7 +236,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         // Update timestamp string, which will be used to save the photo once the photo is ready
         takingPhoto = true;
         timestamp = ts;
-        CameraSavePhoto cameraSavePhoto = new CameraSavePhoto(timestamp, mContext);
+        CameraSavePhoto cameraSavePhoto = new CameraSavePhoto(taskManager, timestamp, mContext);
 
         mCameraHelper.capturePicture(cameraSavePhoto.photoFile.getPath(), new AbstractUVCCameraHandler.OnCaptureListener() {
             @Override
@@ -245,7 +252,6 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         });
 
         return true;
-
     }
 
     @Override
@@ -307,7 +313,6 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
 
     @Override
     public void onSurfaceChanged(CameraViewInterface view, Surface surface, int width, int height) {
-
     }
 
     @Override
@@ -322,8 +327,8 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
 
     // Add callback to enable parent activity to react when camera is loaded
     CameraInterface callback;
+
     public void setFragInterfaceListener(CameraInterface callback) {
         this.callback = callback;
     }
-
 }

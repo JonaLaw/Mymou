@@ -5,6 +5,8 @@
     <string name="filename_by_date_key">filename_by_date_key</string>
     <string name="filename_custom_key">filename_custom_key</string>
 
+    <string name="filename_default_string">Default_Name.txt</string>
+
     <string name="max_reward_channels">4</string>
     <string name="allChanOff">0</string>
     <string name="chanZeroOn">1</string>
@@ -18,24 +20,26 @@
 
     <string name="task_mode">task_mode</string>
 
+    <string name="training_shrinking_moving_cue">Training: Shrinking Moving Cue</string>
+
     <string-array name="available_tasks">
-        <item>Passive reward</item>
-        <item>Training 1: Full screen cue</item>
-        <item>Training 2: Shrinking central cue</item>
-        <item>Training 3: Shrinking moving cue</item>
-        <item>Training 4: Static cue</item>
-        <item>Training 5: Small Moving cue</item>
-        <item>Example task</item>
-        <item>Two step task</item>
+        <item>Passive Reward</item>
+        <item>Training: Full Screen Cue</item>
+        <item>Training: Shrinking Central Cue</item>
+        <item>@string/training_shrinking_moving_cue</item>
+        <item>Training: Static Cue</item>
+        <item>Training: Small Moving Cue</item>
+        <item>Example Task</item>
+        <item>Two Step Task</item>
         <item>Discrete Maze</item>
-        <item>Object discrimination (colours)</item>
-        <item>Object discrimination (images)</item>
+        <item>Object Discrimination (colours)</item>
+        <item>Object Discrimination (images)</item>
         <item>Progressive Ratio</item>
         <item>Evidence Accumulation</item>
-        <item>Spatial response</item>
+        <item>Spatial Response</item>
         <item>Sequential Learning</item>
-        <item>Random dot motion</item>
-        <item>Discrete value space</item>
+        <item>Random Dot Motion</item>
+        <item>Discrete Value Space</item>
         <item>Context Sequence Learning</item>
         <item>Wald\'s Sequential Probability Ratio</item>
         <item>Colored Grating Task</item>
@@ -119,7 +123,8 @@
     <string name="preftag_event_codes">preftag_event_codes</string>
     <string name="preftag_system_settings">preftag_system_settings</string>
     <string name="preftag_menu_prefs">preftag_menu_prefs</string>
-    <string name="preftag_rewardduration">preftag_rewardduration</string>
+    <string name="preftag_reward_screen_duration">preftag_reward_screen_duration</string>
+    <string name="preftag_reward_juice_duration">preftag_reward_juice_duration</string>
     <string name="preftag_timeoutduration">preftag_timeoutduration</string>
     <string name="preftag_responseduration">preftag_responseduration</string>
     <string name="preftag_num_monkeys">preftag_num_monkeys</string>
@@ -164,7 +169,8 @@
 
     <string name="preftag_task_odc_settings">preftag_task_odc_settings</string>
     <string name="preftag_task_disc_maze_settings">preftag_task_disc_maze_settings</string>
-    <string name="preftag_task_t_one_settings">preftag_task_t_one_settings</string>
+    <string name="preftag_task_t_all_settings">preftag_task_t_all_settings</string>
+    <string name="preftag_task_t_three_settings">preftag_task_t_three_settings</string>
     <string name="preftag_task_pr_settings">preftag_task_pr_settings</string>
     <string name="preftag_task_t_sc_settings">preftag_task_t_sc_settings</string>
     <string name="preftag_task_pass_settings">preftag_task_pass_settings</string>
@@ -179,6 +185,7 @@
     <string name="preftag_task_od_settings">preftag_task_od_settings</string>
     <string name="preftag_bluetooth_strobes">preftag_bluetooth_strobes</string>
     <string name="preftag_settings_to_load">preftag_settings_to_load</string>
+    <string name="preftag_trial_settings_to_load">preftag_trial_settings_to_load</string>
     <string name="preftag_sound_to_play">preftag_sound_to_play</string>
     <string name="preftag_tone_dur">preftag_tone_dur</string>
     <string name="preftag_tone_freq">preftag_tone_freq</string>
@@ -217,11 +224,15 @@
     <string name="preftag_dm_errors_allowed">preftag_dm_errors_allowed</string>
     <string name="preftag_dm_animation_dur_actual">dm_anim_dur_actual</string>
 
-    <string name="preftag_t_one_screen_colour">t_one_screen_colour</string>
+    <string name="preftag_t_cue_colour">t_cue_colour</string>
     <string name="preftag_t_random_reward_start">t_random_reward_start</string>
     <string name="preftag_t_random_reward_stop">t_random_reward_stop</string>
-    <string name="preftag_t_one_num_presses">t_one_num_presses</string>
-    <string name="preftag_t_four_num_static_pos">t_four_num_static_pos</string>
+    <string name="preftag_t_num_cue_press_reward">t_num_cue_press_reward</string>
+    <string name="preftag_t_num_cue_press_move">t_num_cue_press_move</string>
+    <string name="preftag_t_num_missed_presses">t_num_missed_presses</string>
+
+    <string name="preftag_t_shrink_move_cue_loop">t_shrink_move_cue_loop</string>
+    <string name="preftag_t_num_cue_press_shrink">t_num_cue_press_shrink</string>
 
     <string name="preftag_sl_map_selected">preftag_sl_map_selected</string>
     <string name="preftag_sl_seq_length">preftag_sl_seq_length</string>

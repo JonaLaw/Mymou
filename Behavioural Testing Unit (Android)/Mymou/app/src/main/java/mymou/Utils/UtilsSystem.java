@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.provider.Settings;
 import android.util.Log;
@@ -16,16 +15,12 @@ import android.widget.Button;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import mymou.R;
 import mymou.preferences.PreferencesManager;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -33,8 +28,8 @@ public class UtilsSystem {
     // Debug
     public static String TAG = "MymouUtilsSystem";
 
-
-    public static void setBrightness(boolean bool, Context context, PreferencesManager preferencesManager) {
+    public static void setBrightness(boolean bool, Context context,
+                                     PreferencesManager preferencesManager) {
         if (Settings.System.canWrite(context)) {
             int brightness;
             if (bool || !preferencesManager.dimscreen) {
@@ -47,7 +42,6 @@ public class UtilsSystem {
         }
     }
 
-
     public static void setOnClickListenerLoop(Button[] buttons, View.OnClickListener view) {
         for (Button button : buttons) {
             button.setOnClickListener(view);
@@ -55,7 +49,7 @@ public class UtilsSystem {
     }
 
     public static String convertIntArrayToString(int[] list) {
-//        String out = Arrays.toString(list);
+        // String out = Arrays.toString(list);
         StringBuilder str = new StringBuilder();
         for (int s : list) {
             str.append(s).append(",");
@@ -86,7 +80,8 @@ public class UtilsSystem {
         } else if (tag == context.getResources().getString(R.string.preftag_od_num_incorr_cues)) {
             return context.getResources().getString(R.string.default_objdis_incorr_colours);
         } else if (tag == "two_prev_cols_incorr" | tag == "two_prev_cols_corr") {
-            return "doesn't matter what this default string is as this will only be called if there is a stored value";
+            return "doesn't matter what this default string is as " +
+                    "this will only be called if there is a stored value";
         }
         new Exception("Invalid tag specified");
         return "";
@@ -100,7 +95,7 @@ public class UtilsSystem {
         Point size = new Point();
         display.getSize(size);
         int default_x = ((size.x - camera_width) / 2);
-//        default_x = (size.x) / 2) - camera_width;
+        // default_x = (size.x) / 2) - camera_width;
         Point out = new Point(default_x, default_y);
         return out;
     }
@@ -122,7 +117,8 @@ public class UtilsSystem {
         return lowestscale;
     }
 
-    public static void addGraph(GraphView graph, LineGraphSeries<DataPoint> series, String xlab, String ylab, int num_sessions) {
+    public static void addGraph(GraphView graph, LineGraphSeries<DataPoint> series,
+                                String xlab, String ylab, int num_sessions) {
         graph.addSeries(series);
 
         GridLabelRenderer glr = graph.getGridLabelRenderer();
@@ -143,7 +139,6 @@ public class UtilsSystem {
         graph.getViewport().setMinX(-edge_buffer);
         graph.getViewport().setXAxisBoundsManual(true);
         glr.setNumHorizontalLabels(num_sessions);
-
     }
 
     public static boolean[] getBooleanFalseArray(int n) {
@@ -154,27 +149,31 @@ public class UtilsSystem {
         return out;
     }
 
+    public static int[] getIndexArray(int n) {
+        int[] indexArray = new int[n];
+        for (int i = 0; i < n; i++) {
+            indexArray[i] = i;
+        }
+        return indexArray;
+    }
+
     // Compares two areas and returns true if rhs is smaller
-        private static boolean cameraCompareAreas(Size lhs, Size rhs) {
-            // We cast here to ensure the multiplications won't overflow
-            return Long.signum((long) rhs.getWidth() * rhs.getHeight() -
-                    (long) lhs.getWidth() * lhs.getHeight()) < 0;
-        }
+    private static boolean cameraCompareAreas(Size lhs, Size rhs) {
+        // We cast here to ensure the multiplications won't overflow
+        return Long.signum((long) rhs.getWidth() * rhs.getHeight() -
+                (long) lhs.getWidth() * lhs.getHeight()) < 0;
+    }
 
-        public static int getArgMinResolution(List<Size> sizes) {
-            Size smallest = sizes.get(0);
-            int i_smallest = 0;
-            for (int i = 1; i < sizes.size(); i++) {
-                Size size = (Size) sizes.get(i);
-                    if (cameraCompareAreas(smallest, (Size) sizes.get(i))) {
-                        i_smallest = i;
-                        smallest = size;
-                    }
-            }
-            return i_smallest;
+    public static int getArgMinResolution(List<Size> sizes) {
+        Size smallest = sizes.get(0);
+        int i_smallest = 0;
+        for (int i = 1; i < sizes.size(); i++) {
+            Size size = (Size) sizes.get(i);
+                if (cameraCompareAreas(smallest, (Size) sizes.get(i))) {
+                    i_smallest = i;
+                    smallest = size;
+                }
         }
+        return i_smallest;
+    }
 }
-
-
-
-

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -15,25 +14,25 @@ import mymou.Utils.UtilsSystem;
 import java.util.Arrays;
 
 public class PreferencesManager {
-    private String TAG = "MyMouPreferencesManager";
+    private final String TAG = "MyMouPreferencesManager";
 
     public String base_error_message = "Error: Invalid settings configured so task cannot run. Please adjust settings and restart the task:\n\n";
     public String data_headers = "taskId, trialCounter, faceRecogPrediction, overallTrialOutcome, photoTimestamp, eventTimestamp, task manager code, task specific event codes";
 
-    public static boolean debug, bluetooth, camera, facerecog, savefacerecogarrays, restartoncrash,
-            sound, autostart, autostop, skip_go_cue = false, dimscreen, handle_feedback, run_timer = true;
-    public static int sound_to_play, tone_dur, tone_freq, tone_strength;
-    public static int dimscreenlevel, dimscreentime;
-    public static int num_reward_chans, default_rew_chan, max_reward_channels;
-    public static int rewardduration, responseduration, timeoutduration;
-    public static int autostart_hour, autostop_hour, autostart_min, autostop_min;
-    public static int taskbackground, rewardbackground, timeoutbackground;
-    public static int border_colour, border_size, cue_size, cue_spacing;
-    public static int num_monkeys;
-    public static int camera_to_use;
-    public static int[] colours_gocues;
-    public static String tone_type, tone_filename;
-    public static String ec_correct_trial, ec_incorrect_trial, ec_trial_timeout, ec_wrong_gocue_pressed, ec_trial_started, ec_trial_prepared;
+    public boolean debug, bluetooth, camera, facerecog, savefacerecogarrays, restartoncrash,
+            sound, autostart, autostop, skip_go_cue = false, dimscreen, handle_feedback, run_timer;
+    public int sound_to_play, tone_dur, tone_freq, tone_strength;
+    public int dimscreenlevel, dimscreentime;
+    public int num_reward_chans, default_rew_chan, max_reward_channels;
+    public int reward_screen_duration, reward_juice_duration, responseduration, timeoutduration;
+    public int autostart_hour, autostop_hour, autostart_min, autostop_min;
+    public int taskbackground, rewardbackground, timeoutbackground;
+    public int border_colour, border_size, cue_size, cue_spacing;
+    public int num_monkeys;
+    public int camera_to_use;
+    public int[] colours_gocues;
+    public String tone_type, tone_filename;
+    public String ec_correct_trial, ec_incorrect_trial, ec_trial_timeout, ec_wrong_gocue_pressed, ec_trial_started, ec_trial_prepared;
 
     public SharedPreferences sharedPrefs;
     private int[] colors;
@@ -62,20 +61,25 @@ public class PreferencesManager {
         sound_to_play = sharedPrefs.getInt(r.getString(R.string.preftag_sound_to_play), r.getInteger(R.integer.default_system_tone));
         tone_dur = sharedPrefs.getInt(r.getString(R.string.preftag_tone_dur), r.getInteger(R.integer.default_tone_duration));
         tone_freq = sharedPrefs.getInt(r.getString(R.string.preftag_tone_freq), r.getInteger(R.integer.default_tone_freq));
-        tone_strength =  sharedPrefs.getInt("preftag_tone_strength", 100);
+        tone_strength = sharedPrefs.getInt("preftag_tone_strength", 100);
 
-        dimscreenlevel = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_dimscreenlevel), "5"));
+        dimscreenlevel = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_dimscreenlevel), "5"));
         dimscreentime = sharedPrefs.getInt(r.getString(R.string.preftag_dimscreentime), r.getInteger(R.integer.default_dimscreentime));
 
-        max_reward_channels = Integer.valueOf(mContext.getString(R.string.max_reward_channels));
+        max_reward_channels = Integer.parseInt(mContext.getString(R.string.max_reward_channels));
         num_reward_chans = sharedPrefs.getInt(r.getString(R.string.preftag_num_rew_chans), r.getInteger(R.integer.default_num_rew_chans));
         default_rew_chan = sharedPrefs.getInt(r.getString(R.string.preftag_default_rew_chan), r.getInteger(R.integer.default_rew_chan));
         if (default_rew_chan > num_reward_chans) {
             default_rew_chan = 0;
         }
-        rewardduration = sharedPrefs.getInt(r.getString(R.string.preftag_rewardduration), r.getInteger(R.integer.default_rewardduration));
-        responseduration = sharedPrefs.getInt(r.getString(R.string.preftag_responseduration), r.getInteger(R.integer.default_responseduration));
-        responseduration *= 1000;
+
+        reward_screen_duration = sharedPrefs.getInt(r.getString(R.string.preftag_reward_screen_duration),
+                r.getInteger(R.integer.default_reward_screen_duration));
+        reward_juice_duration = sharedPrefs.getInt(r.getString(R.string.preftag_reward_juice_duration),
+                r.getInteger(R.integer.default_reward_juice_duration));
+
+        // Convert seconds to milliseconds
+        responseduration = 1000 * sharedPrefs.getInt(r.getString(R.string.preftag_responseduration), r.getInteger(R.integer.default_responseduration));
         timeoutduration = sharedPrefs.getInt(r.getString(R.string.preftag_timeoutduration), r.getInteger(R.integer.default_timeoutduration));
 
         autostart_hour = sharedPrefs.getInt(r.getString(R.string.preftag_autostart_hour), r.getInteger(R.integer.default_autostart_hour));
@@ -88,10 +92,10 @@ public class PreferencesManager {
         border_size = sharedPrefs.getInt(r.getString(R.string.preftag_cue_border_size), r.getInteger(R.integer.default_bordersize));
         num_monkeys = sharedPrefs.getInt(r.getString(R.string.preftag_num_monkeys), r.getInteger(R.integer.default_num_monkeys));
 
-        int taskbackgroundcolour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_taskbackgroundcolour), Integer.toString(r.getInteger(R.integer.default_taskbackgroundcolour))));
-        int rewardbackgroundcolour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_rewardbackgroundcolour), Integer.toString(r.getInteger(R.integer.default_rewardbackgroundcolour))));
-        int timeoutbackgroundcolour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_timeoutbackgroundcolour), Integer.toString(r.getInteger(R.integer.default_timeoutbackgroundcolour))));
-        int bordercolour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_cuebordercolors), Integer.toString(r.getInteger(R.integer.default_bordercolour))));
+        int taskbackgroundcolour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_taskbackgroundcolour), Integer.toString(r.getInteger(R.integer.default_taskbackgroundcolour))));
+        int rewardbackgroundcolour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_rewardbackgroundcolour), Integer.toString(r.getInteger(R.integer.default_rewardbackgroundcolour))));
+        int timeoutbackgroundcolour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_timeoutbackgroundcolour), Integer.toString(r.getInteger(R.integer.default_timeoutbackgroundcolour))));
+        int bordercolour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_cuebordercolors), Integer.toString(r.getInteger(R.integer.default_bordercolour))));
 
         colors = r.getIntArray(R.array.colorarray);
         taskbackground = colors[taskbackgroundcolour];
@@ -101,13 +105,13 @@ public class PreferencesManager {
 
         // Cue colour settings
         colours_gocues = new int[4];
-        int cue_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_gocuecolorone), Integer.toString(r.getInteger(R.integer.default_gocuecolone))));
+        int cue_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_gocuecolorone), Integer.toString(r.getInteger(R.integer.default_gocuecolone))));
         colours_gocues[0] = colors[cue_colour];
-        cue_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_gocuecolortwo), Integer.toString(r.getInteger(R.integer.default_gocuecoltwo))));
+        cue_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_gocuecolortwo), Integer.toString(r.getInteger(R.integer.default_gocuecoltwo))));
         colours_gocues[1] = colors[cue_colour];
-        cue_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_gocuecolorthree), Integer.toString(r.getInteger(R.integer.default_gocuecolthree))));
+        cue_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_gocuecolorthree), Integer.toString(r.getInteger(R.integer.default_gocuecolthree))));
         colours_gocues[2] = colors[cue_colour];
-        cue_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_gocuecolorfour), Integer.toString(r.getInteger(R.integer.default_gocuecolfour))));
+        cue_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_gocuecolorfour), Integer.toString(r.getInteger(R.integer.default_gocuecolfour))));
         colours_gocues[3] = colors[cue_colour];
 
         ec_incorrect_trial = sharedPrefs.getString(r.getString(R.string.preftag_eventcode_error_trial), r.getString(R.string.default_eventcode_error_trial));
@@ -121,13 +125,12 @@ public class PreferencesManager {
         tone_filename = sharedPrefs.getString(r.getString(R.string.tone_filename), "");
 
         handle_feedback = true; // Default behaviour, individual tasks can adjust this parameter
-
+        run_timer = responseduration > 0;
     }
 
     public String[] strobes_on, strobes_off;
 
     public void RewardStrobeChannels() {
-
         strobes_on = new String[max_reward_channels];
         strobes_off = new String[max_reward_channels];
         strobes_on[0] = sharedPrefs.getString(r.getString(R.string.preftag_strobe_one_on), r.getString(R.string.default_strobe_one_on));
@@ -195,7 +198,6 @@ public class PreferencesManager {
         } else {
             objectdiscrim_valid_config = true;
         }
-
     }
 
     public boolean dm_repeat_on_error, dm_static_reward, dm_extra_step_timeout, dm_use_progress_bar;
@@ -203,12 +205,11 @@ public class PreferencesManager {
     public int dm_choice_delay, dm_animation_duration, dm_booster_amount, dm_target_switch_freq;
 
     public void DiscreteMaze() {
-
         dm_repeat_on_error = sharedPrefs.getBoolean(r.getString(R.string.preftag_dm_repeat_error), r.getBoolean(R.bool.default_dm_repeat_error));
         dm_static_reward = sharedPrefs.getBoolean(r.getString(R.string.preftag_dm_static_reward), r.getBoolean(R.bool.default_dm_static_reward));
         dm_extra_step_timeout = sharedPrefs.getBoolean(r.getString(R.string.preftag_dm_extra_step_timout), r.getBoolean(R.bool.default_dm_extra_step_timout));
         dm_use_progress_bar = sharedPrefs.getBoolean(r.getString(R.string.preftag_dm_use_progress_bar), r.getBoolean(R.bool.default_dm_use_progress_bar));
-        dm_map_selected = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_dm_map), Integer.toString(r.getInteger(R.integer.default_dm_map))));
+        dm_map_selected = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_dm_map), Integer.toString(r.getInteger(R.integer.default_dm_map))));
         dm_min_start_distance = sharedPrefs.getInt(r.getString(R.string.preftag_dm_min_start_distance), r.getInteger(R.integer.default_dm_min_start_distance));
         dm_max_start_distance = sharedPrefs.getInt(r.getString(R.string.preftag_dm_max_start_distance), r.getInteger(R.integer.default_dm_max_start_distance));
         dm_num_extra_steps = sharedPrefs.getInt(r.getString(R.string.preftag_dm_num_extra_steps), r.getInteger(R.integer.default_dm_num_extra_steps));
@@ -224,21 +225,34 @@ public class PreferencesManager {
         dm_max_dist_in_map = 4;
     }
 
-    public int t_one_screen_colour, t_one_num_presses, t_random_reward_start_time, t_random_reward_stop_time, t_four_num_static_cue_pos;
+    public int t_cue_colour, t_num_cue_press_reward, t_random_reward_start_time, t_random_reward_stop_time, t_num_cue_press_move, t_num_missed_presses;
+    public boolean t_random_reward_disabled, t_miss_failure_disabled;
 
     public void TrainingTasks() {
-        int screen_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_t_one_screen_colour), Integer.toString(r.getInteger(R.integer.default_t_one_screen_colour))));
-        t_one_screen_colour = colors[screen_colour];
+        int screen_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_t_cue_colour), Integer.toString(r.getInteger(R.integer.default_t_cue_colour))));
+        t_cue_colour = colors[screen_colour];
         t_random_reward_start_time = sharedPrefs.getInt(r.getString(R.string.preftag_t_random_reward_start), r.getInteger(R.integer.default_random_reward_start));
         t_random_reward_stop_time = sharedPrefs.getInt(r.getString(R.string.preftag_t_random_reward_stop), r.getInteger(R.integer.default_random_reward_stop));
-        t_one_num_presses = sharedPrefs.getInt(r.getString(R.string.preftag_t_one_num_presses), r.getInteger(R.integer.default_t_one_num_presses));
-        t_four_num_static_cue_pos = sharedPrefs.getInt(r.getString(R.string.preftag_t_four_num_static_pos), r.getInteger(R.integer.default_t_four_num_static_pos));
-        skip_go_cue = sharedPrefs.getBoolean(r.getString(R.string.preftag_skip_go_cue), r.getBoolean(R.bool.default_t_one_skip_go_cue));
+        t_num_cue_press_reward = sharedPrefs.getInt(r.getString(R.string.preftag_t_num_cue_press_reward), r.getInteger(R.integer.default_t_num_cue_press_reward));
+        t_num_cue_press_move = sharedPrefs.getInt(r.getString(R.string.preftag_t_num_cue_press_move), r.getInteger(R.integer.default_t_num_cue_press_move));
+        t_num_missed_presses = sharedPrefs.getInt(r.getString(R.string.preftag_t_num_missed_presses), r.getInteger(R.integer.default_t_num_cue_missed_presses));
+        skip_go_cue = sharedPrefs.getBoolean(r.getString(R.string.preftag_skip_go_cue), r.getBoolean(R.bool.default_t_all_skip_go_cue));
 
         // TODO: Get this working
-        int t_random_reward_stop_time_ms = t_random_reward_stop_time * 1000;
-        responseduration += t_random_reward_stop_time_ms;
+        // int t_random_reward_stop_time_ms = t_random_reward_stop_time * 1000;
+        // responseduration += t_random_reward_stop_time_ms;
 
+        t_random_reward_disabled = t_random_reward_start_time == 0 || t_random_reward_stop_time == 0 ||
+                t_random_reward_start_time >= t_random_reward_stop_time;
+        t_miss_failure_disabled = t_num_missed_presses == 0;
+    }
+
+    public int t_three_num_cue_press_shrink;
+    public boolean t_three_loop_cue_shrink;
+
+    public void TrainingTaskThree() {
+        t_three_num_cue_press_shrink = sharedPrefs.getInt(r.getString(R.string.preftag_t_num_cue_press_shrink), r.getInteger(R.integer.default_t_three_num_cue_press_shrink));
+        t_three_loop_cue_shrink = sharedPrefs.getBoolean(r.getString(R.string.preftag_t_shrink_move_cue_loop), r.getBoolean(R.bool.default_t_three_loop_cue_shrink));
     }
 
     public int sl_seq_length, sl_map_selected, sl_max_seq_length;
@@ -304,13 +318,12 @@ public class PreferencesManager {
         t_sc_cueytwo = sharedPrefs.getInt(r.getString(R.string.preftag_t_sc_cueytwo), 300);
         t_sc_cueheight = sharedPrefs.getInt(r.getString(R.string.preftag_t_sc_cueheight), 300);
         t_sc_cuewidth = sharedPrefs.getInt(r.getString(R.string.preftag_t_sc_cuewidth), 300);
-        int cue_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_t_sc_cue_colour), Integer.toString(r.getInteger(R.integer.default_t_sc_cue_colour))));
+        int cue_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_t_sc_cue_colour), Integer.toString(r.getInteger(R.integer.default_t_sc_cue_colour))));
         t_sc_cue_colour = colors[cue_colour];
-        int border_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_t_sc_cue_border_colour), Integer.toString(r.getInteger(R.integer.default_t_sc_bordercolour))));
+        int border_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_t_sc_cue_border_colour), Integer.toString(r.getInteger(R.integer.default_t_sc_bordercolour))));
         t_sc_border_colour = colors[border_colour];
-        t_sc_cue_shape = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_t_sc_cue_shape), Integer.toString(r.getInteger(R.integer.default_t_sc_shape))));
+        t_sc_cue_shape = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_t_sc_cue_shape), Integer.toString(r.getInteger(R.integer.default_t_sc_shape))));
         t_sc_bordersize = sharedPrefs.getInt(r.getString(R.string.preftag_t_sc_bordersize), r.getInteger(R.integer.default_t_sc_bordersize));
-
     }
 
     public int pass_minrew, pass_maxrew, pass_miniti, pass_maxiti, pass_sesslength;
@@ -330,9 +343,9 @@ public class PreferencesManager {
     public boolean pr_progress_bar, pr_move_cue, pr_skip_go_cue;
 
     public void ProgressiveRatio() {
-        int cue_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_pr_cue_colour), Integer.toString(r.getInteger(R.integer.default_pr_cue_colour))));
+        int cue_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_pr_cue_colour), Integer.toString(r.getInteger(R.integer.default_pr_cue_colour))));
         pr_cue_colour = colors[cue_colour];
-        int border_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_pr_cue_border_colour), Integer.toString(r.getInteger(R.integer.default_pr_bordercolour))));
+        int border_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_pr_cue_border_colour), Integer.toString(r.getInteger(R.integer.default_pr_bordercolour))));
         pr_border_colour = colors[border_colour];
 
         pr_progress_bar = sharedPrefs.getBoolean(r.getString(R.string.preftag_pr_progress_bar), r.getBoolean(R.bool.default_pr_progress_bar));
@@ -345,7 +358,7 @@ public class PreferencesManager {
 
         pr_cuex = sharedPrefs.getInt(r.getString(R.string.preftag_pr_cuex), 300);
         pr_cuey = sharedPrefs.getInt(r.getString(R.string.preftag_pr_cuey), 300);
-        pr_cue_shape = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_pr_cue_shape), Integer.toString(r.getInteger(R.integer.default_pr_shape))));
+        pr_cue_shape = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_pr_cue_shape), Integer.toString(r.getInteger(R.integer.default_pr_shape))));
         pr_animation_duration = sharedPrefs.getInt(r.getString(R.string.preftag_pr_animation_duration), r.getInteger(R.integer.default_pr_animation_duration));
         pr_iti = sharedPrefs.getInt(r.getString(R.string.preftag_pr_iti), r.getInteger(R.integer.default_pr_iti));
         pr_blinklength = sharedPrefs.getInt(r.getString(R.string.preftag_pr_blink), r.getInteger(R.integer.default_pr_blink));
@@ -354,7 +367,6 @@ public class PreferencesManager {
 
         pr_cue_size = sharedPrefs.getInt(r.getString(R.string.preftag_pr_cue_size), r.getInteger(R.integer.default_pr_cuesize));
         pr_border_size = sharedPrefs.getInt(r.getString(R.string.preftag_pr_cue_border_size), r.getInteger(R.integer.default_pr_bordersize));
-
     }
 
     public int ea_num_steps, ea_step_duration_on, ea_step_duration_off, ea_distance, ea_variance;
@@ -373,7 +385,7 @@ public class PreferencesManager {
         sr_duration_off = sharedPrefs.getInt(r.getString(R.string.preftag_sr_duration_off), r.getInteger(R.integer.default_sr_duration_off));
         sr_duration_on = sharedPrefs.getInt(r.getString(R.string.preftag_sr_duration_on), r.getInteger(R.integer.default_sr_duration_on));
         sr_num_stim = sharedPrefs.getInt(r.getString(R.string.preftag_sr_num_stimuli), r.getInteger(R.integer.default_sr_num_stimuli));
-        sr_locations = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_sr_locations), "2"));
+        sr_locations = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_sr_locations), "2"));
     }
 
     public int od_duration_on, od_duration_off, od_num_stim, od_num_distractors, od_start_delay;
@@ -400,18 +412,19 @@ public class PreferencesManager {
         rdm_movie_length = sharedPrefs.getInt(r.getString(R.string.preftag_rdm_movie_length), r.getInteger(R.integer.default_rdm_movie_length));
         rdm_choice_delay = sharedPrefs.getInt(r.getString(R.string.preftag_rdm_choice_delay), r.getInteger(R.integer.default_rdm_choice_delay));
         rdm_horizontal_layout = sharedPrefs.getBoolean(r.getString(R.string.preftag_rdm_horizontal), r.getBoolean(R.bool.default_rdm_horizontal));
-        int bg_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_rdm_colour_bg), Integer.toString(r.getInteger(R.integer.default_rdm_color_bg))));
+        int bg_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_rdm_colour_bg), Integer.toString(r.getInteger(R.integer.default_rdm_color_bg))));
         rdm_colour_bg = colors[bg_colour];
-        int dot_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_rdm_colour_dots), Integer.toString(r.getInteger(R.integer.default_rdm_color_dots))));
+        int dot_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_rdm_colour_dots), Integer.toString(r.getInteger(R.integer.default_rdm_color_dots))));
         rdm_colour_dots = colors[dot_colour];
-        int choice_colour = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_rdm_colour_choice), Integer.toString(r.getInteger(R.integer.default_rdm_color_choice))));
+        int choice_colour = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_rdm_colour_choice), Integer.toString(r.getInteger(R.integer.default_rdm_color_choice))));
         rdm_colour_choice = colors[choice_colour];
     }
-    public static int csl_col_context_1, csl_col_context_2;
-    public static int csl_choice_col_i, csl_choice_col_a;
 
-    public static int csl_tone_delay, csl_pair_tone_delay, csl_rtBase;
-    public static int csl_waitcuex, csl_waitcuey, csl_presscuex, csl_presscuey;
+    public int csl_col_context_1, csl_col_context_2;
+    public int csl_choice_col_i, csl_choice_col_a;
+
+    public int csl_tone_delay, csl_pair_tone_delay, csl_rtBase;
+    public int csl_waitcuex, csl_waitcuey, csl_presscuex, csl_presscuey;
 
     public void ContextSequenceLearning() {
         handle_feedback = false;
@@ -432,7 +445,6 @@ public class PreferencesManager {
         csl_waitcuey = sharedPrefs.getInt(r.getString(R.string.preftag_csl_waitcuey), r.getInteger(R.integer.default_csl_waitcuey));
         csl_presscuex = sharedPrefs.getInt(r.getString(R.string.preftag_csl_presscuex), r.getInteger(R.integer.default_csl_presscuex));
         csl_presscuey = sharedPrefs.getInt(r.getString(R.string.preftag_csl_presscuey), r.getInteger(R.integer.default_csl_presscuey));
-
     }
 
     public int w_gocuesize, w_choicecuesize, w_rewcuesize, w_numcues, w_numcuesused;
@@ -459,42 +471,38 @@ public class PreferencesManager {
         w_choicecuey2 = sharedPrefs.getInt(r.getString(R.string.preftag_w_choicecuey2), r.getInteger(R.integer.default_w_choicecuey2));
         w_choicecuex1 = sharedPrefs.getInt(r.getString(R.string.preftag_w_choicecuex1), r.getInteger(R.integer.default_w_choicecuex1));
         w_choicecuex2 = sharedPrefs.getInt(r.getString(R.string.preftag_w_choicecuex2), r.getInteger(R.integer.default_w_choicecuex2));
-        w_fixcol = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_w_colfix), Integer.toString(r.getInteger(R.integer.default_w_colfix))));
+        w_fixcol = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_w_colfix), Integer.toString(r.getInteger(R.integer.default_w_colfix))));
         w_fixcol = colors[w_fixcol];
-        w_chcol1 = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_w_colchone), Integer.toString(r.getInteger(R.integer.default_w_colchone))));
+        w_chcol1 = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_w_colchone), Integer.toString(r.getInteger(R.integer.default_w_colchone))));
         w_chcol1 = colors[w_chcol1];
-        w_chcol2 = Integer.valueOf(sharedPrefs.getString(r.getString(R.string.preftag_w_colchtwo), Integer.toString(r.getInteger(R.integer.default_w_colchtwo))));
+        w_chcol2 = Integer.parseInt(sharedPrefs.getString(r.getString(R.string.preftag_w_colchtwo), Integer.toString(r.getInteger(R.integer.default_w_colchtwo))));
         w_chcol2 = colors[w_chcol2];
         w_randposchoicecues = sharedPrefs.getBoolean(r.getString(R.string.preftag_w_randposchoicecues), r.getBoolean(R.bool.default_w_randposchoicecues));
-
-
     }
 
+    public int colgrat_green_cue, colgrat_red_cue, colgrat_blue_cue, colgrat_target_cue, colgrat_fix_cue;
+    public int colgrat_sizecolcue, colgrat_sizefixcue, colgrat_sizeindicatorcue;
+    public int colgrat_sizestripes, colgrat_grateoffset, colgrat_numstripes;
+    public int colgrat_red_x, colgrat_red_y, colgrat_green_x, colgrat_green_y, colgrat_blue_x, colgrat_blue_y;
+    public int colgrat_rt_limit, colgrat_catchtrialfreq;
+    public int colgrat_fixation_time_mi, colgrat_stimulus_time_mi, colgrat_cue_time_mi, colgrat_dim_time_mi;
+    public int colgrat_fixation_time_ma, colgrat_stimulus_time_ma, colgrat_cue_time_ma, colgrat_dim_time_ma;
 
-    public static int colgrat_green_cue, colgrat_red_cue, colgrat_blue_cue, colgrat_target_cue, colgrat_fix_cue;
-    public static int colgrat_sizecolcue, colgrat_sizefixcue, colgrat_sizeindicatorcue;
-    public static int colgrat_sizestripes, colgrat_grateoffset, colgrat_numstripes;
-    public static int colgrat_red_x, colgrat_red_y, colgrat_green_x, colgrat_green_y, colgrat_blue_x, colgrat_blue_y;
-    public static int colgrat_rt_limit, colgrat_catchtrialfreq;
-    public static int colgrat_fixation_time_mi, colgrat_stimulus_time_mi, colgrat_cue_time_mi, colgrat_dim_time_mi;
-    public static int colgrat_fixation_time_ma, colgrat_stimulus_time_ma, colgrat_cue_time_ma, colgrat_dim_time_ma;
-
-    public static int colgrat_position_rand;
-    public static int colgrat_background_color, colgrat_target_shape;
-    public static float colgrat_start_dim, colgrat_end_dim;
-    public static boolean colgrat_trainingmode;
+    public int colgrat_position_rand;
+    public int colgrat_background_color, colgrat_target_shape;
+    public float colgrat_start_dim, colgrat_end_dim;
+    public boolean colgrat_trainingmode;
 
     public void ColoredGrating() {
-
         colgrat_trainingmode = sharedPrefs.getBoolean(r.getString(R.string.preftag_colgrat_trainingmode), r.getBoolean(R.bool.default_colgrat_trainingmode));
 
         colors = r.getIntArray(R.array.colorarray); // not best because it directly takes from the color array
 
         colgrat_green_cue = colors[14];
-        colgrat_red_cue  = colors[6];
+        colgrat_red_cue = colors[6];
         colgrat_blue_cue = colors[3];
         colgrat_target_cue = colors[6]; // not super important what color it is, just a placeholder for now
-        colgrat_fix_cue  = colors[0]; // not super important what color it is, just a placeholder for now
+        colgrat_fix_cue = colors[0]; // not super important what color it is, just a placeholder for now
         colgrat_background_color = colors[2];
 
         colgrat_red_x = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_red_x), r.getInteger(R.integer.default_colgrat_red_x));
@@ -516,23 +524,21 @@ public class PreferencesManager {
         colgrat_position_rand = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_position_rand), r.getInteger(R.integer.default_colgrat_position_rand));
 
         colgrat_start_dim = (float) sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_start_dim), r.getInteger(R.integer.default_colgrat_start_dim)) / 100;
-        colgrat_end_dim   = (float) sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_end_dim),   r.getInteger(R.integer.default_colgrat_end_dim)) / 100;
+        colgrat_end_dim = (float) sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_end_dim), r.getInteger(R.integer.default_colgrat_end_dim)) / 100;
 
-        colgrat_rt_limit      = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_rt_limit), r.getInteger(R.integer.default_colgrat_rt_limit));
-        colgrat_catchtrialfreq      = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_catchtrialfreq), r.getInteger(R.integer.default_colgrat_catchtrialfreq));
+        colgrat_rt_limit = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_rt_limit), r.getInteger(R.integer.default_colgrat_rt_limit));
+        colgrat_catchtrialfreq = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_catchtrialfreq), r.getInteger(R.integer.default_colgrat_catchtrialfreq));
 
         colgrat_fixation_time_mi = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_fixation_time_mi), r.getInteger(R.integer.default_colgrat_fixation_time_mi));
         colgrat_stimulus_time_mi = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_stimulus_time_mi), r.getInteger(R.integer.default_colgrat_stimulus_time_mi));
-        colgrat_cue_time_mi      = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_cue_time_mi), r.getInteger(R.integer.default_colgrat_cue_time_mi));
-        colgrat_dim_time_mi      = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_dim_time_mi), r.getInteger(R.integer.default_colgrat_dim_time_mi));
+        colgrat_cue_time_mi = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_cue_time_mi), r.getInteger(R.integer.default_colgrat_cue_time_mi));
+        colgrat_dim_time_mi = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_dim_time_mi), r.getInteger(R.integer.default_colgrat_dim_time_mi));
 
         colgrat_fixation_time_ma = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_fixation_time_ma), r.getInteger(R.integer.default_colgrat_fixation_time_ma));
         colgrat_stimulus_time_ma = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_stimulus_time_ma), r.getInteger(R.integer.default_colgrat_stimulus_time_ma));
-        colgrat_cue_time_ma      = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_cue_time_ma), r.getInteger(R.integer.default_colgrat_cue_time_ma));
-        colgrat_dim_time_ma      = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_dim_time_ma), r.getInteger(R.integer.default_colgrat_dim_time_ma));
+        colgrat_cue_time_ma = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_cue_time_ma), r.getInteger(R.integer.default_colgrat_cue_time_ma));
+        colgrat_dim_time_ma = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_dim_time_ma), r.getInteger(R.integer.default_colgrat_dim_time_ma));
 
         colgrat_target_shape = sharedPrefs.getInt(r.getString(R.string.preftag_colgrat_target_shape), r.getInteger(R.integer.default_colgrat_target_shape));
-
     }
 }
-

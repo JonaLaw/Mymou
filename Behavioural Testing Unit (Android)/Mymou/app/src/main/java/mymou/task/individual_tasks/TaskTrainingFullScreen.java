@@ -2,19 +2,21 @@ package mymou.task.individual_tasks;
 
 import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import androidx.annotation.NonNull;
+
 import mymou.R;
 import mymou.preferences.PreferencesManager;
 import mymou.task.backend.TaskInterface;
 import mymou.task.backend.UtilsTask;
 
 /**
- * Training task one
+ * Training task: FullScreen
  *
  * Pressing anywhere on screen will trigger device
  * Must get specified amount of presses in a row to receive reward
@@ -22,17 +24,17 @@ import mymou.task.backend.UtilsTask;
  * @param  num_steps the current number of presses made in this trial
  *
  */
-public class TaskTrainingOneFullScreen extends Task {
+public class TaskTrainingFullScreen extends Task {
 
     // Debug
-    public static String TAG = "TaskTrainingOneFullScreen";
+    public final String TAG = "TaskTrainingFullScreen";
 
-    private static int num_steps;
-    private static int rew_scalar = 1;
-    private static PreferencesManager prefManager;
+    private int num_steps;
+    private final int rew_scalar = 1;
+    private PreferencesManager prefManager;
 
     // Task objects
-    private static Button cue;
+    private Button cue;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,8 +43,8 @@ public class TaskTrainingOneFullScreen extends Task {
     }
 
     @Override
-    public void onViewCreated(final View view, Bundle savedInstanceState) {
-        logEvent(TAG+" started", callback);
+    public void onViewCreated(@NonNull final View view, Bundle savedInstanceState) {
+        logEvent(TAG + " started", callback);
 
         assignObjects();
     }
@@ -53,7 +55,7 @@ public class TaskTrainingOneFullScreen extends Task {
         prefManager.TrainingTasks();
 
         // Create one giant cue
-        cue = UtilsTask.addColorCue(0, prefManager.t_one_screen_colour,
+        cue = UtilsTask.addColorCue(0, prefManager.t_cue_colour,
                 getContext(), buttonClickListener, getView().findViewById(R.id.parent_task_empty));
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -69,10 +71,9 @@ public class TaskTrainingOneFullScreen extends Task {
         logEvent("Cue toggled on", callback);
     }
 
-    private View.OnClickListener buttonClickListener = new View.OnClickListener() {
+    private final View.OnClickListener buttonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
             // Always disable cues first
             UtilsTask.toggleCue(cue, false);
 
@@ -86,9 +87,9 @@ public class TaskTrainingOneFullScreen extends Task {
             callback.takePhotoFromTask_();
 
             // Check how many correct presses they've got and how many they need per trial
-            logEvent("Cue pressed (num steps: "+num_steps+"/"+prefManager.t_one_num_presses+")", callback);
+            logEvent("Cue pressed (num steps: " + num_steps + "/" + prefManager.t_num_cue_press_reward + ")", callback);
 
-            if (num_steps >= prefManager.t_one_num_presses) {
+            if (num_steps >= prefManager.t_num_cue_press_reward) {
                 endOfTrial(true, rew_scalar, callback, prefManager);
             } else {
                 UtilsTask.toggleCue(cue, true);
@@ -99,9 +100,8 @@ public class TaskTrainingOneFullScreen extends Task {
 
     // Implement interface and listener to enable communication up to TaskManager
     TaskInterface callback;
+
     public void setFragInterfaceListener(TaskInterface callback) {
         this.callback = callback;
     }
-
-
 }
