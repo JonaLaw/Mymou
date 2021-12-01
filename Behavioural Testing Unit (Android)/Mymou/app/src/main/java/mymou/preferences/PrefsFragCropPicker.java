@@ -1,49 +1,49 @@
 package mymou.preferences;
 
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.os.Bundle;
 
 import android.widget.SeekBar;
+
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
-import android.widget.RelativeLayout.LayoutParams;
-import mymou.MainMenu;
+
+import java.util.Objects;
+
 import mymou.R;
-import mymou.Utils.UtilsSystem;
-import org.w3c.dom.Text;
-
-import java.io.File;
-
-import static android.app.Activity.RESULT_OK;
 
 public class PrefsFragCropPicker extends Fragment implements SeekBar.OnSeekBarChangeListener {
 
-    private static String TAG = "MymouPrefsFragCropPicker";
+    private final String TAG = "MymouPrefsFragCropPicker";
 
-    private int max_width_crop, crop_width, camera_width;
-    private int max_height_crop, crop_height, camera_height;
-    private int scale;
+    private final Context mContext;
+    private final Activity mActivity;
+    private View mTextureView;
+    private int camera_width;
+    private int camera_height;
     private Point default_position;
-    private int i_top = 0, i_bottom = 1, i_left = 2, i_right = 3;
-    private int[] crop_vals = new int[4];
-    private String[] crop_keys = {"crop_top", "crop_bottom", "crop_left", "crop_right"};
-    private SeekBar[] seekbars = new SeekBar[4];
-    private SharedPreferences settings;
-    View mTextureView;
+    private String[] crop_keys;
+    private SeekBar seekBarTop, seekBarBottom, seekBarRight, seekBarLeft;
+    private SeekBar[] seekbars;
+    private int seekbarStartPosition;
+    private boolean seekbarTracking;
+    private final SharedPreferences settings;
+
+    public PrefsFragCropPicker(Context mContext, Activity mActivity) {
+        this.mContext = mContext;
+        this.mActivity = mActivity;
+        settings = PreferenceManager.getDefaultSharedPreferences(mContext);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,109 +51,141 @@ public class PrefsFragCropPicker extends Fragment implements SeekBar.OnSeekBarCh
         return inflater.inflate(R.layout.activity_prefs_frag_crop_picker, container, false);
     }
 
-
+    @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
-        mTextureView = (View) view.findViewById(R.id.crop_picker_texture);
+        mTextureView = view.findViewById(R.id.crop_picker_texture);
+
+        seekBarTop = view.findViewById(R.id.crop_top);
+        seekBarBottom = view.findViewById(R.id.crop_bottom);
+        seekBarRight = view.findViewById(R.id.crop_right);
+        seekBarLeft = view.findViewById(R.id.crop_left);
+        seekbars = new SeekBar[]{
+                seekBarTop,
+                seekBarBottom,
+                seekBarLeft,
+                seekBarRight
+        };
+        crop_keys = new String[]{
+                mContext.getString(R.string.preftag_crop_top),
+                mContext.getString(R.string.preftag_crop_bottom),
+                mContext.getString(R.string.preftag_crop_left),
+                mContext.getString(R.string.preftag_crop_right)
+        };
+        seekbarStartPosition = 0;
+        seekbarTracking = false;
+        setupCrop();
+    }
+
+    private void setupCrop() {
+        final View mCameraTextureView = mActivity.findViewById(R.id.camera_texture);
+        Objects.requireNonNull(mCameraTextureView);
+        final ViewGroup.LayoutParams cameraView = mCameraTextureView.getLayoutParams();
+
+        camera_width = cameraView.width;
+        camera_height = cameraView.height;
+        default_position = new Point((int) mCameraTextureView.getX(), (int) mCameraTextureView.getY());
+        Log.d(TAG, "setupCrop; camera_width: " + camera_width +
+                ", camera_height: " + camera_height +
+                ", default_position: " + default_position);
+
+        seekbars[0].setProgress(settings.getInt(crop_keys[0], 0));
+        seekbars[1].setProgress(settings.getInt(crop_keys[1], 100));
+        seekbars[2].setProgress(settings.getInt(crop_keys[2], 0));
+        seekbars[3].setProgress(settings.getInt(crop_keys[3], 100));
+
+        // Reset crop settings if something went wrong
+        if (!checkValidAdjustment()) {
+            Log.d(TAG, "resetting crop values to default");
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt(crop_keys[0], 0);
+            editor.putInt(crop_keys[1], 100);
+            editor.putInt(crop_keys[2], 0);
+            editor.putInt(crop_keys[3], 100);
+            editor.apply();
+
+            seekbars[0].setProgress(0);
+            seekbars[1].setProgress(100);
+            seekbars[2].setProgress(0);
+            seekbars[3].setProgress(100);
+        }
+
+        // Set seekbar values and add listener
+        for (SeekBar seekbar : seekbars) {
+            seekbar.setMax(100);
+            seekbar.setOnSeekBarChangeListener(this);
+        }
+
+        // Create the crop rectangle
         GradientDrawable drawable = new GradientDrawable();
         drawable.setShape(GradientDrawable.RECTANGLE);
-        drawable.setStroke(10, Color.RED);
+        drawable.setStroke(5, Color.RED);
         drawable.setColor(Color.TRANSPARENT);
-        mTextureView.setBackgroundDrawable(drawable);
-
-        // Load settings
-        settings = PreferenceManager.getDefaultSharedPreferences(getContext());
-        camera_width = settings.getInt("camera_width", 240);
-        camera_height = settings.getInt("camera_height", 320);
-        scale = UtilsSystem.getCropScale(getActivity(), camera_width, camera_height);
-
-        // Scale views
-        camera_width *= scale;
-        camera_height *= scale;
-        for (int i = 0; i < crop_vals.length; i++) {
-            crop_vals[i] = settings.getInt(crop_keys[i], 0) * scale;
-        }
-
-        default_position = UtilsSystem.getCropDefaultXandY(getActivity(), camera_width);
-
-        max_height_crop = camera_height;
-        max_width_crop = camera_width;
-
-        seekbars[0] = view.findViewById(R.id.crop_top);
-        seekbars[1] = view.findViewById(R.id.crop_bottom);
-        seekbars[2] = view.findViewById(R.id.crop_left);
-        seekbars[3] = view.findViewById(R.id.crop_right);
-
-        for (int i = 0; i < crop_vals.length; i++) {
-            if (i < 2) {
-                seekbars[i].setMax(max_height_crop);
-            } else {
-                seekbars[i].setMax(max_width_crop);
-            }
-            seekbars[i].setProgress(crop_vals[i]);
-        }
-
-        // Add seekbarlistener last as otherwise configuring them will trigger the listener
-        for (int i = 0; i < crop_vals.length; i++) {
-            seekbars[i].setOnSeekBarChangeListener(this);
-        }
+        mTextureView.setBackground(drawable);
 
         updateImage();
-
     }
 
     // Make sure that left crop + right crop is less than total width, and same for the other dimension
     private boolean checkValidAdjustment() {
-        boolean valid = true;
-        if (seekbars[i_top].getProgress() + seekbars[i_bottom].getProgress() > camera_height - (camera_height * 0.05)) {
-            valid = false;
-        }
-        if (seekbars[i_left].getProgress() + seekbars[i_right].getProgress() > camera_width - (camera_width * 0.05)) {
-            valid = false;
-        }
-        return valid;
+        return seekBarTop.getProgress() < seekBarBottom.getProgress() &&
+                seekBarLeft.getProgress() < seekBarRight.getProgress();
     }
 
     // Update red overlay on screen
     private void updateImage() {
-        crop_height = camera_height - (seekbars[i_top].getProgress() + seekbars[i_bottom].getProgress());
-        crop_width = camera_width - (seekbars[i_left].getProgress() + seekbars[i_right].getProgress());
+        final int crop_height = (int) ((seekBarBottom.getProgress() - seekBarTop.getProgress()) * 0.01 * camera_height);
+        final int crop_width = (int) ((seekBarRight.getProgress() - seekBarLeft.getProgress()) * 0.01 * camera_width);
         mTextureView.setLayoutParams(new RelativeLayout.LayoutParams(crop_width, crop_height));
-        LayoutParams lp = (LayoutParams) mTextureView.getLayoutParams();
-        mTextureView.setLayoutParams(lp);
-        mTextureView.setX(default_position.x + seekbars[i_left].getProgress());  // Shift to the right by left crop amount
-        mTextureView.setY(default_position.y + seekbars[i_top].getProgress());
-    }
-
-    // Write settings to shared preferences
-    private void saveSettings() {
-        SharedPreferences.Editor editor = settings.edit();
-        for (int i = 0; i < crop_vals.length; i++) {
-            editor.putInt(crop_keys[i], seekbars[i].getProgress() / scale);
-            crop_vals[i] = seekbars[i].getProgress();
-        }
-        editor.commit();
+        // Shift to the right by left crop amount
+        final int crop_x = default_position.x + (int) (seekBarLeft.getProgress() * 0.01 * camera_width);
+        final int crop_y = default_position.y + (int) (seekBarTop.getProgress() * 0.01 * camera_height);
+        mTextureView.setX(crop_x);
+        mTextureView.setY(crop_y);
     }
 
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress,
-                                  boolean fromUser) {
-        if (checkValidAdjustment()) {
-            updateImage();
-            saveSettings();
-        } else {
-            // Reset previous values if they have adjusted seekbar too much
-            for (int i = 0; i < crop_vals.length; i++) {
-                seekbars[i].setProgress(crop_vals[i]);
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (checkValidAdjustment()) updateImage();
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBarFocused) {
+        // Multi touch can enable multiple seekbars to be interacted with
+        // so this disables all the others, likely not threadsafe
+        if (seekbarTracking) return;
+        seekbarTracking = true;
+        for (SeekBar seekbar : seekbars) {
+            if (seekbar != seekBarFocused) {
+                seekbar.setEnabled(false);
             }
         }
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
+        seekbarStartPosition = seekBarFocused.getProgress();
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
+        // Re-enable all seekbars for interaction
+        seekbarTracking = false;
+        for (SeekBar seekbar : seekbars) {
+            seekbar.setEnabled(true);
+        }
+
+        if (seekbarStartPosition == seekBar.getProgress()) return;
+
+        if (checkValidAdjustment()) {
+            for (int i = 0; i < seekbars.length; i++) {
+                if (seekbars[i] == seekBar) {
+                    settings.edit().putInt(crop_keys[i], seekBar.getProgress()).apply();
+                    Log.d(TAG, "updated crop key " + i + " from " +
+                            seekbarStartPosition + " to " + seekBar.getProgress());
+                    return;
+                }
+            }
+            throw new NullPointerException("seekbar not found");
+        } else {
+            // triggers onProgressChanged()
+            seekBar.setProgress(seekbarStartPosition);
+            Log.d(TAG, "reset to previous seekbar values");
+        }
     }
 }
-

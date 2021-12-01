@@ -19,6 +19,7 @@
     <string name="chanThreeOff">8</string>
 
     <string name="task_mode">task_mode</string>
+    <string name="crop_picker_mode">crop_picker_mode</string>
 
     <string name="training_shrinking_moving_cue">Training: Shrinking Moving Cue</string>
 
@@ -87,6 +88,10 @@
     <string name="preftag_bluetooth">bluetooth</string>
     <string name="preftag_camera">camera</string>
     <string name="preftag_crop_photos">crop_photos</string>
+    <string name="preftag_crop_bottom">crop_bottom</string>
+    <string name="preftag_crop_top">crop_top</string>
+    <string name="preftag_crop_right">crop_right</string>
+    <string name="preftag_crop_left">crop_left</string>
     <string name="preftag_crop_picker">preftag_crop_picker</string>
     <string name="preftag_cam_picker">preftag_cam_picker</string>
     <string name="preftag_camera_resolution_front">camera_resolution_front</string>
@@ -379,6 +384,19 @@
     <string name="preftag_w_colfix">preftag_w_colfix</string>
     <string name="preftag_w_colchone">preftag_w_colchone</string>
     <string name="preftag_w_colchtwo">preftag_w_colchtwo</string>
+
+    <string name="cam_picker_tv_resolution">Resolution: %1$s</string>
+    <string name="cam_picker_resolution">Resolution:</string>
+    <string name="cam_picker_camera">Camera:</string>
+    <string name="cam_picker_camera_selfie">Selfie</string>
+    <string name="cam_picker_camera_rear">Rear</string>
+    <string name="cam_picker_camera_external">External</string>
+    <string name="usb_camera_insert_notice">Please Insert A USB Camera</string>
+    <string name="crop_picker_title">Select Crop Boundaries For Saved Photos</string>
+    <string name="crop_left_title">Left</string>
+    <string name="crop_right_title">Right</string>
+    <string name="crop_top_title">Top</string>
+    <string name="crop_bottom_title">Bottom</string>
 
     <string-array name="error_messages">
         <item>Bluetooth couldn\'t connect to reward system (to run task without reward system, disable the reward system

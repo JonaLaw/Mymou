@@ -136,4 +136,10 @@
         <item>8</item>
     </string-array>
 
+    <string-array name="cam_picker_camera_array">
+        <item>@string/cam_picker_camera_selfie</item>
+        <item>@string/cam_picker_camera_rear</item>
+        <item>@string/cam_picker_camera_external</item>
+    </string-array>
+
 </resources>

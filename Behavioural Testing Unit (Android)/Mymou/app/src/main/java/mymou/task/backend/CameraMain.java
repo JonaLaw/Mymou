@@ -35,10 +35,9 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import android.widget.RelativeLayout.LayoutParams;
 
 import androidx.preference.PreferenceManager;
 
@@ -59,69 +58,72 @@ import mymou.preferences.PreferencesManager;
 public class CameraMain extends Camera
         implements FragmentCompat.OnRequestPermissionsResultCallback {
 
-    public static String TAG = "MyMouCameraMain";
+    public final String TAG = "MyMouCameraMain";
     private final TaskManager taskManager;
+    private PreferencesManager preferencesManager;
 
     //  Camera variables
-    private static String mCameraId;
-    private static TextureView mTextureView;
-    private static CameraCaptureSession mCaptureSession;
-    private static CameraDevice mCameraDevice;
-    private static Size mPreviewSize;
-    private static ImageReader mImageReader;
-    private static CaptureRequest.Builder mPreviewRequestBuilder;
-    private static CaptureRequest mPreviewRequest;
-    private static Semaphore mCameraOpenCloseLock = new Semaphore(1);
+    private String mCameraId;
+    private TextureView mTextureView;
+    private CameraCaptureSession mCaptureSession;
+    private CameraDevice mCameraDevice;
+    private Size mPreviewSize;
+    private Size mResolution;
+    private ImageReader mImageReader;
+    private CaptureRequest.Builder mPreviewRequestBuilder;
+    private CaptureRequest mPreviewRequest;
+    private final Semaphore mCameraOpenCloseLock;
 
     //Background threads and variables for saving images
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
-    private static String timestamp;
-    private static boolean takingPhoto = false;
+    private String timestamp;
+    private boolean takingPhoto;
 
     // Error handling
-    public static boolean camera_error = false;
+    public boolean camera_error;
 
     // For the user to select the resolution
     public List<Size> resolutions;
 
-    public CameraMain() {
-        this.taskManager = null;
-    }
-
     public CameraMain(TaskManager taskManager) {
         this.taskManager = taskManager;
+        mCameraOpenCloseLock = new Semaphore(1);
+        takingPhoto = false;
+        camera_error = false;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView() called");
+        //super.onCreate(savedInstanceState);
         return inflater.inflate(R.layout.activity_camera_main, container, false);
     }
 
     // Initialisation
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
+        preferencesManager = new PreferencesManager(getContext());
+        mTextureView = view.findViewById(R.id.camera_texture);
 
-        mTextureView = (TextureView) view.findViewById(R.id.camera_texture);
-
-        // If not in task mode, we want to make the camera preview visible
-        if (getArguments() != null && !getArguments().getBoolean(getContext().getResources().getString(R.string.task_mode), false)) {
-            // Set image to size of photo
-            int camera_width = 240;
-            int camera_height = 320;
-            int scale = UtilsSystem.getCropScale(getActivity(), camera_width, camera_height);
-            camera_width *= scale;
-            camera_height *= scale;
-            Log.d(TAG, "width: " + camera_width + " height:" + camera_height + "Activity: " + getActivity());
-            // Centre texture view
-            Point default_position = UtilsSystem.getCropDefaultXandY(getActivity(), camera_width);
-            mTextureView.setLayoutParams(new RelativeLayout.LayoutParams(camera_width, camera_height));
-            LayoutParams lp = (LayoutParams) mTextureView.getLayoutParams();
-            mTextureView.setLayoutParams(lp);
-            mTextureView.setY(default_position.y);
-            mTextureView.setX(default_position.x);
+        // Detect if the crop picker or camera settings activity is running
+        if (mTextureView != null && getArguments() != null &&
+                !getArguments().getBoolean(Objects.requireNonNull(getContext()).
+                        getResources().getString(R.string.task_mode), false)) {
+            if (getArguments().getBoolean(Objects.requireNonNull(getContext()).
+                    getResources().getString(R.string.crop_picker_mode), false)) {
+                try {
+                    setupCropPickerCameraPreviewSize();
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    setupSettingsCameraPreviewSize();
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         startBackgroundThread();
@@ -131,7 +133,96 @@ public class CameraMain extends Camera
         } else {
             mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
+    }
 
+    private void setupCropPickerCameraPreviewSize() throws CameraAccessException {
+        // Set the camera to use to the selfie camera
+        preferencesManager.camera_to_use = CameraCharacteristics.LENS_FACING_FRONT;
+        CameraCharacteristics cameraCharacteristics = UtilsSystem.getCameraSelected(preferencesManager.camera_to_use,
+                Objects.requireNonNull(getActivity()));
+
+        mResolution = new Size(320, 240);
+        Log.d(TAG, "crop picker resolution: " + mResolution);
+
+        // Get the display size with an offset for the app's UI on the bottom
+        final Size usableDisplaySize = getDisplaySizeWithOffset(0, 320);
+
+        setCameraPreviewSize(cameraCharacteristics, usableDisplaySize);
+    }
+
+    private void setupSettingsCameraPreviewSize() throws CameraAccessException {
+        CameraCharacteristics cameraCharacteristics = UtilsSystem.getCameraSelected(preferencesManager.camera_to_use,
+                Objects.requireNonNull(getActivity()));
+
+        // Get the camera's supported resolutions and find the one that has been selected
+        final StreamConfigurationMap map = Objects.requireNonNull(cameraCharacteristics.
+                get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP));
+        mResolution = getSelectedResolution(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)));
+        Log.d(TAG, "selected resolution: " + mResolution);
+
+        // Get the display size with an offset for the app's UI on the bottom
+        final Size usableDisplaySize = getDisplaySizeWithOffset(0, 150);
+
+        setCameraPreviewSize(cameraCharacteristics, usableDisplaySize);
+    }
+
+    private void setCameraPreviewSize(CameraCharacteristics cameraCharacteristics, Size usableDisplaySize) {
+        // Get the best mPreviewSize possible
+        mPreviewSize = getmPreviewSize(usableDisplaySize, cameraCharacteristics);
+        Log.d(TAG, "mPreviewSize set: " + mPreviewSize);
+
+        // Setup the camera's preview dimensions
+        mTextureView.setLayoutParams(new RelativeLayout
+                .LayoutParams(mPreviewSize.getWidth(), mPreviewSize.getHeight()));
+
+        // Center the camera preview
+        if (usableDisplaySize.getWidth() > mPreviewSize.getWidth()) {
+            mTextureView.setX((int) ((usableDisplaySize.getWidth() - mPreviewSize.getWidth()) / 2));
+        } else {
+            mTextureView.setX(0);
+        }
+
+        if (usableDisplaySize.getHeight() > mPreviewSize.getHeight()) {
+            mTextureView.setY((int) ((usableDisplaySize.getHeight() - mPreviewSize.getHeight()) / 2));
+        } else {
+            mTextureView.setY(0);
+        }
+        Log.d(TAG, "mTextureView moved to (" + mTextureView.getX() + ", " + mTextureView.getY() + ")");
+    }
+
+    private Size getSelectedResolution(List<Size> cameraResolutions) throws CameraAccessException {
+        int default_size_index = UtilsSystem.getIndexMinResolution(cameraResolutions);
+        // Find which resolution user selected
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(Objects.requireNonNull(getContext()));
+        switch (preferencesManager.camera_to_use) {
+            case CameraCharacteristics.LENS_FACING_BACK:
+                return cameraResolutions.get(settings.getInt(getString(R.string.preftag_camera_resolution_rear), default_size_index));
+            case CameraCharacteristics.LENS_FACING_FRONT:
+                return cameraResolutions.get(settings.getInt(getString(R.string.preftag_camera_resolution_front), default_size_index));
+            default:
+                throw new CameraAccessException(preferencesManager.camera_to_use, "Couldn't find camera specified!");
+        }
+    }
+
+    private Size getDisplaySizeWithOffset(int xOffset, int yOffset) {
+        final Point usableDisplaySize = UtilsSystem.getDisplaySize(Objects.requireNonNull(getActivity()));
+        usableDisplaySize.x -= UtilsSystem.convertDpToPx(xOffset, Objects.requireNonNull(getContext()));
+        usableDisplaySize.y -= UtilsSystem.convertDpToPx(yOffset, Objects.requireNonNull(getContext()));
+        Log.d(TAG, "usable display size: " + usableDisplaySize);
+        return new Size(usableDisplaySize.x, usableDisplaySize.y);
+    }
+
+    private Size getmPreviewSize(Size usableDisplaySize, CameraCharacteristics cameraCharacteristics) {
+        // Swap the view dimensions for calculation as needed if they are rotated relative to the sensor.
+        if (UtilsSystem.isDisplayRotatedComparedToCamera(cameraCharacteristics,
+                Objects.requireNonNull(getActivity()))) {
+            Log.d(TAG, "the display is rotated compared to the camera sensor");
+            return UtilsSystem.reverseSize(UtilsSystem.getOptimalCameraPreviewSize(
+                    UtilsSystem.reverseSize(usableDisplaySize), mResolution));
+        } else {
+            return UtilsSystem.getOptimalCameraPreviewSize(usableDisplaySize, mResolution);
+        }
     }
 
     public void onCreate(Bundle savedInstanceState) {
@@ -170,7 +261,6 @@ public class CameraMain extends Camera
      * {@link CameraDevice.StateCallback} is called when {@link CameraDevice} changes its state.
      */
     private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
-
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
             // This method is called when the camera is opened.  We start camera preview here.
@@ -188,13 +278,12 @@ public class CameraMain extends Camera
 
         @Override
         public void onError(@NonNull CameraDevice cameraDevice, int error) {
-            Log.d(TAG, " onError() called: " + error);
+            Log.e(TAG, " onError() called: " + error);
             mCameraOpenCloseLock.release();
             cameraDevice.close();
             mCameraDevice = null;
             camera_error = true;
         }
-
     };
 
     // "onImageAvailable" will be called when a still image is ready to be saved.
@@ -213,11 +302,10 @@ public class CameraMain extends Camera
             takingPhoto = false;
             Log.d(TAG, "Photo saved..");
         }
-
     };
 
     // Handles events related to JPEG capture.
-    private CameraCaptureSession.CaptureCallback mCaptureCallback
+    private final CameraCaptureSession.CaptureCallback mCaptureCallback
             = new CameraCaptureSession.CaptureCallback() {
     };
 
@@ -240,64 +328,61 @@ public class CameraMain extends Camera
         stopBackgroundThread();
     }
 
+    @Override
+    public void onDestroy() {
+        closeCamera();
+        stopBackgroundThread();
+        try {
+            final View cameraView = Objects.requireNonNull(getView()).findViewById(R.id.activity_camera_main);
+            ((ViewGroup) cameraView.getParent()).removeView(cameraView);
+        } catch (NullPointerException ignored) {
+        }
+        Log.d(TAG, "Camera destroyed");
+        super.onDestroy();
+    }
 
     private void setUpCameraOutputs() {
-        Activity activity = getActivity();
+        Log.d(TAG, "setUpCameraOutputs() called");
+        Activity activity = Objects.requireNonNull(getActivity());
         CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
-        PreferencesManager preferencesManager = new PreferencesManager(getContext());
+
         try {
             // Iterate through to find correct camera
-            String[] all_camera_ids = manager.getCameraIdList();
-            boolean foundCamera = false;
-            int camera_facing = -1, i_camera = 0;
+            CameraCharacteristics characteristics;
             StreamConfigurationMap map = null;
-            for (i_camera = 0; i_camera < all_camera_ids.length; i_camera++) {
-                CameraCharacteristics characteristics = manager.getCameraCharacteristics(all_camera_ids[i_camera]);
-                map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-                camera_facing = characteristics.get(CameraCharacteristics.LENS_FACING);
-                if (camera_facing == preferencesManager.camera_to_use) {
-                    foundCamera = true;
+            for (String camera_id : manager.getCameraIdList()) {
+                characteristics = manager.getCameraCharacteristics(camera_id);
+                if (Objects.requireNonNull(characteristics.get(CameraCharacteristics.LENS_FACING)) ==
+                        preferencesManager.camera_to_use) {
+                    map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                    mCameraId = camera_id;
                     break;
                 }
             }
-            if (!foundCamera) {
-                throw new NullPointerException("Couldn't find camera specified! Should you be loading CameraExternal instead?");
+            if (map == null) {
+                throw new CameraAccessException(preferencesManager.camera_to_use,
+                        "Couldn't find camera specified! Should you be loading CameraExternal instead?");
             }
 
-            // Get string list of available camera resolutions and find smallest
+            // Get string list of available camera resolutions
             resolutions = Arrays.asList(map.getOutputSizes(ImageFormat.JPEG));
-            int default_size = UtilsSystem.getArgMinResolution(resolutions);
 
-            // Find which resolution user selected
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
-            int i_resolution = -1;
-            switch (preferencesManager.camera_to_use) {
-                case CameraCharacteristics.LENS_FACING_BACK:
-                    i_resolution = settings.getInt(getString(R.string.preftag_camera_resolution_rear), default_size);
-                    break;
-                case CameraCharacteristics.LENS_FACING_FRONT:
-                    i_resolution = settings.getInt(getString(R.string.preftag_camera_resolution_front), default_size);
-                    break;
-            }
-            Size resolution = (Size) resolutions.get(i_resolution);
-
-            if (getArguments() != null && getArguments().getBoolean("crop_picker", false) && resolution.getWidth() != 320) {
-                Toast.makeText(getContext(), "Crop picker will only work with 320x240 resolution photos", Toast.LENGTH_LONG).show();
-                getActivity().onBackPressed();
+            // Check if the camera resolution has already been found by a camera preview activity
+            if (mResolution == null) {
+                mResolution = getSelectedResolution(resolutions);
             }
 
-            mImageReader = ImageReader.newInstance(resolution.getWidth(), resolution.getHeight(),
+            mImageReader = ImageReader.newInstance(mResolution.getWidth(),
+                    mResolution.getHeight(),
                     ImageFormat.JPEG, /*maxImages*/2);
-            mImageReader.setOnImageAvailableListener(
-                    mOnImageAvailableListener, mBackgroundHandler);
-            Size[] choices = map.getOutputSizes(SurfaceTexture.class);
-            mPreviewSize = choices[0];
-            mCameraId = all_camera_ids[i_camera];
+            mImageReader.setOnImageAvailableListener(mOnImageAvailableListener,
+                    mBackgroundHandler);
 
             // Tell parent we've finished loading camera
-            callback.CameraLoaded();
-
-        } catch (CameraAccessException e) {
+            if (callback != null) {
+                callback.CameraLoaded();
+            }
+        } catch (CameraAccessException | NullPointerException e) {
             e.printStackTrace();
         }
     }
@@ -305,8 +390,9 @@ public class CameraMain extends Camera
     private void openCamera() {
         Log.d(TAG, "openCamera() called");
         setUpCameraOutputs();
-        Activity activity = getActivity();
-        CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
+        CameraManager manager = (CameraManager) Objects.requireNonNull(getActivity())
+                .getSystemService(Context.CAMERA_SERVICE);
+
         try {
             if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("Time out waiting to lock camera opening.");
@@ -339,7 +425,8 @@ public class CameraMain extends Camera
                 mImageReader = null;
             }
         } catch (InterruptedException e) {
-            Toast.makeText(getActivity().getApplicationContext(), "Error 3", Toast.LENGTH_LONG).show();
+            Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(),
+                    "Error 3", Toast.LENGTH_LONG).show();
             throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
         } finally {
             mCameraOpenCloseLock.release();
@@ -354,37 +441,44 @@ public class CameraMain extends Camera
 
     private void stopBackgroundThread() {
         try {
-            mBackgroundThread.quitSafely();
-            mBackgroundThread.join();
-            mBackgroundThread = null;
+            if (mBackgroundThread != null) {
+                mBackgroundThread.quitSafely();
+                mBackgroundThread.join();
+                mBackgroundThread = null;
+            }
             mBackgroundHandler = null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+        } catch (InterruptedException | NullPointerException e) {
             e.printStackTrace();
         }
     }
 
     private void createCameraPreviewSession() {
+        Log.d(TAG, "createCameraPreviewSession() called");
         try {
-            SurfaceTexture texture = mTextureView.getSurfaceTexture();
-            assert texture != null;
+            SurfaceTexture texture = Objects.requireNonNull(mTextureView.getSurfaceTexture());
+            Objects.requireNonNull(mPreviewSize);
+            Objects.requireNonNull(mResolution);
 
-            // We configure the size of default buffer to be the size of camera preview we want.
-            texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
+            // Configure the size of default buffer (the preview's resolution)
+
+            Log.d(TAG, "createCameraPreviewSession() mPreviewSize: " + mPreviewSize + ", mResolution: " + mResolution);
+
+            // TODO: certain camera resolutions do not allow for video previews,
+            //  a still image should be presented instead
+            texture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
+            Log.d(TAG, "camera buffer size set to mResolution: " + mResolution);
+
 
             // This is the output Surface we need to start preview.
             Surface surface = new Surface(texture);
 
             // We set up a CaptureRequest.Builder with the output Surface.
-            mPreviewRequestBuilder
-                    = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            mPreviewRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             mPreviewRequestBuilder.addTarget(surface);
 
             // Here, we create a CameraCaptureSession for camera preview.
             mCameraDevice.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface()),
                     new CameraCaptureSession.StateCallback() {
-
                         @Override
                         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
                             // The camera is already closed
@@ -399,6 +493,10 @@ public class CameraMain extends Camera
                                 mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
                                         CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
+                                // Mono Color
+                                mPreviewRequestBuilder.set(CaptureRequest.CONTROL_EFFECT_MODE,
+                                        CaptureRequest.CONTROL_EFFECT_MODE_MONO);
+
                                 // Finally, we start displaying the camera preview.
                                 mPreviewRequest = mPreviewRequestBuilder.build();
                                 mCaptureSession.setRepeatingRequest(mPreviewRequest,
@@ -411,6 +509,8 @@ public class CameraMain extends Camera
                         @Override
                         public void onConfigureFailed(
                                 @NonNull CameraCaptureSession cameraCaptureSession) {
+                            Toast.makeText(getActivity(), "Unable to display a video feed for the selected resolution.",
+                                    Toast.LENGTH_LONG).show();
                         }
                     }, null
             );
@@ -419,13 +519,8 @@ public class CameraMain extends Camera
         }
     }
 
-    @Override
-    public boolean captureStillPicture(String ts) {
-        return captureStillPictureStatic(ts);
-    }
-
     // Say cheese
-    public static boolean captureStillPictureStatic(String ts) {
+    public boolean captureStillPicture(String ts) {
         Log.d(TAG, "Capture request started at" + ts);
         // If the camera is still in process of taking previous picture it will not take another one
         // If it took multiple photos the timestamp for saving/indexing the photos would be wrong
@@ -472,21 +567,12 @@ public class CameraMain extends Camera
             Log.d(TAG, "Capture request started successfully..");
             return true;
 
-        } catch (CameraAccessException e) {
-
-            e.printStackTrace();
-
-            // Couldn't take photo, return false
-            return false;
-
-        } catch (NullPointerException e) {
-
+        } catch (CameraAccessException | NullPointerException e) {
             e.printStackTrace();
 
             // Couldn't take photo, return false
             return false;
         }
-
     }
 
     // Add callback to enable parent activity to react when camera is loaded
@@ -495,6 +581,4 @@ public class CameraMain extends Camera
     public void setFragInterfaceListener(CameraInterface callback) {
         this.callback = callback;
     }
-
-
 }

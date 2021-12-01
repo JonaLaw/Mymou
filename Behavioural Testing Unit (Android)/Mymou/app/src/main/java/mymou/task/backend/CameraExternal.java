@@ -20,18 +20,17 @@ import com.jiangdg.usbcamera.utils.FileUtils;
 import com.serenegiant.usb.CameraDialog;
 import com.serenegiant.usb.SizeCustom;
 import com.serenegiant.usb.USBMonitor;
-import com.serenegiant.usb.common.AbstractUVCCameraHandler;
 import com.serenegiant.usb.widget.CameraViewInterface;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
 
 import mymou.R;
-import mymou.preferences.PreferencesManager;
 
 import static android.os.Looper.getMainLooper;
 
@@ -44,23 +43,24 @@ import static android.os.Looper.getMainLooper;
  * jb 20200709
  */
 
-public class CameraExternal extends Camera implements CameraDialog.CameraDialogParent, CameraViewInterface.Callback {
+public class CameraExternal extends Camera implements CameraDialog.CameraDialogParent,
+        CameraViewInterface.Callback {
 
-    private static final String TAG = "CameraExternal";
+    private final String TAG = "CameraExternal";
     private final TaskManager taskManager;
-    private static UVCCameraHelper mCameraHelper;
+    private UVCCameraHelper mCameraHelper;
     private CameraViewInterface mUVCCameraView;
 
-    private static String timestamp;
+    private String timestamp;
     private int width, height;
-    private static boolean takingPhoto = false;
-    private static Context mContext;
+    private boolean takingPhoto = false;
+    private Context mContext;
     private boolean isRequest;
     private boolean isPreview;
     public List<Size> resolutions;
 
     // Error handling
-    public static boolean camera_error = false;
+    public boolean camera_error = false;
 
     public CameraExternal() {
         this.taskManager = null;
@@ -70,7 +70,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         this.taskManager = taskManager;
     }
 
-    private UVCCameraHelper.OnMyDevConnectListener listener = new UVCCameraHelper.OnMyDevConnectListener() {
+    private final UVCCameraHelper.OnMyDevConnectListener listener = new UVCCameraHelper.OnMyDevConnectListener() {
 
         @Override
         public void onAttachDev(UsbDevice device) {
@@ -102,48 +102,37 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
             } else {
                 isPreview = true;
                 showShortMsg("Connecting to USB camera");
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getView().findViewById(R.id.tvInsertUsbCam).setVisibility(View.INVISIBLE);
-                    }
-                });
+                Objects.requireNonNull(getActivity()).runOnUiThread(() ->
+                        Objects.requireNonNull(getView()).findViewById(R.id.tvInsertUsbCam)
+                                .setVisibility(View.INVISIBLE));
 
                 // Wait for UVCCamera to initialize
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        Looper.prepare();
-                        if (mCameraHelper != null && mCameraHelper.isCameraOpened()) {
-                            showShortMsg("Connected to USB camera");
-
-                            // Get resolutions and convert to approriate format
-                            List<SizeCustom> _resolutions = mCameraHelper.getSupportedPreviewSizes();
-                            resolutions = new ArrayList<>();
-                            for (SizeCustom sizeCustom : _resolutions) {
-                                if (sizeCustom != null) {
-                                    Size size = new Size(sizeCustom.width, sizeCustom.height);
-                                    resolutions.add(size);
-                                }
-                            }
-
-                            if (width != -1) {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mCameraHelper.updateResolution(width, height);
-                                    }
-                                });
-                            }
-                            callback.CameraLoaded();
-                        }
-                        Looper.loop();
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    Looper.prepare();
+                    if (mCameraHelper != null && mCameraHelper.isCameraOpened()) {
+                        showShortMsg("Connected to USB camera");
+
+                        // Get resolutions and convert to approriate format
+                        List<SizeCustom> _resolutions = mCameraHelper.getSupportedPreviewSizes();
+                        resolutions = new ArrayList<>();
+                        for (SizeCustom sizeCustom : _resolutions) {
+                            if (sizeCustom != null) {
+                                Size size = new Size(sizeCustom.width, sizeCustom.height);
+                                resolutions.add(size);
+                            }
+                        }
+
+                        if (width != -1) {
+                            getActivity().runOnUiThread(() -> mCameraHelper.updateResolution(width, height));
+                        }
+                        callback.CameraLoaded();
+                    }
+                    Looper.loop();
                 }).start();
             }
         }
@@ -171,7 +160,7 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         super.onViewCreated(view, savedInstanceState);
 
         Log.d(TAG, "initialising ");
-        mUVCCameraView = (CameraViewInterface) getView().findViewById(R.id.camera_view);
+        mUVCCameraView = getView().findViewById(R.id.camera_view);
 
         // See if they have specified a resolution, and use it if they have
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
@@ -187,7 +176,8 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         }
 
         // Move view off screen if in task mode
-        if (getArguments() != null && getArguments().getBoolean(getContext().getResources().getString(R.string.task_mode), false)) {
+        if (getArguments() != null && getArguments().getBoolean(Objects.requireNonNull(getContext())
+                .getResources().getString(R.string.task_mode), false)) {
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) cameraView.getLayoutParams();
             cameraView.setX(3000);
             cameraView.setY(3000);
@@ -199,25 +189,16 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         mCameraHelper = UVCCameraHelper.getInstance();
 
         // Activate USB listening
-        mCameraHelper.initUSBMonitor(getActivity(), mUVCCameraView, listener);
+        mCameraHelper.initUSBMonitor(Objects.requireNonNull(getActivity()), mUVCCameraView, listener);
 
         // Set up preview components
-        mCameraHelper.setOnPreviewFrameListener(new AbstractUVCCameraHandler.OnPreViewResultListener() {
-            @Override
-            public void onPreviewResult(byte[] nv21Yuv) {
-                Log.d(TAG, "onPreviewResult: " + nv21Yuv.length);
-            }
-        });
+        mCameraHelper.setOnPreviewFrameListener(nv21Yuv ->
+                Log.d(TAG, "onPreviewResult: " + nv21Yuv.length));
 
-    }
-
-    @Override
-    public boolean captureStillPicture(String ts) {
-        return captureStillPictureStatic(ts);
     }
 
     // Say cheese
-    public boolean captureStillPictureStatic(String ts) {
+    public boolean captureStillPicture(String ts) {
         Log.d(TAG, "Capture request started at" + ts);
         // If the camera is still in process of taking previous picture it will not take another one
         // If it took multiple photos the timestamp for saving/indexing the photos would be wrong
@@ -238,18 +219,11 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
         timestamp = ts;
         CameraSavePhoto cameraSavePhoto = new CameraSavePhoto(taskManager, timestamp, mContext);
 
-        mCameraHelper.capturePicture(cameraSavePhoto.photoFile.getPath(), new AbstractUVCCameraHandler.OnCaptureListener() {
-            @Override
-            public void onCaptureResult(String path) {
-                new Handler(getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        takingPhoto = false;
-                        Log.d(TAG, "Photo saved..");
-                    }
-                });
-            }
-        });
+        mCameraHelper.capturePicture(cameraSavePhoto.photoFile.getPath(), path ->
+                new Handler(getMainLooper()).post(() -> {
+                    takingPhoto = false;
+                    Log.d(TAG, "Photo saved..");
+                }));
 
         return true;
     }
@@ -274,15 +248,19 @@ public class CameraExternal extends Camera implements CameraDialog.CameraDialogP
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        try {
+            final View cameraView = Objects.requireNonNull(getView()).findViewById(R.id.activity_usbcamera);
+            ((ViewGroup) cameraView.getParent()).removeView(cameraView);
+        } catch (NullPointerException ignored) {}
         FileUtils.releaseFile();
         // step.4 release uvc camera resources
         if (mCameraHelper != null) {
             mCameraHelper.release();
         }
+        super.onDestroy();
     }
 
-    private static void showShortMsg(String msg) {
+    private void showShortMsg(String msg) {
         Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
     }
 

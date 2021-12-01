@@ -29,10 +29,10 @@ public class CameraSavePhoto implements Runnable {
     private final String TAG = "CameraSavePhoto";
     private final TaskManager taskManager;
     private final Image mImage;
-    private String timestamp;
+    private final String timestamp;
     private final String day;
-    private Context mContext;
-    private FolderManager folderManager;
+    private final Context mContext;
+    private final FolderManager folderManager;
     public File photoFile;
 
     /**
@@ -88,17 +88,20 @@ public class CameraSavePhoto implements Runnable {
         // Crop bitmap as you want:
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mContext);
         Bitmap bitmapCropped;
-        if (settings.getBoolean("crop_photos", false)) {
+        if (settings.getBoolean(mContext.getString(R.string.preftag_crop_photos), false)) {
+            // TODO photos are rotated based on the camera sensors orientation relative to the screen's
             // For some reason photo is rotated 90 degrees so adjust crop settings accordingly
-            int cropBottom = settings.getInt("crop_bottom", 0);
-            int cropTop = settings.getInt("crop_top", 0);
-            int cropRight = settings.getInt("crop_right", 0);
-            int cropLeft = settings.getInt("crop_left", 0);
 
-            int startX = cropRight;
-            int startY = cropBottom;
-            int endX = bitmap.getHeight() - cropLeft - cropRight;
-            int endY = bitmap.getWidth() - cropTop - cropBottom;
+            // crop settings are done with percentages
+            final int cropTop = settings.getInt(mContext.getString(R.string.preftag_crop_top), 0);
+            final int cropBottom = settings.getInt(mContext.getString(R.string.preftag_crop_bottom), 100);
+            final int cropLeft = settings.getInt(mContext.getString(R.string.preftag_crop_left), 0);
+            final int cropRight = settings.getInt(mContext.getString(R.string.preftag_crop_right), 100);
+
+            final int startX = (int) (cropRight * 0.01 * bitmap.getHeight());
+            final int startY = (int) (cropBottom * 0.01 * bitmap.getWidth());
+            final int endX = (int) ((cropRight - cropLeft) * 0.01 * bitmap.getHeight());
+            final int endY = (int) ((cropBottom - cropTop) * 0.01 * bitmap.getWidth());
 
             Log.d(TAG, "Cropping photo: " + cropLeft + " " + cropRight + " " + cropTop + " " + cropBottom);
             Log.d(TAG, "Cropping photo: Width=" + bitmap.getWidth() + ", left=" + cropLeft + ", right=" + cropRight);

@@ -2,7 +2,6 @@ package mymou.preferences;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -25,31 +24,20 @@ public class PrefsActCropPicker extends FragmentActivity {
         setContentView(R.layout.activity_crop_picker);
         Log.d(TAG, "Loading activity");
 
-        // Only configured for selfie camera
-        PreferencesManager preferencesManager = new PreferencesManager(this);
-        if (preferencesManager.camera_to_use != getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_FRONT)) {
-            Toast.makeText(getApplicationContext(), "You can only crop selfie photos using the settings UI. Select the selfie camera if you wish to use this function", Toast.LENGTH_LONG).show();
-            super.onBackPressed();
-            return;
-        }
-
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
         // Load camera fragment
         Bundle bundle = new Bundle();
-        bundle.putBoolean("crop_picker", true);
-        CameraMain fragment = new CameraMain();
-        fragment.setFragInterfaceListener(() -> {
-            Log.d(TAG, "Camera loaded");  // do nothing
-        });
-        fragment.setArguments(bundle);
+        bundle.putBoolean(getResources().getString(R.string.crop_picker_mode), true);
+        CameraMain cameraFragment = new CameraMain(null);
+        cameraFragment.setArguments(bundle);
 
         // Load crop picker fragment
-        PrefsFragCropPicker fragment2 = new PrefsFragCropPicker();
+        PrefsFragCropPicker cropPickerFragment = new PrefsFragCropPicker(this, this);
 
         // Commit fragments
-        fragmentTransaction.add(R.id.layout_croppicker, fragment, "camera_fragment");
-        fragmentTransaction.add(R.id.layout_croppicker, fragment2, "crop_fragment");
+        fragmentTransaction.add(R.id.layout_croppicker, cameraFragment, "camera_fragment");
+        fragmentTransaction.add(R.id.layout_croppicker, cropPickerFragment, "crop_fragment");
         fragmentTransaction.commit();
     }
 }

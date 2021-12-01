@@ -1,105 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/layout_camerapicker"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_camerapicker"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="10dp"
-        tools:context="mymou.preferences.PrefsActSystem">
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-    <TextView
-            android:id="@+id/tv_camera_to_use"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:text="Currently selected: "
-            android:textColor="@color/white"
-            android:textSize="30sp"
-            app:layout_constraintBottom_toTopOf="@+id/buttSelfieCamera"
-            app:layout_constraintStart_toStartOf="@+id/buttSelfieCamera" />
-
-    <TextView
+        <TextView
             android:id="@+id/tv_resolution_to_use"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:text="Loading resolutions.."
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center|end"
+            android:text="@string/cam_picker_resolution"
+            android:textAlignment="textEnd"
             android:textColor="@color/white"
             android:textSize="30sp"
-            app:layout_constraintBottom_toTopOf="@+id/tv_camera_to_use"
-            app:layout_constraintStart_toStartOf="@+id/buttSelfieCamera"
-            />
+            app:layout_constraintEnd_toStartOf="@+id/spinner_resolutions"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
 
-    <Button
-            android:id="@+id/buttPickResolution"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/menu_button"
-            android:paddingHorizontal="30dp"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp"
-            android:text="Select Resolution"
-            android:textColor="@color/white"
-            android:textSize="25sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_resolution_to_use"
-            app:layout_constraintEnd_toEndOf="@+id/buttExternalCam"
-             />
-
-    <Button
-            android:id="@+id/buttSelfieCamera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/menu_button"
-            android:paddingHorizontal="30dp"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp"
-            android:text="Selfie Camera"
-            android:textColor="@color/white"
-            android:textSize="25sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/buttRearCam"
-            app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-            android:id="@+id/buttRearCam"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/menu_button"
-            android:paddingHorizontal="30dp"
-            android:paddingVertical="10dp"
-            android:text="Rear Camera"
-            android:textColor="@color/white"
-            android:textSize="25sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/buttExternalCam"
-            app:layout_constraintStart_toEndOf="@+id/buttSelfieCamera" />
-
-    <Button
-            android:id="@+id/buttExternalCam"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/menu_button"
-            android:paddingHorizontal="30dp"
-            android:paddingVertical="10dp"
-            android:text="External Camera"
-            android:textColor="@color/white"
-            android:textSize="25sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <Spinner
+            android:id="@+id/spinner_resolutions"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/buttRearCam" />
+            app:layout_constraintWidth_percent="0.5" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/tv_camera_to_use"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center|end"
+            android:text="@string/cam_picker_camera"
+            android:textAlignment="textEnd"
+            android:textColor="@color/white"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toStartOf="@+id/spinner_cameras"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
+
+        <Spinner
+            android:id="@+id/spinner_cameras"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

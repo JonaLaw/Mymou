@@ -1,28 +1,26 @@
 package mymou.preferences;
 
-
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
 import android.util.Size;
+
 import java.util.List;
 
 import mymou.Utils.UtilsSystem;
 import mymou.task.backend.CameraExternal;
 import mymou.R;
-import mymou.task.backend.CameraInterface;
 import mymou.task.backend.CameraMain;
 
 /**
@@ -32,17 +30,14 @@ import mymou.task.backend.CameraMain;
 
 public class PrefsActCamPicker extends FragmentActivity {
 
-    private static String TAG = "PrefsActCamPicker";
+    private final String TAG = "PrefsActCamPicker";
 
-    private static String[] messages = {
-            "Currently selected: Selfie camera",
-            "Currently selected: Rear camera",
-            "Currently selected: External camera",};
-    PreferencesManager preferencesManager;
-    private AlertDialog mDialog;
+    private PreferencesManager preferencesManager;
     private CameraMain cameraMain;
     private CameraExternal cameraExternal;
     private List<Size> resolutions;
+    private int indexResolutionSelected;
+    private String[] prefTags;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,171 +45,173 @@ public class PrefsActCamPicker extends FragmentActivity {
         setContentView(R.layout.activity_camera_picker);
 
         preferencesManager = new PreferencesManager(this);
+        Log.d(TAG, "Camera to use: " + preferencesManager.camera_to_use);
 
-        findViewById(R.id.buttExternalCam).setOnClickListener(buttonClickListener);
-        findViewById(R.id.buttRearCam).setOnClickListener(buttonClickListener);
-        findViewById(R.id.buttSelfieCamera).setOnClickListener(buttonClickListener);
-        findViewById(R.id.buttPickResolution).setOnClickListener(buttonClickListener);
+        prefTags = new String[]{
+                getString(R.string.preftag_camera_resolution_front),
+                getString(R.string.preftag_camera_resolution_rear),
+                getString(R.string.preftag_camera_resolution_ext)
+        };
 
-        preferencesManager = new PreferencesManager(this);
-        TextView tv = findViewById(R.id.tv_camera_to_use);
-        tv.setText(messages[preferencesManager.camera_to_use]);
-        Log.d(TAG, "Camera to use"+preferencesManager.camera_to_use+" "+messages[preferencesManager.camera_to_use]);
+        createCameraSpinner();
+        loadCamera();
+    }
 
-        // Actually load camera fragment
+    private void createCameraSpinner() {
+        final Spinner spinnerCameras = findViewById(R.id.spinner_cameras);
+
+        final ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.cam_picker_camera_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerCameras.setAdapter(adapter);
+        spinnerCameras.setSelection(preferencesManager.camera_to_use);
+        spinnerCameras.setOnItemSelectedListener(cameraSpinnerListener);
+    }
+
+    private void loadCamera() {
+        // Destroy existing cameras
+        if (cameraMain != null) {
+            cameraMain.onDestroy();
+            cameraMain = null;
+        } else if (cameraExternal != null) {
+            cameraExternal.onDestroy();
+            cameraExternal = null;
+        }
+
+        // Load camera fragment
         Bundle bundle = new Bundle();
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (preferencesManager.camera_to_use != getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
-            cameraMain = new CameraMain();
+            cameraMain = new CameraMain(null);
             cameraMain.setArguments(bundle);
-            cameraMain.setFragInterfaceListener(new CameraInterface() {
-                @Override
-                public void CameraLoaded() {
-                    updateResolution();
-                }
-            });
+            cameraMain.setFragInterfaceListener(this::loadSpinnerResolutionOptions);
             fragmentTransaction.add(R.id.layout_camerapicker, cameraMain, "camera_fragment");
         } else {
             cameraExternal = new CameraExternal();
             cameraExternal.setArguments(bundle);
-            cameraExternal.setFragInterfaceListener(new CameraInterface() {
-                                                        @Override
-                                                        public void CameraLoaded() {
-                                                            updateResolution();
-                                                        }
-                                                    });
+            cameraExternal.setFragInterfaceListener(this::loadSpinnerResolutionOptions);
             fragmentTransaction.add(R.id.layout_camerapicker, cameraExternal, "camera_fragment");
         }
         fragmentTransaction.commit();
+    }
 
-        }
-
-
-    private void updateResolution() {
+    private void loadSpinnerResolutionOptions() {
         // Figure out which resolutions to load
-        if (cameraMain != null && cameraMain.resolutions != null) {
-            resolutions = cameraMain.resolutions;
-        }else if (cameraExternal != null && cameraExternal.resolutions != null) {
-            resolutions = (List<Size>) cameraExternal.resolutions;
-        } else {
-            Toast.makeText(getApplicationContext(), "Waiting for camera to load resolutions..", Toast.LENGTH_SHORT).show();
-            return;
+        switch (preferencesManager.camera_to_use) {
+            case CameraCharacteristics.LENS_FACING_BACK:
+            case CameraCharacteristics.LENS_FACING_FRONT:
+                resolutions = cameraMain.resolutions;
+                break;
+            case CameraCharacteristics.LENS_FACING_EXTERNAL:
+                resolutions = cameraExternal.resolutions;
+                break;
+            default:
+                Toast.makeText(getApplicationContext(),
+                        "Error: Camera Was Not Loaded Properly", Toast.LENGTH_LONG).show();
+                return;
         }
 
-        // Find the saved resolution
-        int default_size= UtilsSystem.getArgMinResolution(resolutions);
-        int i_resolution = -1;
+        // Convert resolutions list to array
+        final CharSequence[] resolutionsChar = new CharSequence[resolutions.size()];
+        Size size;
+        for (int i = 0; i < resolutions.size(); i++) {
+            size = resolutions.get(i);
+            resolutionsChar[i] = size.getWidth() + "×" + size.getHeight();
+        }
+
+        // Create a new resolution spinner
+        final Spinner spinnerResolutions = findViewById(R.id.spinner_resolutions);
+        final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, resolutionsChar);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerResolutions.setAdapter(adapter);
+
+        // Get the saved resolution
+        int default_size = UtilsSystem.getIndexMinResolution(resolutions);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         switch (preferencesManager.camera_to_use) {
             case CameraCharacteristics.LENS_FACING_BACK:
-                i_resolution = settings.getInt(getString(R.string.preftag_camera_resolution_rear), default_size);
+                indexResolutionSelected = settings.getInt(getString(R.string.preftag_camera_resolution_rear), default_size);
                 break;
             case CameraCharacteristics.LENS_FACING_FRONT:
-                i_resolution = settings.getInt(getString(R.string.preftag_camera_resolution_front), default_size);
+                indexResolutionSelected = settings.getInt(getString(R.string.preftag_camera_resolution_front), default_size);
                 break;
             case CameraCharacteristics.LENS_FACING_EXTERNAL:
-                i_resolution = settings.getInt(getString(R.string.preftag_camera_resolution_ext), default_size);
+                indexResolutionSelected = settings.getInt(getString(R.string.preftag_camera_resolution_ext), default_size);
                 break;
+            default:
+                indexResolutionSelected = -1;
         }
+        assert indexResolutionSelected != -1;
 
-        // Set textview informing user what resolution currently selected
-        final int i_res_final = i_resolution;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TextView tv = findViewById(R.id.tv_resolution_to_use);
-                tv.setText("Resolution: "+resolutions.get(i_res_final));
-            }
-        });
-
+        // Set the resolution spinner to the saved resolution
+        spinnerResolutions.setSelection(indexResolutionSelected);
+        spinnerResolutions.setOnItemSelectedListener(resolutionSpinnerListener);
     }
 
-    private void showResolutionListDialog() {
-        // Make sure camera has loaded
-        if (resolutions == null) {
-            Toast.makeText(getApplicationContext(), "Camera still loading", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Convert list to array to use with AlertDialog
-        CharSequence[] resolutionsChar = new CharSequence[resolutions.size()];
-        for (int i = 0; i < resolutions.size(); i++) {
-            Size size = resolutions.get(i);
-            resolutionsChar[i] = size.getWidth() + "x" + size.getHeight();
-        }
-
-        // Build alert dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(PrefsActCamPicker.this, R.style.Theme_AppCompat_Dialog);
-        builder.setTitle("Choose resolution");
-        builder.setItems(resolutionsChar, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                // Update UI
-                TextView tv = findViewById(R.id.tv_resolution_to_use);
-                tv.setText("Resolution: "+resolutions.get(item));
-
-                // Store the value
-                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                String[] prefTags = { getString(R.string.preftag_camera_resolution_front),
-                        getString(R.string.preftag_camera_resolution_rear),
-                        getString(R.string.preftag_camera_resolution_ext)};
-                String prefTag = prefTags[preferencesManager.camera_to_use];
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putInt(prefTag, item);
-
-                // For external camera we have to store the width and height separately so it can be set on startup
-                if (preferencesManager.camera_to_use == getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
-                    Size size = resolutions.get(item);
-                    editor.putInt(getApplicationContext().getResources().getString(R.string.preftag_camera_resolution_ext_width), size.getWidth());
-                    editor.putInt(getApplicationContext().getResources().getString(R.string.preftag_camera_resolution_ext_height), size.getHeight());
+    private final AdapterView.OnItemSelectedListener cameraSpinnerListener =
+            new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                    Log.d(TAG, "cameraSpinnerListener; onItemSelected: pos: " + pos);
+                    String cameraName = (String) parent.getItemAtPosition(pos);
+                    if (cameraName.equals(getString(R.string.cam_picker_camera_selfie))) {
+                        switch_camera(getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_FRONT));
+                    } else if (cameraName.equals(getString(R.string.cam_picker_camera_rear))) {
+                        switch_camera(getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_REAR));
+                    } else if (cameraName.equals(getString(R.string.cam_picker_camera_external))) {
+                        switch_camera(getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL));
+                    }
                 }
-                editor.apply();
-            }
-        });
-        AlertDialog alert = builder.create();
-        alert.show();
 
-    }
-
-    private View.OnClickListener buttonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Log.d(TAG, "onClick: " + view.getId());
-            switch (view.getId()) {
-                case R.id.buttRearCam:
-                    switch_camera(getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_REAR));
-                    break;
-                case R.id.buttSelfieCamera:
-                    switch_camera(getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_FRONT));
-                    break;
-                case R.id.buttExternalCam:
-                    switch_camera(getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL));
-                    break;
-                case R.id.buttPickResolution:
-                    showResolutionListDialog();
-                    break;
-            }
-        }
-    };
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            };
 
     private void switch_camera(int id) {
         // Check they have actually changed the choice
-        if (id != preferencesManager.camera_to_use) {
-            // Save new choice
-            Log.d(TAG, "Camera saved: " + preferencesManager.camera_to_use);
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putInt(getString(R.string.preftag_camera_to_use), id);
-            editor.apply();
+        if (id == preferencesManager.camera_to_use) return;
 
-            restartPrefsActCamPicker();
-        }
+        // Save new choice
+        Log.d(TAG, "Saving Camera: " + preferencesManager.camera_to_use);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(getString(R.string.preftag_camera_to_use), id);
+        editor.apply();
+
+        preferencesManager.camera_to_use = id;
+        loadCamera();
     }
 
-    private void restartPrefsActCamPicker() {
-        super.onBackPressed();
-        Intent intent = new Intent(this, PrefsActCamPicker.class);
-        startActivity(intent);
-    }
+    private final AdapterView.OnItemSelectedListener resolutionSpinnerListener =
+            new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                    Log.d(TAG, "resolutionSpinnerListener; pos: " + pos +
+                            ", current: " + indexResolutionSelected);
 
+                    if (pos == indexResolutionSelected) return;
+
+                    // Store the value
+                    final SharedPreferences settings = PreferenceManager
+                            .getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putInt(prefTags[preferencesManager.camera_to_use], pos);
+
+                    // For external camera we have to store the width and height separately so it can be set on startup
+                    if (preferencesManager.camera_to_use == getApplicationContext().getResources().getInteger(R.integer.TAG_CAMERA_EXTERNAL)) {
+                        final Size cameraResolution = resolutions.get(pos);
+                        editor.putInt(getApplicationContext().getResources().getString(R.string.preftag_camera_resolution_ext_width), cameraResolution.getWidth());
+                        editor.putInt(getApplicationContext().getResources().getString(R.string.preftag_camera_resolution_ext_height), cameraResolution.getHeight());
+                    }
+
+                    // Commit now as loadCamera() will create a new Camera which pulls the setting we're saving
+                    editor.commit();
+                    loadCamera();
+                }
+
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            };
 }
-

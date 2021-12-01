@@ -5,12 +5,12 @@
     <PreferenceCategory
         android:layout="@layout/preferences_title"
         app:key="system_settings"
-        app:title="Camera settings">
+        app:title="Camera Settings">
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_camera"
             app:key="@string/preftag_camera"
-            app:title="Enable camera" />
+            app:title="Enable Camera" />
 
         <Preference
             app:fragment="mymou.preferences.PrefsActCamPicker"
@@ -20,7 +20,7 @@
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_facerecog"
             app:key="@string/preftag_facerecog"
-            app:title="Enable facial recognition" />
+            app:title="Enable Facial Recognition" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_savefacerecogarrays"
@@ -32,7 +32,7 @@
         <SwitchPreferenceCompat
             app:defaultValue="false"
             app:key="@string/preftag_crop_photos"
-            app:title="Crop camera photos" />
+            app:title="Crop Camera Photos" />
 
         <Preference
             app:fragment="mymou.preferences.PrefsActCropPicker"
