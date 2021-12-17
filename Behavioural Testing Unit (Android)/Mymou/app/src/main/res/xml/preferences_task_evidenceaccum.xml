@@ -4,35 +4,35 @@
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="Settings for Evidence Accumulation task">
+        app:key="@string/preftag_task_settings"
+        app:title="Evidence Accumulation Task Settings">
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_ea_num_steps"
             app:key="@string/preftag_ea_num_steps"
-            app:title="Number of stimuli to present" />
+            app:title="Number of Stimuli to Present" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_ea_distance"
             app:key="@string/preftag_ea_distance"
-            app:summary="Smaller distances will be harder to discern"
-            app:title="Distance between the options" />
+            app:summary="Smaller distances will be harder to discern."
+            app:title="Distance between the Options" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_ea_variance"
             app:key="@string/preftag_ea_variance"
-            app:summary="Higher variances will be harder to discern"
-            app:title="Variance of each option (std)" />
+            app:summary="Higher variances will be harder to discern."
+            app:title="Variance of Each Option (std)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_ea_step_duration_on"
             app:key="@string/preftag_ea_step_duration_on"
-            app:title="On duration (ms)" />
+            app:title="On Duration (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_ea_step_duration_off"
             app:key="@string/preftag_ea_step_duration_off"
-            app:title="Off duration between stimuli (ms)" />
+            app:title="Off Duration between Stimuli (ms)" />
 
     </PreferenceCategory>
 

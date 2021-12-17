@@ -4,79 +4,85 @@
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="Task settings">
+        app:key="@string/preftag_task_settings"
+        app:title="Discrete Maze Task Settings">
 
         <ListPreference
             android:defaultValue="@integer/default_dm_map"
             android:entries="@array/dm_mapnames"
             android:entryValues="@array/dm_mapvalues"
             app:key="@string/preftag_dm_map"
-            app:title="Select map" />
+            app:title="Select Map" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_dm_min_start_distance"
             app:key="@string/preftag_dm_min_start_distance"
-            app:title="Minimum starting distance from target (inclusive)" />
+            app:summary="Is inclusive."
+            app:title="Minimum Starting Distance from Target" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_dm_max_start_distance"
             app:key="@string/preftag_dm_max_start_distance"
-            app:title="Maximum starting distance from target (inclusive)" />
+            app:summary="Is inclusive."
+            app:title="Maximum Starting Distance from Target" />
 
         <SwitchPreferenceCompat
-            android:summary="If selected, subjects will be given an error timeout if they make the specified number of extra steps without reaching the target location"
             app:key="@string/preftag_dm_extra_step_timout"
-            app:title="Timeout after certain number of extra steps" />
+            app:summary="If selected, subjects will be given an error timeout if they make the specified number of extra steps without reaching the target location."
+            app:title="Extra Steps Timeout" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_dm_num_extra_steps"
-            android:summary="Only applicable if 'Timeout after certain number of extra steps' is enabled"
+            android:summary="Only applicable if the option is enabled."
             app:key="@string/preftag_dm_num_extra_steps"
-            app:title="Number of extra steps allowed before timeout" />
+            app:title="Number of Extra Steps before Timeout" />
 
         <mymou.preferences.SeekBarPreferenceCustom
-            android:summary="Trial will end when they are this distance away from the target"
+            android:summary="The trial will end when they are this distance away from the target."
             app:key="@string/preftag_dm_dist_to_target"
-            app:title="Distance to target needed" />
+            app:title="Distance to Target Needed" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_dm_choice_delay"
             app:key="@string/preftag_dm_choice_delay"
-            app:title="Time (ms) they have to wait before they can make their choice" />
+            app:summary="The time they have to wait before they can make their choice."
+            app:title="Choice Delay (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_dm_animation_duration"
             app:key="@string/preftag_dm_animation_duration"
-            app:title="Duration (ms) of any animations in the task" />
+            app:summary="The duration of any animations in the task."
+            app:title="Animation Duration (ms)" />
 
         <SwitchPreferenceCompat
-            android:summary="If selected, subjects will be given same trial until they get it correct"
             app:key="@string/preftag_dm_repeat_error"
-            app:title="Repeat trial on error" />
+            app:summary="If selected, subjects will be given same trial until they get it correct."
+            app:title="Repeat Trial on Error" />
 
         <SwitchPreferenceCompat
-            android:summary="Does the target location move around the map? If disabled, target location will change each trial"
             app:key="@string/preftag_dm_static_reward"
-            app:title="Static target location" />
+            app:summary="The target location will not change on each trial unless this is disabled."
+            app:title="Static Target Location" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_dm_target_switch_freq"
             android:max="500"
             app:key="@string/preftag_dm_target_switch_freq"
             app:min="1"
-            app:summary="The number of trials that will occur in between each time the target location is moved around the map"
-            app:title="Target switch frequency (if static reward enabled)" />
+            app:summary="Applicable only if static reward is enabled.
+            \nThe number of trials that will occur in between each time the target location is moved around the map."
+            app:title="Target Switch Frequency" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_dm_booster_amount"
             app:key="@string/preftag_dm_booster_amount"
-            app:title="Duration (ms) of small reward given when they move towards the target location" />
+            app:summary="The duration of small rewards given when movement is made towards the target location."
+            app:title="Small Reward Duration (ms)" />
 
         <SwitchPreferenceCompat
-            android:summary="Display progress bar indicating on each step whether it was away or towards the target location"
             app:key="@string/preftag_dm_use_progress_bar"
-            app:title="Display progress bar" />
+            app:summary="Display the progress bar indicating on each step whether it was away or towards the target location."
+            app:title="Display Progress Bar" />
 
     </PreferenceCategory>
 

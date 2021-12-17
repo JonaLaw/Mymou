@@ -82,6 +82,7 @@
     <string name="default_objdis_corr_colours">0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,</string>
     <string name="default_objdis_incorr_colours">0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,</string>
 
+    <string name="preftag_task_settings">task_settings</string>
     <string name="preftag_debug">debug</string>
     <string name="preftag_bluetooth">bluetooth</string>
     <string name="preftag_camera">camera</string>
@@ -193,6 +194,7 @@
     <string name="preftag_camera_to_use">preftag_camera_to_use</string>
     <string name="preftag_num_rew_chans">preftag_num_rew_chans</string>
     <string name="preftag_default_rew_chan">preftag_default_rew_chan</string>
+    <string name="preftag_soundpicker">preftag_soundpicker</string>
 
     <string name="preftag_od_corr_cols">colours_obj_disc_corr_cues</string>
     <string name="preftag_od_incorr_cols">colours_obj_disc_incorr_cues</string>

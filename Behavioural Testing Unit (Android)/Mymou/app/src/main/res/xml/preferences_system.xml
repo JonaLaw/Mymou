@@ -5,44 +5,44 @@
     <PreferenceCategory
         android:layout="@layout/preferences_title"
         app:key="system_settings"
-        app:title="System settings">
+        app:title="System Settings">
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_debug"
             app:key="@string/preftag_debug"
-            app:summary="App will be more user friendly. App will not be locked during tasks, and the back button can also be used."
-            app:title="Testing mode" />
+            app:summary="The app will be more user friendly as it will not be locked during tasks, and the back button can also be used."
+            app:title="Testing Mode" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_bluetooth"
             app:key="@string/preftag_bluetooth"
-            app:title="Enable bluetooth/reward system" />
+            app:title="Enable Bluetooth/Reward System" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_camera"
             app:key="@string/preftag_camera"
-            app:title="Enable camera" />
+            app:title="Enable Camera" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_facerecog"
             app:key="@string/preftag_facerecog"
-            app:title="Enable facial recognition" />
+            app:title="Enable Facial Recognition" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_restartoncrash"
             app:key="@string/preftag_restartoncrash"
-            app:title="Automatically restart task on crash" />
+            app:title="Automatically Restart Task on Crash" />
 
         <SwitchPreferenceCompat
-            android:summary="Device will beep on successful trials to aid secondary reinforcement"
             app:defaultValue="@bool/default_sound"
             app:key="@string/preftag_sound"
-            app:title="Enable sounds" />
+            app:summary="The device will beep on successful trials to aid secondary reinforcement."
+            app:title="Enable Sounds" />
 
         <Preference
             app:fragment="mymou.preferences.PrefsFragSoundPicker"
-            app:key="soundpicker_prefsfrag"
-            app:title="Choose sound for secondary reinforcer" />
+            app:key="@string/preftag_soundpicker"
+            app:title="Secondary Reinforcer Sound" />
 
     </PreferenceCategory>
 

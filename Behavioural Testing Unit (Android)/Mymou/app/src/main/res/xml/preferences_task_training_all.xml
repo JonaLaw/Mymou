@@ -4,8 +4,8 @@
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="Training Tasks Common">
+        app:key="@string/preftag_task_settings"
+        app:title="Training Tasks Common Settings">
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_t_all_skip_go_cue"
@@ -23,16 +23,16 @@
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_num_cue_press_reward"
             android:max="@integer/max_t_num_cue_press_reward"
-            app:min="1"
             app:key="@string/preftag_t_num_cue_press_reward"
+            app:min="1"
             app:summary="The number of cue presses needed before a reward is given."
             app:title="Presses Required For Reward" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_num_cue_press_move"
             android:max="@integer/max_t_num_cue_press_move"
-            app:min="1"
             app:key="@string/preftag_t_num_cue_press_move"
+            app:min="1"
             app:summary="The number of cue presses until the cue moves."
             app:title="Presses Until Cue Move" />
 

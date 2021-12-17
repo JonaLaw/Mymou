@@ -4,62 +4,62 @@
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="Task settings">
+        app:key="@string/preftag_task_settings"
+        app:title="Task Settings">
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_minrew"
             android:max="20000"
             app:key="@string/preftag_t_sc_minrew"
             app:min="200"
-            app:summary="Tap to enter value"
-            app:title="Minimum reward duration (ms)" />
+            app:summary=""
+            app:title="Minimum Reward Duration (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_maxrew"
             android:max="20000"
             app:key="@string/preftag_t_sc_maxrew"
             app:min="1"
-            app:summary="Tap to enter value"
-            app:title="Maximum reward duration (ms)" />
+            app:summary=""
+            app:title="Maximum Reward Duration (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_miniti"
             android:max="1000"
             app:key="@string/preftag_t_sc_miniti"
             app:min="1"
-            app:summary="A random ITI between the minimum and maximum inter-reward interval will be chosen each time. Tap to type number."
-            app:title="Minimum inter-reward interval (ms)" />
+            app:summary="A random ITI between the minimum and maximum inter-reward interval will be chosen each time."
+            app:title="Minimum Inter-Reward Interval (s)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_maxiti"
             android:max="1000"
             app:key="@string/preftag_t_sc_maxiti"
             app:min="1"
-            app:summary="A random ITI between the minimum and maximum inter-reward interval will be chosen each time. Tap to type number."
-            app:title="Maximum inter-reward interval (s)" />
+            app:summary="A random ITI between the minimum and maximum inter-reward interval will be chosen each time."
+            app:title="Maximum Inter-Reward Interval (s)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_npn"
             android:max="20"
             app:key="@string/preftag_t_sc_npn"
             app:min="1"
-            app:summary="Subject will need to press cue this number of times to be rewarded. Tap to enter value"
-            app:title="Number presses needed for reward" />
+            app:summary="The subject will need to press the cue this number of times to be rewarded."
+            app:title="Presses Needed for Reward" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_npniti"
             android:max="20000"
             app:key="@string/preftag_t_sc_npniti"
             app:min="100"
-            app:summary="If Number Presses Needed For Reward > 1, the cue will switch off for this duration in between each press. Tap to enter value"
-            app:title="Inter-press interval (ms)" />
+            app:summary="If the number of presses needed for a reward is greater than 1, the cue will switch off for this duration in between each press."
+            app:title="Inter-Press Interval (ms)" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_t_sc_stopsess"
             app:key="@string/preftag_t_sc_stopsess"
-            app:summary="If enabled, session will be halted after the specified length"
-            app:title="End session after a certain duration" />
+            app:summary="If enabled, the session will be halted after the specified length."
+            app:title="End Session After Duration" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_sess_length"
@@ -67,85 +67,85 @@
             app:isPreferenceVisible="false"
             app:key="@string/preftag_t_sc_sess_length"
             app:min="1"
-            app:summary="After this duration task will shut off and no longer be accessible until restarted."
-            app:title="Maximum session time (mins)" />
+            app:summary="After this duration the task will shut off and no longer be accessible until restarted."
+            app:title="Maximum Session Time (min)" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_t_sc_photo"
             app:key="@string/preftag_t_sc_photo"
-            app:title="Take photos during reward delivery" />
+            app:title="Take a Photo During Reward Deliveries" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_t_sc_togglecue"
             app:key="@string/preftag_t_sc_togglecue"
-            app:title="Hide cue during reward delivery and ITI" />
+            app:title="Hide Cue During Reward Delivery and ITI" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_t_sc_alternatecue"
             app:key="@string/preftag_t_sc_alternatecue"
-            app:summary="Cue will randomly alternate (with replacement) between two fixed positions"
-            app:title="Randomly alternate cue position" />
+            app:summary="The cue will randomly alternate (with replacement) between two fixed positions."
+            app:title="Randomly Alternate Cue Position" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:title="\nCue settings">
+        app:title="Cue Settings">
 
         <ListPreference
             android:defaultValue="@integer/default_pr_shape"
             android:entries="@array/shapes"
             android:entryValues="@array/shapevalues"
             app:key="@string/preftag_t_sc_cue_shape"
-            app:title="Cue shape" />
+            app:title="Cue Shape" />
 
         <ListPreference
             android:defaultValue="@integer/default_t_sc_cue_colour"
             android:entries="@array/colournames"
             android:entryValues="@array/colourvalues"
             app:key="@string/preftag_t_sc_cue_colour"
-            app:title="Cue colour" />
+            app:title="Cue Colour" />
 
         <ListPreference
             android:defaultValue="@integer/default_t_sc_bordercolour"
             android:entries="@array/colournames"
             android:entryValues="@array/colourvalues"
             app:key="@string/preftag_t_sc_cue_border_colour"
-            app:title="Cue border colour" />
+            app:title="Cue Border Colour" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_cuewidth"
             android:max="2000"
             app:key="@string/preftag_t_sc_cuewidth"
-            app:title="Cue width (pixels)" />
+            app:title="Cue Width (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_cueheight"
             android:max="2000"
             app:key="@string/preftag_t_sc_cueheight"
-            app:title="Cue height (pixels)" />
+            app:title="Cue Height (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_sc_bordersize"
             android:max="80"
             app:key="@string/preftag_t_sc_bordersize"
-            app:title="Border thickness" />
+            app:title="Border Thickness (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             app:key="@string/preftag_t_sc_cuex"
-            app:title="X position of cue (pixels)" />
+            app:title="Cue X Position (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             app:key="@string/preftag_t_sc_cuey"
-            app:title="Y position of cue (pixels)" />
+            app:title="Cue Y Position (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             app:key="@string/preftag_t_sc_cuextwo"
-            app:title="Second X position of cue (pixels)" />
+            app:title="Cue X position #2 (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             app:key="@string/preftag_t_sc_cueytwo"
-            app:title="Second Y position of cue (pixels)" />
+            app:title="Cue Y position #2 (pixels)" />
 
     </PreferenceCategory>
 

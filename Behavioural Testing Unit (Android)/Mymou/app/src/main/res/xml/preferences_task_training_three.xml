@@ -4,8 +4,8 @@
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="@string/training_shrinking_moving_cue">
+        app:key="@string/preftag_task_settings"
+        app:title="Shrinking Moving Cue Task Settings">
 
         <SwitchPreferenceCompat
             app:defaultValue="false"
@@ -16,8 +16,8 @@
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_t_three_num_cue_press_shrink"
             android:max="@integer/max_t_three_num_cue_press_shrink"
-            app:min="1"
             app:key="@string/preftag_t_num_cue_press_shrink"
+            app:min="1"
             app:summary="The number of cue presses before the cue shrinks."
             app:title="Presses Until Cue Shrink" />
 

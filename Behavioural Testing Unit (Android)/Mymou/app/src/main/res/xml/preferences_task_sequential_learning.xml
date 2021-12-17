@@ -4,22 +4,22 @@
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="Settings for Sequential Learning task">
+        app:key="@string/preftag_task_settings"
+        app:title="Sequential Learning Task Settings">
 
         <ListPreference
             android:defaultValue="@integer/default_dm_map"
             android:entries="@array/dm_mapnames"
             android:entryValues="@array/dm_mapvalues"
             app:key="@string/preftag_dm_map"
-            app:title="Select map" />
+            app:title="Select Map" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_sl_seq_length"
             android:max="10"
             app:key="@string/preftag_sl_seq_length"
             app:min="4"
-            app:title="Sequence length" />
+            app:title="Sequence Length" />
 
     </PreferenceCategory>
 
