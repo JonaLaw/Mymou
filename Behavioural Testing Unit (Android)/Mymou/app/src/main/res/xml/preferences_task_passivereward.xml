@@ -4,44 +4,44 @@
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="Task settings">
+        app:key="@string/preftag_task_settings"
+        app:title="Passive Reward Task Settings">
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_pass_minrew"
             android:max="20000"
             app:key="@string/preftag_pass_minrew"
             app:min="200"
-            app:title="Minimum reward duration (ms). Tap to enter value" />
+            app:title="Minimum Reward Duration (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_pass_maxrew"
             android:max="20000"
             app:key="@string/preftag_pass_maxrew"
             app:min="1"
-            app:title="Maximum reward duration (ms). Tap to enter value" />
+            app:title="Maximum Reward Duration (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_pass_miniti"
             android:max="1000"
             app:key="@string/preftag_pass_miniti"
             app:min="1"
-            app:summary="A random ITI between the minimum and maximum inter-reward interval will be chosen each time. Tap to type number."
-            app:title="Minimum inter-reward interval (s)" />
+            app:summary="A random ITI between the minimum and maximum inter-reward interval will be chosen each time."
+            app:title="Minimum Inter-Reward Interval (s)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_pass_maxiti"
             android:max="1000"
             app:key="@string/preftag_pass_maxiti"
             app:min="1"
-            app:summary="A random ITI between the minimum and maximum inter-reward interval will be chosen each time. Tap to type number."
-            app:title="Maximum inter-reward interval (s)" />
+            app:summary="A random ITI between the minimum and maximum inter-reward interval will be chosen each time."
+            app:title="Maximum Inter-Reward Interval (s)" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_pass_stopsess"
             app:key="@string/preftag_pass_stopsess"
-            app:summary="If enabled, session will be halted after the specified length"
-            app:title="End session after a certain duration" />
+            app:summary="If enabled, session will be halted after the specified length."
+            app:title="End Session after Duration" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_pass_sess_length"
@@ -50,12 +50,13 @@
             app:key="@string/preftag_pass_sess_length"
             app:min="1"
             app:summary="After this duration task will shut off and no longer be accessible until restarted."
-            app:title="Maximum session time (mins)" />
+            app:title="Maximum session time (min)" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_pass_photo"
             app:key="@string/preftag_pass_photo"
-            app:title="Take photos during reward delivery" />
+            app:summary="Take a photo during reward delivery."
+            app:title="Take Photos" />
 
     </PreferenceCategory>
 

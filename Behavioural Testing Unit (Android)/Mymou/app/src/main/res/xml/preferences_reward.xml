@@ -5,65 +5,66 @@
     <PreferenceCategory
         android:layout="@layout/preferences_title"
         app:key="reward_settings"
-        app:title="Reward settings">
+        app:title="Reward Settings">
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_bluetooth"
             app:key="@string/preftag_bluetooth"
-            app:title="Enable bluetooth/reward system" />
+            app:title="Enable Bluetooth/Reward System" />
 
         <SwitchPreferenceCompat
-            android:summary="Device will beep on successful trials to aid secondary reinforcement"
             app:defaultValue="@bool/default_sound"
             app:key="@string/preftag_sound"
-            app:title="Enable sounds" />
+            app:summary="Device will beep on successful trials to aid secondary reinforcement."
+            app:title="Enable Sounds" />
 
         <Preference
             app:fragment="mymou.preferences.PrefsFragSoundPicker"
-            app:key="soundpicker_prefsfrag"
-            app:title="Choose sound for secondary reinforcer" />
+            app:key="@string/preftag_soundpicker"
+            app:title="Choose Sound for Secondary Reinforcer" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_num_rew_chans"
             android:max="@integer/max_num_rew_chans"
             app:key="@string/preftag_num_rew_chans"
             app:min="1"
-            app:summary="The number of channels that the reward system is connected to (and the number of options offered to the monkey after a successful trial)"
-            app:title="Number reward channels" />
+            app:summary="The number of channels that the reward system is connected to, and the number of options offered to the monkey after a successful trial."
+            app:title="Number of Reward Channels" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_rew_chan"
             android:max="@integer/max_num_rew_chans"
             app:key="@string/preftag_default_rew_chan"
             app:min="1"
-            app:summary="The reward channel automatically activated when number of reward channels is set to 1"
-            app:title="Default reward channel" />
+            app:summary="The reward channel automatically activated when number of reward channels is set to 1."
+            app:title="Default Reward Channel" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:max="@integer/max_reward_screen_duration"
             app:defaultValue="@integer/default_reward_screen_duration"
             app:key="@string/preftag_reward_screen_duration"
             app:summary="How long a task's trial success screen will show for."
-            app:title="Reward Screen duration (ms)" />
+            app:title="Reward Screen Duration (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:max="@integer/max_reward_juice_duration"
             app:defaultValue="@integer/default_reward_juice_duration"
             app:key="@string/preftag_reward_juice_duration"
             app:summary="How long the juice reward will be dispensed for."
-            app:title="Reward Juice duration (ms)" />
+            app:title="Reward Juice Duration (ms)" />
 
         <ListPreference
             android:defaultValue="@integer/default_rewardbackgroundcolour"
             android:entries="@array/colournames"
             android:entryValues="@array/colourvalues"
             app:key="@string/preftag_rewardbackgroundcolour"
-            app:title="Reward background colour" />
+            app:title="Reward Background Colour" />
 
         <Preference
             app:fragment="mymou.preferences.PrefsFragCommon"
             app:key="@string/preftag_bluetooth_strobes"
-            app:title="Choose strobe codes to send to arduino to switch on/off the reward delivery system" />
+            app:summary="Choose strobe codes to send to arduino to switch on/off the reward delivery system."
+            app:title="Choose Strobe Codes" />
 
     </PreferenceCategory>
 

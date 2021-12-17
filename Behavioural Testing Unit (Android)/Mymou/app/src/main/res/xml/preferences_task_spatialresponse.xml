@@ -4,31 +4,35 @@
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="Settings for Spatial Response task">
+        app:key="@string/preftag_task_settings"
+        app:title="Spatial Response Task Settings">
 
         <ListPreference
             android:defaultValue="@integer/default_sr_locations"
             android:entries="@array/spatialresponsenumcues"
             android:entryValues="@array/spatialresponsenumcues"
             app:key="@string/preftag_sr_locations"
-            app:title="Select number of spatial positions (2/4/8) to chose from" />
+            app:summary="Select the number of spatial positions (2/4/8) to chose from."
+            app:title="Number of Spatial Positions" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_sr_num_stimuli"
             android:max="8"
             app:key="@string/preftag_sr_num_stimuli"
-            app:title="Number of successive positions to memorise" />
+            app:summary="Select the number of successive positions to memorise."
+            app:title="Number of Successive Positions" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_sr_duration_on"
             app:key="@string/preftag_sr_duration_on"
-            app:title="Duration (ms) to show the cue" />
+            app:summary="The duration to show the cue."
+            app:title="Cue Duration (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_sr_duration_off"
             app:key="@string/preftag_sr_duration_off"
-            app:title="Wait time (ms) until choice" />
+            app:summary="The wait time until the choice."
+            app:title="Choice Wait Time (ms)" />
 
     </PreferenceCategory>
 

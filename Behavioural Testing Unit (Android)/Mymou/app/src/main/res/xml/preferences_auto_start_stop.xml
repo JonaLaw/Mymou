@@ -5,31 +5,31 @@
     <PreferenceCategory
         android:layout="@layout/preferences_title"
         app:key="auto_start_stop"
-        app:title="Automatic startup and shutdown">
+        app:title="Automatic Startup and Shutdown">
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_autostart"
             app:key="@string/preftag_autostart"
-            app:summary="If selected, task will automatically start when the selected time occurs"
-            app:title="Automatic device startup" />
+            app:summary="If selected, the task will automatically start when the selected time occurs."
+            app:title="Automatic Device Startup" />
 
         <Preference
             app:fragment="mymou.preferences.PrefsFragTimePicker"
             app:isPreferenceVisible="false"
             app:key="@string/preftag_autostarttimepicker"
-            app:title="Set start up time" />
+            app:title="Set Start Up Time" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_autostop"
             app:key="@string/preftag_autostop"
-            app:summary="If selected, task will automatically enter a low power saving mode when the selected time occurs. During this time the task will not be accessible to the subjects."
-            app:title="Automatic device shutdown" />
+            app:summary="If selected, the task will automatically enter a low power saving mode when the selected time occurs. During this time the task will not be accessible to the subjects."
+            app:title="Automatic Device Shutdown" />
 
         <Preference
             app:fragment="mymou.preferences.PrefsFragTimePicker"
             app:isPreferenceVisible="false"
             app:key="@string/preftag_autostoptimepicker"
-            app:title="Set shut down time" />
+            app:title="Set Shut Down Time" />
 
     </PreferenceCategory>
 

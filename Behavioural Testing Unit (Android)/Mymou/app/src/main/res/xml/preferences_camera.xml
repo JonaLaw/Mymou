@@ -15,7 +15,7 @@
         <Preference
             app:fragment="mymou.preferences.PrefsActCamPicker"
             app:key="@string/preftag_cam_picker"
-            app:title="Choose camera to use for photos" />
+            app:title="Choose Camera and Resolution" />
 
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_facerecog"
@@ -25,8 +25,9 @@
         <SwitchPreferenceCompat
             app:defaultValue="@bool/default_savefacerecogarrays"
             app:key="@string/preftag_savefacerecogarrays"
-            app:summary="The facial recognition module will then use these arrays to train the classifier. This option is expensive to run, however."
-            app:title="Convert photos to integer arrays and save them" />
+            app:summary="The facial recognition module will then use these arrays to train the classifier.
+            \nThis option is expensive to run."
+            app:title="Convert Photos to Integer Arrays and Save" />
 
         <SwitchPreferenceCompat
             app:defaultValue="false"
@@ -36,7 +37,8 @@
         <Preference
             app:fragment="mymou.preferences.PrefsActCropPicker"
             app:key="@string/preftag_crop_picker"
-            app:title="Configure crop boundaries of photos" />
+            app:summary="Uses the Selfie Camera and a resolution of 320x240 for the time being."
+            app:title="Configure Crop Boundaries of Photos" />
 
     </PreferenceCategory>
 

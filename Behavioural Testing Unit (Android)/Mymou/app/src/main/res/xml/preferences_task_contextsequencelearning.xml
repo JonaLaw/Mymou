@@ -4,57 +4,59 @@
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="Settings for Context Sequence Learning">
+        app:key="@string/preftag_task_settings"
+        app:title="Context Sequence Learning Task Settings">
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_tone_delay"
             app:key="@string/preftag_csl_tone_delay"
-            app:summary="e.g. when playing A-B what is the length of time after A starts that B plays."
-            app:title="Time between each individual sound and its partner (ms)" />
+            app:summary="The length of time between partner sounds.
+            \ne.g. When playing A-B what is the length of time after A starts that B plays."
+            app:title="Time Between Partner Sounds (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_pair_tone_delay"
             app:key="@string/preftag_csl_pair_tone_delay"
-            app:summary="e.g. when playing A-B-response-reward-C-D, what is the length of time reward that C starts playing."
-            app:title="Time between each pair of sounds (ms)" />
+            app:summary="The length of time between pairs of sound
+            \ne.g. When playing A-B-response-reward-C-D, what is the length of time reward that C starts playing."
+            app:title="Time Between Sound Pairs (ms)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_rtbase"
             app:key="@string/preftag_csl_rtbase"
-            app:summary="Reward amount is scaled by this amount. (e.g. if set to 1500ms and they react in 750ms, they will receive 750ms of reward)."
-            app:title="Maximum reaction time allowed (ms)" />
+            app:summary="The reward amount is scaled by this amount.\ne.g. If set to 1500ms and they react in 750ms, they will receive 750ms of reward."
+            app:title="Maximum Reaction Time Allowed (ms)" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
         android:layout="@layout/preferences_title"
-        app:key="task_settings"
-        app:title="Layout settings">
+        app:key="@string/preftag_task_settings"
+        app:title="Layout Settings">
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_waitcuex"
             android:max="1200"
             app:key="@string/preftag_csl_waitcuex"
-            app:title="Wait cue x position (pixels)" />
+            app:title="Wait Cue X Position (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_waitcuey"
             android:max="1800"
             app:key="@string/preftag_csl_waitcuey"
-            app:title="Wait cue y position (pixels)" />
+            app:title="Wait Cue Y Position (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_presscuex"
             android:max="1200"
             app:key="@string/preftag_csl_presscuex"
-            app:title="Go cue x position (pixels)" />
+            app:title="Go Cue X Position (pixels)" />
 
         <mymou.preferences.SeekBarPreferenceCustom
             android:defaultValue="@integer/default_csl_presscuey"
             android:max="1800"
             app:key="@string/preftag_csl_presscuey"
-            app:title="Go cue y position (pixels)" />
+            app:title="Go Cue Y Position (pixels)" />
 
     </PreferenceCategory>
 
