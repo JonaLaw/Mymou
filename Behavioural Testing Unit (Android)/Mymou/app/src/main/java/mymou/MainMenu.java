@@ -366,6 +366,8 @@ public class MainMenu extends Activity {
                     startTask();
                     break;
                 case R.id.buttonSettings:
+                    // Settings can only be opened if all permissions are granted
+                    if (!checkPermissions()) return;
                     startActivity(new Intent(MainMenu.this, PrefsActSystem.class)
                             .putExtra(getString(R.string.preftag_settings_to_load),
                                     getString(R.string.preftag_menu_prefs)));
