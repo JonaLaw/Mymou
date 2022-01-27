@@ -1,7 +1,5 @@
 # Mymou: A standalone touchscreen in-cage testing device
 
-#### Download and install the latest Android release [here](https://github.com/jamesbutler01/Mymou/tree/master/Behavioural%20Testing%20Unit%20(Android)/Mymou/app/build/outputs/apk/debug)
-
 ### 1) Reward Delivery Interface (Arduino)
 - A simple script that runs on an Arduino Uno board
 - It receives Bluetooth commands and then switches on or off digital out channels on the Arduino board as required
